@@ -79,7 +79,7 @@
     100% { opacity: 0; transform: scaleX(-1) translateX(14px) scale(.7); }
   }
 
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; display: flex; flex-direction: column; min-height: 0; box-shadow: 0 1px 3px rgba(0,0,0,.03); }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; display: flex; flex-direction: column; min-height: 0; box-shadow: 0 1px 3px rgba(0,0,0,.03); position: relative; }
   .card-hd { padding: 8px 14px; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; background: #f7f9fc; border-radius: 8px 8px 0 0; }
   .card-hd .tag { font-size: 11px; font-weight: 400; color: var(--muted); }
   .card-bd { padding: 10px 12px; flex: 1; min-height: 0; overflow: auto; }
@@ -190,6 +190,15 @@
   /* ===== 中栏 后端代码 ===== */
   .mid .code-card { flex: 1; min-height: 0; }
   .mid .code-card .card-bd { background: #1e2a3a; padding: 10px 0; }
+  /* 步骤说明气泡（聊天气泡风格，跨栏浮动 + 平移动画） */
+  .step-bubble { position: fixed; width: 222px; background: #e8f1ff; border-radius: 4px 14px 14px 14px; padding: 10px 13px; font-size: 12px; line-height: 1.6; color: #2c3e50; box-shadow: 0 8px 24px rgba(0,0,0,.28); z-index: 1200; overflow: visible; animation: bubbleIn .25s ease-out; transition: left .35s ease, top .35s ease; }
+  .step-bubble::after { content: ''; position: absolute; inset: 5px; border: 1px dashed #9db8e6; border-radius: 10px; pointer-events: none; }
+  .step-bubble::before { content: ''; position: absolute; width: 12px; height: 12px; background: #e8f1ff; transform: rotate(45deg); border-radius: 3px; display: none; }
+  .step-bubble.tail-left::before { display: block; left: -5px; top: 12px; }
+  .step-bubble.tail-down::before { display: block; left: 50%; bottom: -5px; top: auto; margin-left: -6px; }
+  .step-bubble.tail-right::before { display: block; right: -5px; left: auto; top: 12px; }
+  .step-bubble .term { color: var(--primary); border-bottom-color: var(--primary); }
+  @keyframes bubbleIn { from { opacity: 0; } to { opacity: 1; } }
   .code-line { display: flex; font-family: Consolas, "Courier New", monospace; font-size: 13px; line-height: 1.7; padding: 0 12px; transition: background .2s; }
   .code-line .ln { width: 30px; text-align: right; color: #5a6a82; padding-right: 12px; user-select: none; flex-shrink: 0; }
   .code-line .lc { color: #d4d4d4; white-space: pre; }
@@ -329,7 +338,7 @@
 
   <!-- 中栏 -->
   <div class="col mid">
-    <div class="card code-card">
+    <div class="card code-card" id="codeCard">
       <div class="card-hd">
         <span>后端代码区 · <span class="term" data-tip="API：应用程序接口，前后端约定好的数据交流通道">Python</span> 伪代码（单步调试）</span>
         <span class="tag" id="codeTag">save 接口</span>
@@ -374,6 +383,9 @@
   </div>
 </div>
 
+<!-- 步骤说明气泡（跨栏浮动） -->
+<div class="step-bubble" id="stepBubble" style="display:none;"></div>
+
 <!-- JSON 报文浮窗 -->
 <div class="json-popup req" id="jsonModal" style="display:none;">
   <div class="jp-hd">
@@ -408,8 +420,6 @@
     <button class="btn btn-ghost" id="resetBtn">重置</button>
     <span class="bb-step">步骤 <b id="stepCounter">0 / 0</b></span>
   </div>
-  <div class="bb-explain" id="explain">选择场景后点击「下一步」逐步演示，或点击「自动播放」全自动展示全链路。也可直接在左侧页面操作触发演示。</div>
-  <div class="bb-hint">提示：鼠标悬浮在 <span class="term" data-tip="API：应用程序接口，前后端约定好的数据交流通道">API</span> / <span class="term" data-tip="JSON：一种轻量级的数据格式，用键值对表示结构化数据">JSON</span> / <span class="term" data-tip="SQL：操作数据库的专用语言，用来增删改查数据">SQL</span> 等术语上可查看通俗解释。</div>
 </div>
 
 <script>
@@ -718,7 +728,53 @@
   }
   function setReqJson(t){ state.lastReqJson = t || ''; }
   function setRespJson(t){ state.lastRespJson = t || ''; }
-  function setExplain(html){ $('explain').innerHTML = html; }
+  function setExplain(html, node, line){
+    var bubble = $('stepBubble');
+    if (!bubble) return;
+    bubble.innerHTML = html;
+    bubble.style.display = '';
+    positionBubble(node == null ? 0 : node, line || null);
+  }
+  function positionBubble(node, line){
+    var bubble = $('stepBubble');
+    if (!bubble) return;
+    bubble.classList.remove('tail-left','tail-down','tail-right');
+    var bw = bubble.offsetWidth || 222, bh = bubble.offsetHeight || 60;
+    var left = 100, top = 90;
+    if (node === 2 && line){
+      var lineEl = codeBody.querySelector('.code-line[data-line="' + line + '"]');
+      var card = $('codeCard');
+      if (lineEl && card){
+        var lr = lineEl.getBoundingClientRect();
+        var cr = card.getBoundingClientRect();
+        top = lr.top + lr.height / 2 - bh / 2;
+        left = cr.right - bw - 14;
+        bubble.classList.add('tail-left');
+      } else {
+        var mid = document.querySelector('.col.mid');
+        if (mid){ var mr = mid.getBoundingClientRect(); left = mr.left + mr.width / 2 - bw / 2; top = mr.top + 44; }
+        bubble.classList.add('tail-down');
+      }
+    } else {
+      var anchor, off = 44;
+      if (node === 0 || node === 4){ anchor = document.querySelector('.col.left'); off = 76; }
+      else if (node === 1){ anchor = $('flowBtns'); off = 16; }
+      else if (node === 3){ anchor = document.querySelector('.col.right'); off = 44; }
+      else { anchor = document.querySelector('.col.mid'); off = 44; }
+      if (anchor){
+        var ar = anchor.getBoundingClientRect();
+        left = ar.left + ar.width / 2 - bw / 2;
+        top = ar.top + off;
+        bubble.classList.add('tail-down');
+      }
+    }
+    if (left < 8) left = 8;
+    if (left + bw > window.innerWidth - 8) left = window.innerWidth - 8 - bw;
+    if (top < 80) top = 80;
+    if (top + bh > window.innerHeight - 130) top = window.innerHeight - 130 - bh;
+    bubble.style.left = left + 'px';
+    bubble.style.top = top + 'px';
+  }
   function updateStepCounter(){
     var idx = state.stepIndex < 0 ? 0 : state.stepIndex + 1;
     $('stepCounter').innerHTML = idx + ' / ' + state.steps.length;
@@ -959,7 +1015,7 @@
     if (step.respJson != null) setRespJson(step.respJson);
     if (step.db) applyDb(step.db);
     if (step.frontend) applyFrontend(step.frontend, step);
-    setExplain(termify(step.explain));
+    setExplain(termify(step.explain), step.node, step.line);
     updateStepCounter();
     flashArrowForNode(step.node, prevNode);
     if (step.node === 1) openJsonModal('req');
