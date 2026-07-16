@@ -141,6 +141,22 @@
   .jp-bd { padding: 10px 12px; }
   .jp-bd pre { background: #1e2a3a; color: #9cdcfe; padding: 10px 12px; border-radius: 6px; font-size: 12px; font-family: Consolas, monospace; white-space: pre-wrap; word-break: break-all; min-height: 48px; max-height: 38vh; overflow: auto; margin: 0; }
   .jp-ft { padding: 8px 14px; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted); background: #fafbfd; line-height: 1.5; border-radius: 0 0 10px 10px; }
+  /* 数据库交互浮窗（表格形式，二三栏之间） */
+  .db-popup { position: fixed; width: 340px; max-width: 36vw; background: #fff; border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 12px 40px rgba(0,0,0,.22); z-index: 1500; overflow: visible; }
+  .db-popup::before { content: ''; position: absolute; right: -8px; top: 50%; transform: translateY(-50%); border: 8px solid transparent; border-left-color: #fff; }
+  .dp-hd { display: flex; align-items: center; justify-content: space-between; padding: 9px 14px; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 700; border-radius: 10px 10px 0 0; }
+  .db-popup.sql .dp-hd { background: #eafbf1; color: var(--green); border-bottom-color: #bfe9cf; }
+  .db-popup.result .dp-hd { background: #fff7e6; color: #d46b08; border-bottom-color: #ffe58f; }
+  .dp-close { border: none; background: #eef1f6; width: 24px; height: 24px; border-radius: 6px; cursor: pointer; font-size: 13px; color: #5a6678; }
+  .dp-close:hover { background: #e1e6ee; }
+  .dp-bd { padding: 10px 12px; }
+  .dp-bd pre { background: #1e2a3a; color: #9cdcfe; padding: 10px 12px; border-radius: 6px; font-size: 12px; font-family: Consolas, monospace; white-space: pre-wrap; word-break: break-all; margin: 0; max-height: 26vh; overflow: auto; }
+  .dp-bd table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .dp-bd table th, .dp-bd table td { border: 1px solid var(--border); padding: 4px 6px; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70px; }
+  .dp-bd table th { background: #f7f9fc; color: #5a6678; }
+  .dp-bd table td.c-ct { max-width: 130px; }
+  .dp-bd .dp-msg { font-size: 13px; color: var(--green); font-weight: 600; padding: 4px 0; }
+  .dp-ft { padding: 8px 14px; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted); background: #fafbfd; line-height: 1.5; border-radius: 0 0 10px 10px; }
   .btn { border: none; border-radius: 5px; padding: 6px 12px; font-size: 13px; cursor: pointer; font-family: inherit; transition: all .15s; white-space: nowrap; }
   .btn-primary { background: var(--primary); color: #fff; }
   .btn-primary:hover { background: #1f5fd6; }
@@ -318,7 +334,14 @@
     </div>
   </div>
 
-  <div class="arrow-slot" id="arrowMR">➜</div>
+  <div class="flow-btns" id="dbFlowBtns">
+    <button class="flow-btn req" id="dbExecBtn" title="执行 SQL：点击查看后端发给数据库的语句">
+      <span class="fb-arrow">➜</span><span class="fb-lbl">执行</span>
+    </button>
+    <button class="flow-btn resp" id="dbResultBtn" title="查询结果：点击查看数据库返回的数据">
+      <span class="fb-arrow">➜</span><span class="fb-lbl">结果</span>
+    </button>
+  </div>
 
   <!-- 右栏 -->
   <div class="col right">
@@ -352,6 +375,16 @@
   </div>
   <div class="jp-bd"><pre id="modalJson">（暂无）</pre></div>
   <div class="jp-ft" id="modalFoot"></div>
+</div>
+
+<!-- 数据库交互浮窗（表格形式，二三栏之间） -->
+<div class="db-popup sql" id="dbModal" style="display:none;">
+  <div class="dp-hd">
+    <span id="dbModalTitle">执行 SQL</span>
+    <button class="dp-close" id="dbModalClose">✕</button>
+  </div>
+  <div class="dp-bd" id="dbModalBody"></div>
+  <div class="dp-ft" id="dbModalFoot"></div>
 </div>
 
 <!-- 底部控制栏 -->
@@ -447,7 +480,8 @@
     lastParams: null,
     selectedId: null,
     lastReqJson: '',
-    lastRespJson: ''
+    lastRespJson: '',
+    dbResult: null
   };
 
   // ---------- DOM ----------
@@ -535,7 +569,7 @@
         { node: 2, line: 6, param: reqJson, explain: '从 JSON 中取出 content（正文字段）' },
         { node: 2, line: 7, param: reqJson, sql: sql, explain: '把标题和内容拼成一条 INSERT 插入语句（SQL）' },
         { node: 3, line: 8, param: reqJson, sql: sql, db: { type: 'insert', newNote: newNote }, explain: '后端把 SQL 发给数据库，正式把数据写入表中' },
-        { node: 2, line: 9, param: reqJson, sql: sql, result: result, explain: '数据库写入成功，后端组装返回结果' },
+        { node: 2, line: 9, param: reqJson, sql: sql, result: result, dbResult: { type: 'insert', row: newNote }, explain: '数据库写入成功，后端组装返回结果' },
         { node: 4, param: reqJson, sql: sql, result: result, respJson: result, frontend: 'addNote', frontendId: newId, explain: '后端把结果以 JSON 返回前端，页面刷新笔记列表并更新总数' }
       );
     } else if (scenario === 'get'){
@@ -550,7 +584,7 @@
         { node: 2, line: 4, param: reqJson2, explain: '后端进入 get 接口，从请求中取出笔记 ID' },
         { node: 2, line: 5, param: reqJson2, sql: sql2, explain: '把 ID 拼成一条按主键查询的 SELECT 语句（SQL）' },
         { node: 3, line: 6, param: reqJson2, sql: sql2, db: { type: 'query', ids: [id] }, explain: '后端把 SQL 发给数据库，查询命中的行' },
-        { node: 2, line: 7, param: reqJson2, sql: sql2, result: result2, explain: '把查询到的数据组装成返回结果' },
+        { node: 2, line: 7, param: reqJson2, sql: sql2, result: result2, dbResult: { type: 'row', row: note }, explain: '把查询到的数据组装成返回结果' },
         { node: 4, param: reqJson2, sql: sql2, result: result2, respJson: result2, frontend: 'highlightNote', frontendId: id, explain: '后端把结果以 JSON 返回前端，页面展示该笔记的详情' }
       );
     } else if (scenario === 'list'){
@@ -566,7 +600,7 @@
         { node: 2, line: 4, param: reqJson3, explain: '后端进入 list 接口，取出关键词' },
         { node: 2, line: 5, param: reqJson3, sql: sql3, explain: '把关键词拼成一条模糊查询的 SELECT 语句（SQL）' },
         { node: 3, line: 6, param: reqJson3, sql: sql3, db: { type: 'query', ids: ids }, frontend: 'flashMatched', frontendKeyword: keyword, explain: '后端把 SQL 发给数据库，查询所有标题包含关键词的行，命中的行高亮' },
-        { node: 2, line: 7, param: reqJson3, sql: sql3, result: result3, explain: '把查询到的列表组装成返回结果' },
+        { node: 2, line: 7, param: reqJson3, sql: sql3, result: result3, dbResult: { type: 'rows', rows: matched }, explain: '把查询到的列表组装成返回结果' },
         { node: 4, param: reqJson3, sql: sql3, result: result3, respJson: result3, frontend: 'filterList', frontendKeyword: keyword, explain: '后端把结果以 JSON 返回前端，页面列表只展示命中的笔记' }
       );
     } else if (scenario === 'statistic'){
@@ -579,7 +613,7 @@
         { node: 1, param: reqJson4, reqJson: reqJson4, explain: '前端发起无参数请求，通过网络发给后端的 statistic 接口（API）' },
         { node: 2, line: 4, param: reqJson4, sql: sql4, explain: '后端进入 statistic 接口，拼成一条 COUNT 聚合统计语句（SQL）' },
         { node: 3, line: 5, param: reqJson4, sql: sql4, db: { type: 'statistic' }, explain: '后端把 SQL 发给数据库，统计全部笔记数量' },
-        { node: 2, line: 6, param: reqJson4, sql: sql4, result: result4, explain: '把统计结果组装成返回数据' },
+        { node: 2, line: 6, param: reqJson4, sql: sql4, result: result4, dbResult: { type: 'stat', total: total }, explain: '把统计结果组装成返回数据' },
         { node: 4, param: reqJson4, sql: sql4, result: result4, respJson: result4, frontend: 'updateStat', explain: '后端把结果以 JSON 返回前端，页面刷新笔记总数' }
       );
     }
@@ -772,12 +806,13 @@
   function flashArrowForNode(curr, prev){
     if (curr === prev) return;
     if (curr === 1 && prev <= 0) highlightFlow('req');
-    else if (curr === 3 && prev === 2) flashArrow('MR', 'right');
-    else if (curr === 2 && prev === 3) flashArrow('MR', 'left');
+    else if (curr === 3 && prev === 2) highlightFlow('dbExec');
+    else if (curr === 2 && prev === 3) highlightFlow('dbResult');
     else if (curr === 4 && prev === 2) highlightFlow('resp');
   }
   function highlightFlow(which){
-    var el = $(which === 'req' ? 'reqBtn' : 'respBtn');
+    var id = which === 'req' ? 'reqBtn' : which === 'resp' ? 'respBtn' : which === 'dbExec' ? 'dbExecBtn' : 'dbResultBtn';
+    var el = $(id);
     if (!el) return;
     el.classList.remove('highlight'); void el.offsetWidth; el.classList.add('highlight');
     el.classList.add('has-data');
@@ -805,6 +840,60 @@
     }
   }
   function closeJsonModal(){ $('jsonModal').style.display = 'none'; }
+  function rowTable(rows){
+    var html = '<table><thead><tr><th>id</th><th>title</th><th>content</th><th>create_time</th></tr></thead><tbody>';
+    for (var i = 0; i < rows.length; i++){
+      var n = rows[i];
+      html += '<tr><td>' + n.id + '</td><td>' + esc(n.title) + '</td><td class="c-ct">' + esc(n.content) + '</td><td>' + esc(n.create_time) + '</td></tr>';
+    }
+    html += '</tbody></table>';
+    return html;
+  }
+  function renderResultTable(dr){
+    if (!dr) return '<div class="dp-msg">（暂无结果，请先执行到结果步骤）</div>';
+    if (dr.type === 'insert') return '<div class="dp-msg">写入成功，影响 1 行</div>' + rowTable([dr.row]);
+    if (dr.type === 'row') return rowTable([dr.row]);
+    if (dr.type === 'rows'){ if (!dr.rows.length) return '<div class="dp-msg">未命中任何行（0 条）</div>'; return rowTable(dr.rows); }
+    if (dr.type === 'stat') return '<table><thead><tr><th>total</th></tr></thead><tbody><tr><td>' + dr.total + '</td></tr></tbody></table>';
+    return '<div class="dp-msg">（暂无）</div>';
+  }
+  function openDbModal(which){
+    var popup = $('dbModal');
+    var body = $('dbModalBody');
+    if (which === 'sql'){
+      var sql = state.vars.sql;
+      $('dbModalTitle').textContent = '执行 SQL（后端 -> 数据库）';
+      if (sql){
+        var op = sql.indexOf('INSERT') === 0 ? 'INSERT 写入' : (sql.indexOf('COUNT') >= 0 ? 'COUNT 聚合' : 'SELECT 查询');
+        body.innerHTML = '<pre>' + esc(sql) + '</pre>';
+        $('dbModalFoot').textContent = '后端把拼接好的 SQL 语句发给数据库执行（' + op + '）。';
+      } else {
+        body.innerHTML = '<div class="dp-msg">（暂无，请先执行到数据库步骤）</div>';
+        $('dbModalFoot').textContent = '后端把拼接好的 SQL 语句发给数据库执行。';
+      }
+      popup.className = 'db-popup sql';
+    } else {
+      $('dbModalTitle').textContent = '查询结果（数据库 -> 后端）';
+      body.innerHTML = renderResultTable(state.dbResult);
+      $('dbModalFoot').textContent = '数据库执行完毕，把命中的数据以表格形式返回后端。';
+      popup.className = 'db-popup result';
+    }
+    popup.style.display = '';
+    var btn = $(which === 'sql' ? 'dbExecBtn' : 'dbResultBtn');
+    if (btn){
+      var r = btn.getBoundingClientRect();
+      var pw = popup.offsetWidth, ph = popup.offsetHeight;
+      var top = r.top + r.height / 2 - ph / 2;
+      var maxTop = window.innerHeight - 150 - ph;
+      if (top > maxTop) top = maxTop;
+      if (top < 76) top = 76;
+      popup.style.top = top + 'px';
+      var left = r.left - 10 - pw;
+      if (left < 8) left = 8;
+      popup.style.left = left + 'px';
+    }
+  }
+  function closeDbModal(){ $('dbModal').style.display = 'none'; }
 
   // ---------- 执行步骤 ----------
   function applyStep(i){
@@ -817,6 +906,7 @@
     if (step.param != null) state.vars.param = step.param;
     if (step.sql != null) state.vars.sql = step.sql;
     if (step.result != null) state.vars.result = step.result;
+    if (step.dbResult) state.dbResult = step.dbResult;
     renderVars();
     if (step.reqJson != null) setReqJson(step.reqJson);
     if (step.respJson != null) setRespJson(step.respJson);
@@ -826,8 +916,10 @@
     updateStepCounter();
     flashArrowForNode(step.node, prevNode);
     if (step.node === 1) openJsonModal('req');
-    else if (step.node === 4) openJsonModal('resp');
-    else if (step.node === 2 || step.node === 3) closeJsonModal();
+    else if (step.node === 2 && prevNode === 1) closeJsonModal();
+    else if (step.node === 3) { closeJsonModal(); openDbModal('sql'); }
+    else if (step.node === 2 && prevNode === 3) { closeDbModal(); openDbModal('result'); }
+    else if (step.node === 4) { closeDbModal(); openJsonModal('resp'); }
   }
 
   function nextStep(){
@@ -873,10 +965,13 @@
     state.currentNode = -1;
     state.currentMax = -1;
     setReqJson(''); setRespJson('');
-    closeJsonModal();
-    var rb = $('reqBtn'), sb = $('respBtn');
+    state.dbResult = null;
+    closeJsonModal(); closeDbModal();
+    var rb = $('reqBtn'), sb = $('respBtn'), eb = $('dbExecBtn'), tb = $('dbResultBtn');
     if (rb) rb.classList.remove('has-data','highlight');
     if (sb) sb.classList.remove('has-data','highlight');
+    if (eb) eb.classList.remove('has-data','highlight');
+    if (tb) tb.classList.remove('has-data','highlight');
     renderCode(); renderNotes(); renderDb(); renderVars(); renderProgress();
     highlightLine(null);
     $('dbStat').textContent = '统计结果：—';
@@ -940,7 +1035,10 @@
     $('searchInput').addEventListener('keydown', function(e){ if (e.key === 'Enter') triggerSearch(); });
     $('reqBtn').addEventListener('click', function(){ openJsonModal('req'); });
     $('respBtn').addEventListener('click', function(){ openJsonModal('resp'); });
+    $('dbExecBtn').addEventListener('click', function(){ openDbModal('sql'); });
+    $('dbResultBtn').addEventListener('click', function(){ openDbModal('result'); });
     $('modalClose').addEventListener('click', closeJsonModal);
+    $('dbModalClose').addEventListener('click', closeDbModal);
     noteListEl.addEventListener('click', function(e){
       var item = e.target.closest('.note-item');
       if (item) triggerGet(+item.dataset.id);
