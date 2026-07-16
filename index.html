@@ -362,8 +362,8 @@
 <div id="intro-cover">
   <div class="cov-inner">
     <div class="cov-tag">交互式可视化科普</div>
-    <h1 class="cov-title">一个 <b>Web 请求</b><br/>是怎么跑通的？</h1>
-    <div class="cov-sub">从产品构想到代码落地，再到 页面 -> JSON -> 后端 -> 数据库 的完整链路，交互式逐步看清。</div>
+    <h1 class="cov-title"><b>Web 请求</b>全链路图解</h1>
+    <div class="cov-sub">从产品构想到代码落地，交互式拆解 页面 → JSON → 后端 → 数据库 的完整链路</div>
     <div class="cov-chars" id="cov-chars"></div>
     <button class="cov-start" id="cov-start">开始旅程 -&gt;</button>
   </div>
@@ -1379,26 +1379,26 @@
   function resetApi(){ ['save','get','list','stat'].forEach(function(n){ el('i-api-'+n).style.display='none'; }); }
 
   var STEPS = [
-    { char:'boss', cap:'我想做个像苹果备忘录那样的软件--简单、好用，能记事、能搜、还能统计。', fn:function(){ showRegion('i-ref'); el('i-code').style.display='none'; el('i-backend').style.display='none'; } },
-    { char:'boss', cap:'这事儿就交给老潘了，你先把原型理出来。', fn:function(){ showRegion('i-ref'); } },
-    { char:'pm', cap:'好嘞，我先把页面结构搭出来--最上面是标题栏。', fn:function(){ showRegion('i-mock'); el('i-code').style.display='none'; el('i-backend').style.display='none'; resetMock(); reveal('n-header'); } },
-    { char:'pm', cap:'标题栏下面放个搜索框，方便找笔记。', fn:function(){ reveal('n-search'); } },
-    { char:'pm', cap:'再画出笔记列表，一条条排下来。', fn:function(){ reveal('n-list'); } },
-    { char:'pm', cap:'右下角加个「新建」按钮，标题栏旁边显示总数。', fn:function(){ reveal('n-fab'); } },
-    { char:'pm', cap:'点开任意一条还能看详情--原型齐活了，小雅接手。', fn:function(){ reveal('n-detail'); } },
-    { char:'ui', cap:'我来给它整整容，先定个主色调--蓝色，清爽又专业。', fn:function(){ morph('n-app'); morph('n-header'); } },
-    { char:'ui', cap:'列表做成卡片，加阴影、拉间距，要有呼吸感。', fn:function(){ morph('n-list'); } },
-    { char:'ui', cap:'搜索框和按钮也统一一下样式，看着才舒服。', fn:function(){ morph('n-search'); morph('n-fab'); } },
-    { char:'ui', cap:'详情区顺手美化一下--设计稿搞定，阿强该你了。', fn:function(){ morph('n-detail'); } },
-    { char:'dev', cap:'收到，我先把设计稿翻译成代码--先写页面结构。', fn:function(){ el('i-code').style.display=''; el('i-backend').style.display='none'; resetCode(); el('i-code-html').style.display=''; } },
-    { char:'dev', cap:'再补上样式，让页面长得跟设计稿一样。', fn:function(){ el('i-code-css').style.display=''; } },
-    { char:'dev', cap:'最后加上交互--点击、搜索、新建，都能动了。', fn:function(){ el('i-code-js').style.display=''; } },
-    { char:'dev', cap:'后端我也同步写好了接口--这是保存笔记的。', fn:function(){ el('i-code').style.display='none'; el('i-backend').style.display=''; resetApi(); el('i-api-save').style.display=''; } },
-    { char:'dev', cap:'这个是查看详情的。', fn:function(){ el('i-api-get').style.display=''; } },
-    { char:'dev', cap:'搜索列表的。', fn:function(){ el('i-api-list').style.display=''; } },
-    { char:'dev', cap:'还有统计总数的。', fn:function(){ el('i-api-stat').style.display=''; } },
-    { char:'dev', cap:'前后端都就绪了，我带你看看一个请求是怎么跑通的。', fn:function(){ showRegion('i-overview'); el('i-overview').classList.add('i-flow-on'); } },
-    { char:null, nobubble:true, cap:'点击下方按钮，进入 Web 请求全链路演示。', fn:function(){ el('i-enter').style.display=''; } }
+    { char:'boss', cap:'我想做个像苹果备忘录那样的软件--简单、好用，能记事、能搜、还能统计', fn:function(){ showRegion('i-ref'); el('i-code').style.display='none'; el('i-backend').style.display='none'; } },
+    { char:'boss', cap:'这事儿就交给老潘了，你先把原型理出来', fn:function(){ showRegion('i-ref'); } },
+    { char:'pm', cap:'好嘞，我先把页面结构搭出来--最上面是标题栏', fn:function(){ showRegion('i-mock'); el('i-code').style.display='none'; el('i-backend').style.display='none'; resetMock(); reveal('n-header'); } },
+    { char:'pm', cap:'标题栏下面放个搜索框，方便找笔记', fn:function(){ reveal('n-search'); } },
+    { char:'pm', cap:'再画出笔记列表，一条条排下来', fn:function(){ reveal('n-list'); } },
+    { char:'pm', cap:'右下角加个「新建」按钮，标题栏旁边显示总数', fn:function(){ reveal('n-fab'); } },
+    { char:'pm', cap:'点开任意一条还能看详情--原型齐活了，小雅接手', fn:function(){ reveal('n-detail'); } },
+    { char:'ui', cap:'我来给它整整容，先定个主色调--蓝色，清爽又专业', fn:function(){ morph('n-app'); morph('n-header'); } },
+    { char:'ui', cap:'列表做成卡片，加阴影、拉间距，要有呼吸感', fn:function(){ morph('n-list'); } },
+    { char:'ui', cap:'搜索框和按钮也统一一下样式，看着才舒服', fn:function(){ morph('n-search'); morph('n-fab'); } },
+    { char:'ui', cap:'详情区顺手美化一下--设计稿搞定，阿强该你了', fn:function(){ morph('n-detail'); } },
+    { char:'dev', cap:'收到，我先把设计稿翻译成代码--先写页面结构', fn:function(){ el('i-code').style.display=''; el('i-backend').style.display='none'; resetCode(); el('i-code-html').style.display=''; } },
+    { char:'dev', cap:'再补上样式，让页面长得跟设计稿一样', fn:function(){ el('i-code-css').style.display=''; } },
+    { char:'dev', cap:'最后加上交互--点击、搜索、新建，都能动了', fn:function(){ el('i-code-js').style.display=''; } },
+    { char:'dev', cap:'后端我也同步写好了接口--这是保存笔记的', fn:function(){ el('i-code').style.display='none'; el('i-backend').style.display=''; resetApi(); el('i-api-save').style.display=''; } },
+    { char:'dev', cap:'这个是查看详情的', fn:function(){ el('i-api-get').style.display=''; } },
+    { char:'dev', cap:'搜索列表的', fn:function(){ el('i-api-list').style.display=''; } },
+    { char:'dev', cap:'还有统计总数的', fn:function(){ el('i-api-stat').style.display=''; } },
+    { char:'dev', cap:'前后端都就绪了，我带你看看一个请求是怎么跑通的', fn:function(){ showRegion('i-overview'); el('i-overview').classList.add('i-flow-on'); } },
+    { char:null, nobubble:true, cap:'点击下方按钮，进入 Web 请求全链路演示', fn:function(){ el('i-enter').style.display=''; } }
   ];
 
   var idx = -1;
