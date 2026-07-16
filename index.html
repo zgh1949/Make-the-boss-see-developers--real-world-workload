@@ -84,40 +84,33 @@
   .card-hd .tag { font-size: 11px; font-weight: 400; color: var(--muted); }
   .card-bd { padding: 10px 12px; flex: 1; min-height: 0; overflow: auto; }
 
-  /* ===== 左栏 前端 ===== */
-  /* ===== 左栏 前端（仿真应用） ===== */
-  .app { background: #fff; border: 1px solid var(--border); border-radius: 10px; flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
-  .app-chrome { height: 34px; background: #e8ecf2; display: flex; align-items: center; padding: 0 12px; gap: 10px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-  .traffic { display: flex; gap: 6px; }
-  .traffic .tl { width: 11px; height: 11px; border-radius: 50%; }
-  .tl.red { background: #ff5f57; } .tl.yellow { background: #febc2e; } .tl.green { background: #28c840; }
-  .url-bar { flex: 1; background: #fff; border-radius: 6px; padding: 4px 10px; font-size: 12px; color: #5a6678; display: flex; align-items: center; gap: 6px; max-width: 340px; margin: 0 auto; }
-  .url-bar .lock { font-size: 10px; }
-  .url-bar .url { font-family: Consolas, monospace; }
-  .chrome-spacer { width: 52px; flex-shrink: 0; }
-  .app-toolbar { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-bottom: 1px solid var(--border); background: #fafbfd; flex-shrink: 0; }
-  .search-wrap { flex: 1; display: flex; align-items: center; background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 0 8px; min-width: 0; }
-  .search-wrap:focus-within { border-color: var(--primary); }
-  .search-wrap .search-ico { cursor: pointer; color: var(--muted); font-size: 13px; }
-  .search-wrap input { border: none; outline: none; flex: 1; padding: 6px 6px; font-size: 13px; font-family: inherit; background: transparent; min-width: 0; }
-  .app-body { flex: 1; display: flex; min-height: 0; }
-  .app-list { width: 200px; border-right: 1px solid var(--border); display: flex; flex-direction: column; min-height: 0; background: #fafbfd; flex-shrink: 0; }
-  .app-list-hd { padding: 8px 12px; font-size: 12px; font-weight: 700; color: #5a6678; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid var(--border); }
-  .cnt { background: #fff7e6; border: 1px solid #ffd591; border-radius: 10px; padding: 0 8px; font-size: 11px; font-weight: 700; color: #d46b08; cursor: pointer; }
-  .cnt:hover { background: #ffe58f; }
+  /* ===== 左栏 前端（备忘录样式，与引入页一致） ===== */
+  .app { background:#fff; border-radius:18px; flex:1; min-height:0; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 12px 34px rgba(0,0,0,.13); position:relative; }
+  .app-header { display:flex; align-items:flex-end; justify-content:space-between; padding:16px 18px 8px; flex-shrink:0; }
+  .app-title { font-size:24px; font-weight:700; color:#1a1a1a; }
+  .app-search { margin:0 14px 10px; background:#f0f0f3; border-radius:10px; padding:8px 12px; display:flex; align-items:center; gap:8px; color:#8a8a99; flex-shrink:0; }
+  .app-search .search-ico { cursor:pointer; font-size:14px; }
+  .app-search input { border:none; outline:none; flex:1; font-size:14px; font-family:inherit; background:transparent; color:#1a1a1a; min-width:0; }
+  .app-search input::placeholder { color:#8a8a99; }
+  .app-list-wrap { flex:1; min-height:0; position:relative; display:flex; flex-direction:column; }
+  .app-fab { position:absolute; right:16px; bottom:14px; width:46px; height:46px; border-radius:50%; background:#ffd60a; color:#1a1a1a; font-size:28px; font-weight:300; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 16px rgba(255,214,10,.5); z-index:3; }
+  .app-fab:hover { filter:brightness(1.05); }
+  .app-detail { flex-shrink:0; margin:10px 14px 14px; padding:14px; background:#fafafa; border-radius:12px; min-height:110px; max-height:40%; display:flex; flex-direction:column; }
+  .editor-empty { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#b0b0bb; gap:4px; font-size:13px; }
+  .editor-empty .ee-ico { font-size:34px; opacity:.4; margin-bottom:2px; }
+  .editor-form { flex:1; display:flex; flex-direction:column; min-height:0; }
+  .ed-title { border:none; outline:none; font-size:17px; font-weight:700; font-family:inherit; padding:2px 0 6px; border-bottom:1px solid #ececec; margin-bottom:8px; background:transparent; color:#1a1a1a; }
+  .ed-title::placeholder { color:#c9d0db; }
+  .ed-content { flex:1; border:none; outline:none; font-family:inherit; font-size:14px; line-height:1.5; resize:none; padding:2px 0; min-height:0; background:transparent; color:#444; }
+  .ed-content::placeholder { color:#c9d0db; }
+  .editor-foot { display:flex; align-items:center; justify-content:space-between; padding-top:8px; margin-top:6px; }
+  .ed-meta { font-size:11px; color:#8a8a99; }
+  .ed-save { border:none; background:#1a1a1a; color:#fff; padding:6px 16px; border-radius:8px; font-size:13px; cursor:pointer; font-family:inherit; }
+  .ed-save:hover { filter:brightness(1.15); }
+  .cnt { background:#f0f0f3; color:#8a8a99; border-radius:10px; padding:3px 10px; font-size:12px; font-weight:600; cursor:pointer; }
+  .cnt:hover { background:#e8e8ec; }
   .cnt.stat-flash { animation: statFlash 1.6s ease-out; }
-  @keyframes statFlash { 0%{ background:#ffe58f; transform:scale(1.18);} 100%{ background:#fff7e6; transform:scale(1);} }
-  .app-editor { flex: 1; display: flex; flex-direction: column; min-width: 0; background: #fff; }
-  .editor-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); gap: 4px; font-size: 13px; }
-  .editor-empty .ee-ico { font-size: 42px; opacity: .45; margin-bottom: 6px; }
-  .editor-empty .ee-sub { font-size: 12px; color: #aab4c2; }
-  .editor-form { flex: 1; display: flex; flex-direction: column; padding: 14px 16px; min-height: 0; }
-  .ed-title { border: none; outline: none; font-size: 18px; font-weight: 700; font-family: inherit; padding: 4px 0; border-bottom: 1px solid #eef1f6; margin-bottom: 10px; background: transparent; }
-  .ed-title::placeholder { color: #c9d0db; }
-  .ed-content { flex: 1; border: none; outline: none; font-family: inherit; font-size: 14px; line-height: 1.6; resize: none; padding: 4px 0; min-height: 0; background: transparent; }
-  .ed-content::placeholder { color: #c9d0db; }
-  .editor-foot { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid #eef1f6; margin-top: 8px; }
-  .ed-meta { font-size: 11px; color: var(--muted); }
+  @keyframes statFlash { 0%{ background:#ffd60a; transform:scale(1.18);} 100%{ background:#f0f0f3; transform:scale(1);} }
   /* 一二栏之间的报文箭头按钮 */
   .flow-btns { width: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; align-self: stretch; }
   .flow-btn { width: 36px; padding: 8px 0; border: 1px solid var(--border); background: #fff; border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; transition: all .15s; font-family: inherit; }
@@ -169,16 +162,17 @@
   .btn-ghost { background: #f0f3f8; color: #5a6678; border: 1px solid var(--border); }
   .btn-ghost:hover { background: #e6ebf3; }
   .btn:disabled { opacity: .5; cursor: not-allowed; }
-  .note-list { flex: 1; overflow-y: auto; padding: 6px; display: flex; flex-direction: column; gap: 4px; }
-  .note-item { border: 1px solid transparent; border-radius: 6px; padding: 7px 9px; cursor: pointer; transition: all .15s; background: #fff; }
-  .note-item:hover { background: #eef4ff; }
-  .note-item.selected { background: #e7f0ff; border-color: #b3d1ff; box-shadow: inset 3px 0 0 var(--primary); }
-  .note-item .nt { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .note-item .ns { font-size: 11px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .note-item .nm { font-size: 10px; color: #aab4c2; margin-top: 2px; }
+  .note-list { flex:1; overflow-y:auto; padding:0 10px; display:flex; flex-direction:column; }
+  .note-item { padding:11px 10px; border-bottom:1px solid #f0f0f3; cursor:pointer; transition:background .15s; }
+  .note-item:last-child { border-bottom:none; }
+  .note-item:hover { background:#f5f5f7; }
+  .note-item.selected { background:#fff7d6; }
+  .note-item .nt { font-size:16px; font-weight:600; color:#1a1a1a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .note-item .ns { font-size:13px; color:#8a8a99; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .note-item .nm { font-size:11px; color:#b0b0bb; margin-top:3px; }
   .note-item.note-hit { animation: queryFlash .5s ease-in-out 2; }
-  .note-item.dim { opacity: .25; }
-  .empty { color: var(--muted); font-size: 12px; text-align: center; padding: 16px 0; }
+  .note-item.dim { opacity:.25; }
+  .empty { color:#b0b0bb; font-size:13px; text-align:center; padding:24px 0; }
   .json-area { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
   .json-area .ja-hd { background: #f7f9fc; padding: 6px 10px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
   .json-area .ja-bd { padding: 8px 10px; }
@@ -433,40 +427,29 @@
   <!-- 左栏 -->
   <div class="col left">
     <div class="app">
-      <!-- 应用窗口顶部（浏览器风格） -->
-      <div class="app-chrome">
-        <div class="traffic"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span></div>
-        <div class="url-bar"><span class="lock">🔒</span><span class="url">https://www.notebook.app</span></div>
-        <div class="chrome-spacer"></div>
+      <div class="app-header">
+        <span class="app-title">备忘录</span>
+        <span class="cnt" id="statBox" title="点击触发统计接口">0</span>
       </div>
-      <!-- 工具栏 -->
-      <div class="app-toolbar">
-        <div class="search-wrap">
-          <span class="search-ico" id="searchIco">🔍</span>
-          <input type="text" id="searchInput" placeholder="搜索笔记标题，回车查询..." />
-        </div>
-        <button class="btn btn-green" id="newNoteBtn">+ 新建</button>
-        <button class="btn btn-yellow" id="statBtn">统计</button>
+      <div class="app-search">
+        <span class="search-ico" id="searchIco">🔍</span>
+        <input type="text" id="searchInput" placeholder="搜索" />
       </div>
-      <!-- 主体：笔记列表 + 编辑器 -->
-      <div class="app-body">
-        <div class="app-list">
-          <div class="app-list-hd">全部笔记 <span class="cnt" id="statBox" title="点击触发统计接口">0</span></div>
-          <div class="note-list" id="noteList"></div>
+      <div class="app-list-wrap">
+        <div class="note-list" id="noteList"></div>
+        <button class="app-fab" id="newNoteBtn" title="新建笔记">+</button>
+      </div>
+      <div class="app-detail" id="editorWrap">
+        <div class="editor-empty" id="editorEmpty">
+          <div class="ee-ico">📝</div>
+          <div>选择一条笔记查看，或点 + 新建</div>
         </div>
-        <div class="app-editor" id="editorWrap">
-          <div class="editor-empty" id="editorEmpty">
-            <div class="ee-ico">📝</div>
-            <div>选择左侧笔记查看详情</div>
-            <div class="ee-sub">或点击「+ 新建」创建一条新笔记</div>
-          </div>
-          <div class="editor-form" id="editorForm" style="display:none;">
-            <input type="text" class="ed-title" id="editTitle" placeholder="笔记标题" />
-            <textarea class="ed-content" id="editContent" placeholder="在这里输入笔记内容..."></textarea>
-            <div class="editor-foot">
-              <span class="ed-meta" id="editMeta">新建笔记</span>
-              <button class="btn btn-primary" id="saveBtn">保存笔记</button>
-            </div>
+        <div class="editor-form" id="editorForm" style="display:none;">
+          <input type="text" class="ed-title" id="editTitle" placeholder="标题" />
+          <textarea class="ed-content" id="editContent" placeholder="输入内容..."></textarea>
+          <div class="editor-foot">
+            <span class="ed-meta" id="editMeta">新建笔记</span>
+            <button class="ed-save" id="saveBtn">保存</button>
           </div>
         </div>
       </div>
@@ -1279,7 +1262,6 @@
     $('resetBtn').addEventListener('click', reset);
     $('saveBtn').addEventListener('click', triggerSave);
     $('newNoteBtn').addEventListener('click', triggerNew);
-    $('statBtn').addEventListener('click', triggerStat);
     $('statBox').addEventListener('click', triggerStat);
     $('searchIco').addEventListener('click', triggerSearch);
     $('searchInput').addEventListener('keydown', function(e){ if (e.key === 'Enter') triggerSearch(); });
