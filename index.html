@@ -85,14 +85,60 @@
   .card-bd { padding: 10px 12px; flex: 1; min-height: 0; overflow: auto; }
 
   /* ===== 左栏 前端 ===== */
-  .left .stat-row { display: flex; align-items: center; gap: 6px; font-size: 13px; }
-  .stat-box { background: #fff7e6; border: 1px solid #ffd591; border-radius: 6px; padding: 2px 10px; font-weight: 700; color: #d46b08; }
-  .stat-box.stat-flash { animation: statFlash 1.6s ease-out; }
-  @keyframes statFlash { 0%{ background:#ffe58f; transform:scale(1.15);} 100%{ background:#fff7e6; transform:scale(1);} }
-  .row { display: flex; gap: 6px; margin-bottom: 8px; }
-  .row input, .row textarea { flex: 1; border: 1px solid var(--border); border-radius: 5px; padding: 6px 8px; font-size: 13px; font-family: inherit; outline: none; }
-  .row input:focus, .row textarea:focus { border-color: var(--primary); }
-  .row textarea { resize: vertical; min-height: 42px; }
+  /* ===== 左栏 前端（仿真应用） ===== */
+  .app { background: #fff; border: 1px solid var(--border); border-radius: 10px; flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+  .app-chrome { height: 34px; background: #e8ecf2; display: flex; align-items: center; padding: 0 12px; gap: 10px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .traffic { display: flex; gap: 6px; }
+  .traffic .tl { width: 11px; height: 11px; border-radius: 50%; }
+  .tl.red { background: #ff5f57; } .tl.yellow { background: #febc2e; } .tl.green { background: #28c840; }
+  .url-bar { flex: 1; background: #fff; border-radius: 6px; padding: 4px 10px; font-size: 12px; color: #5a6678; display: flex; align-items: center; gap: 6px; max-width: 340px; margin: 0 auto; }
+  .url-bar .lock { font-size: 10px; }
+  .url-bar .url { font-family: Consolas, monospace; }
+  .chrome-spacer { width: 52px; flex-shrink: 0; }
+  .app-toolbar { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-bottom: 1px solid var(--border); background: #fafbfd; flex-shrink: 0; }
+  .search-wrap { flex: 1; display: flex; align-items: center; background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 0 8px; min-width: 0; }
+  .search-wrap:focus-within { border-color: var(--primary); }
+  .search-wrap .search-ico { cursor: pointer; color: var(--muted); font-size: 13px; }
+  .search-wrap input { border: none; outline: none; flex: 1; padding: 6px 6px; font-size: 13px; font-family: inherit; background: transparent; min-width: 0; }
+  .app-body { flex: 1; display: flex; min-height: 0; }
+  .app-list { width: 200px; border-right: 1px solid var(--border); display: flex; flex-direction: column; min-height: 0; background: #fafbfd; flex-shrink: 0; }
+  .app-list-hd { padding: 8px 12px; font-size: 12px; font-weight: 700; color: #5a6678; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid var(--border); }
+  .cnt { background: #fff7e6; border: 1px solid #ffd591; border-radius: 10px; padding: 0 8px; font-size: 11px; font-weight: 700; color: #d46b08; cursor: pointer; }
+  .cnt:hover { background: #ffe58f; }
+  .cnt.stat-flash { animation: statFlash 1.6s ease-out; }
+  @keyframes statFlash { 0%{ background:#ffe58f; transform:scale(1.18);} 100%{ background:#fff7e6; transform:scale(1);} }
+  .app-editor { flex: 1; display: flex; flex-direction: column; min-width: 0; background: #fff; }
+  .editor-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); gap: 4px; font-size: 13px; }
+  .editor-empty .ee-ico { font-size: 42px; opacity: .45; margin-bottom: 6px; }
+  .editor-empty .ee-sub { font-size: 12px; color: #aab4c2; }
+  .editor-form { flex: 1; display: flex; flex-direction: column; padding: 14px 16px; min-height: 0; }
+  .ed-title { border: none; outline: none; font-size: 18px; font-weight: 700; font-family: inherit; padding: 4px 0; border-bottom: 1px solid #eef1f6; margin-bottom: 10px; background: transparent; }
+  .ed-title::placeholder { color: #c9d0db; }
+  .ed-content { flex: 1; border: none; outline: none; font-family: inherit; font-size: 14px; line-height: 1.6; resize: none; padding: 4px 0; min-height: 0; background: transparent; }
+  .ed-content::placeholder { color: #c9d0db; }
+  .editor-foot { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid #eef1f6; margin-top: 8px; }
+  .ed-meta { font-size: 11px; color: var(--muted); }
+  /* 一二栏之间的报文箭头按钮 */
+  .flow-btns { width: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; align-self: stretch; }
+  .flow-btn { width: 36px; padding: 8px 0; border: 1px solid var(--border); background: #fff; border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; transition: all .15s; font-family: inherit; }
+  .flow-btn:hover { border-color: var(--primary); background: #f5f8ff; }
+  .flow-btn .fb-arrow { font-size: 16px; line-height: 1; color: var(--muted); }
+  .flow-btn .fb-lbl { font-size: 10px; color: var(--muted); }
+  .flow-btn.req .fb-arrow { color: var(--blue); }
+  .flow-btn.resp .fb-arrow { color: var(--green); transform: scaleX(-1); }
+  .flow-btn.has-data { border-color: var(--primary); background: #eef4ff; }
+  .flow-btn.has-data .fb-lbl { color: var(--primary); font-weight: 700; }
+  .flow-btn.highlight { animation: flowPulse 1s ease-out; }
+  @keyframes flowPulse { 0%{ box-shadow: 0 0 0 0 rgba(47,111,237,.5); transform: scale(1);} 50%{ box-shadow: 0 0 0 8px rgba(47,111,237,.15); transform: scale(1.14);} 100%{ box-shadow: 0 0 0 0 rgba(47,111,237,0); transform: scale(1);} }
+  /* JSON 报文弹窗 */
+  .modal-mask { position: fixed; inset: 0; background: rgba(30,42,58,.55); display: flex; align-items: center; justify-content: center; z-index: 2000; }
+  .modal { width: 520px; max-width: 92vw; background: #fff; border-radius: 10px; box-shadow: 0 12px 40px rgba(0,0,0,.25); overflow: hidden; }
+  .modal-hd { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); background: #f7f9fc; font-size: 14px; font-weight: 700; }
+  .modal-close { border: none; background: #eef1f6; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 14px; color: #5a6678; }
+  .modal-close:hover { background: #e1e6ee; }
+  .modal-bd { padding: 14px 16px; }
+  .modal-bd pre { background: #1e2a3a; color: #9cdcfe; padding: 12px 14px; border-radius: 6px; font-size: 13px; font-family: Consolas, monospace; white-space: pre-wrap; word-break: break-all; min-height: 60px; max-height: 50vh; overflow: auto; }
+  .modal-ft { padding: 10px 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted); background: #fafbfd; line-height: 1.5; }
   .btn { border: none; border-radius: 5px; padding: 6px 12px; font-size: 13px; cursor: pointer; font-family: inherit; transition: all .15s; white-space: nowrap; }
   .btn-primary { background: var(--primary); color: #fff; }
   .btn-primary:hover { background: #1f5fd6; }
@@ -105,18 +151,16 @@
   .btn-ghost { background: #f0f3f8; color: #5a6678; border: 1px solid var(--border); }
   .btn-ghost:hover { background: #e6ebf3; }
   .btn:disabled { opacity: .5; cursor: not-allowed; }
-  .note-list { display: flex; flex-direction: column; gap: 6px; }
-  .note-item { border: 1px solid var(--border); border-radius: 6px; padding: 7px 10px; cursor: pointer; transition: all .15s; background: #fff; }
-  .note-item:hover { border-color: var(--blue); background: #f5fbff; }
-  .note-item .nt { font-size: 13px; font-weight: 600; }
-  .note-item .nm { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .note-list { flex: 1; overflow-y: auto; padding: 6px; display: flex; flex-direction: column; gap: 4px; }
+  .note-item { border: 1px solid transparent; border-radius: 6px; padding: 7px 9px; cursor: pointer; transition: all .15s; background: #fff; }
+  .note-item:hover { background: #eef4ff; }
+  .note-item.selected { background: #e7f0ff; border-color: #b3d1ff; box-shadow: inset 3px 0 0 var(--primary); }
+  .note-item .nt { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .note-item .ns { font-size: 11px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .note-item .nm { font-size: 10px; color: #aab4c2; margin-top: 2px; }
   .note-item.note-hit { animation: queryFlash .5s ease-in-out 2; }
-  .note-item.dim { opacity: .28; }
+  .note-item.dim { opacity: .25; }
   .empty { color: var(--muted); font-size: 12px; text-align: center; padding: 16px 0; }
-  .detail-box { background: #f5fbff; border: 1px solid #bae0ff; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
-  .detail-box .dt { font-size: 14px; font-weight: 700; color: var(--primary); }
-  .detail-box .dc { font-size: 13px; margin: 4px 0; line-height: 1.5; }
-  .detail-box .dm { font-size: 11px; color: var(--muted); }
   .json-area { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
   .json-area .ja-hd { background: #f7f9fc; padding: 6px 10px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
   .json-area .ja-bd { padding: 8px 10px; }
@@ -196,50 +240,40 @@
 <div class="main">
   <!-- 左栏 -->
   <div class="col left">
-    <div class="card" style="flex:1;min-height:0;">
-      <div class="card-hd">
-        <span>前端页面区 · 记事本应用</span>
-        <div class="stat-row">
-          <span class="tag">笔记总数</span>
-          <span class="stat-box" id="statBox" title="点击触发统计接口">0</span>
-        </div>
+    <div class="app">
+      <!-- 应用窗口顶部（浏览器风格） -->
+      <div class="app-chrome">
+        <div class="traffic"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span></div>
+        <div class="url-bar"><span class="lock">🔒</span><span class="url">https://www.notebook.app</span></div>
+        <div class="chrome-spacer"></div>
       </div>
-      <div class="card-bd">
-        <div class="row">
-          <input type="text" id="searchInput" placeholder="按标题模糊查询..." />
-          <button class="btn btn-blue" id="searchBtn">查询</button>
-          <button class="btn btn-yellow" id="statBtn">统计</button>
+      <!-- 工具栏 -->
+      <div class="app-toolbar">
+        <div class="search-wrap">
+          <span class="search-ico" id="searchIco">🔍</span>
+          <input type="text" id="searchInput" placeholder="搜索笔记标题，回车查询..." />
         </div>
-        <div class="row">
-          <input type="text" id="titleInput" placeholder="新笔记标题" />
+        <button class="btn btn-green" id="newNoteBtn">+ 新建</button>
+        <button class="btn btn-yellow" id="statBtn">统计</button>
+      </div>
+      <!-- 主体：笔记列表 + 编辑器 -->
+      <div class="app-body">
+        <div class="app-list">
+          <div class="app-list-hd">全部笔记 <span class="cnt" id="statBox" title="点击触发统计接口">0</span></div>
+          <div class="note-list" id="noteList"></div>
         </div>
-        <div class="row">
-          <textarea id="contentInput" placeholder="新笔记内容..."></textarea>
-          <button class="btn btn-green" id="saveBtn">保存</button>
-        </div>
-
-        <div class="detail-box" id="detailPanel" style="display:none;">
-          <div class="dt" id="detailTitle"></div>
-          <div class="dc" id="detailContent"></div>
-          <div class="dm" id="detailTime"></div>
-        </div>
-
-        <div style="font-size:12px;color:var(--muted);margin:4px 0;">笔记列表（点击单条查看详情）</div>
-        <div class="note-list" id="noteList"></div>
-
-        <div class="json-area" style="margin-top:10px;" id="jsonArea">
-          <div class="ja-hd" id="jsonToggle">
-            <span><span class="term" data-tip="JSON：一种轻量级的数据格式，用键值对表示结构化数据">JSON</span> 报文区（请求 / 响应）</span>
-            <span style="font-weight:400;font-size:11px;color:var(--muted)">点击折叠/展开 ▾</span>
+        <div class="app-editor" id="editorWrap">
+          <div class="editor-empty" id="editorEmpty">
+            <div class="ee-ico">📝</div>
+            <div>选择左侧笔记查看详情</div>
+            <div class="ee-sub">或点击「+ 新建」创建一条新笔记</div>
           </div>
-          <div class="ja-bd">
-            <div class="json-block">
-              <div class="jb-lbl">请求 <span class="term" data-tip="JSON：一种轻量级的数据格式，用键值对表示结构化数据">JSON</span>（前端 → 后端）</div>
-              <pre id="reqJson">（暂无）</pre>
-            </div>
-            <div class="json-block">
-              <div class="jb-lbl">响应 <span class="term" data-tip="JSON：一种轻量级的数据格式，用键值对表示结构化数据">JSON</span>（后端 → 前端）</div>
-              <pre id="respJson">（暂无）</pre>
+          <div class="editor-form" id="editorForm" style="display:none;">
+            <input type="text" class="ed-title" id="editTitle" placeholder="笔记标题" />
+            <textarea class="ed-content" id="editContent" placeholder="在这里输入笔记内容..."></textarea>
+            <div class="editor-foot">
+              <span class="ed-meta" id="editMeta">新建笔记</span>
+              <button class="btn btn-primary" id="saveBtn">保存笔记</button>
             </div>
           </div>
         </div>
@@ -247,7 +281,14 @@
     </div>
   </div>
 
-  <div class="arrow-slot" id="arrowLM">➜</div>
+  <div class="flow-btns" id="flowBtns">
+    <button class="flow-btn req" id="reqBtn" title="请求 JSON：点击查看前端发给后端的数据">
+      <span class="fb-arrow">➜</span><span class="fb-lbl">请求</span>
+    </button>
+    <button class="flow-btn resp" id="respBtn" title="响应 JSON：点击查看后端返回前端的数据">
+      <span class="fb-arrow">➜</span><span class="fb-lbl">响应</span>
+    </button>
+  </div>
 
   <!-- 中栏 -->
   <div class="col mid">
@@ -298,6 +339,18 @@
         <div class="db-stat" id="dbStat">统计结果：—</div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- JSON 报文弹窗 -->
+<div class="modal-mask" id="jsonModal" style="display:none;">
+  <div class="modal">
+    <div class="modal-hd">
+      <span id="modalTitle">请求 JSON</span>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <div class="modal-bd"><pre id="modalJson">（暂无）</pre></div>
+    <div class="modal-ft" id="modalFoot"></div>
   </div>
 </div>
 
@@ -391,7 +444,10 @@
     vars: { param: '', sql: '', result: '' },
     currentNode: -1,
     currentMax: -1,
-    lastParams: null
+    lastParams: null,
+    selectedId: null,
+    lastReqJson: '',
+    lastRespJson: ''
   };
 
   // ---------- DOM ----------
@@ -480,7 +536,7 @@
         { node: 2, line: 7, param: reqJson, sql: sql, explain: '把标题和内容拼成一条 INSERT 插入语句（SQL）' },
         { node: 3, line: 8, param: reqJson, sql: sql, db: { type: 'insert', newNote: newNote }, explain: '后端把 SQL 发给数据库，正式把数据写入表中' },
         { node: 2, line: 9, param: reqJson, sql: sql, result: result, explain: '数据库写入成功，后端组装返回结果' },
-        { node: 4, param: reqJson, sql: sql, result: result, respJson: result, frontend: 'addNote', explain: '后端把结果以 JSON 返回前端，页面刷新笔记列表并更新总数' }
+        { node: 4, param: reqJson, sql: sql, result: result, respJson: result, frontend: 'addNote', frontendId: newId, explain: '后端把结果以 JSON 返回前端，页面刷新笔记列表并更新总数' }
       );
     } else if (scenario === 'get'){
       var id = params.id;
@@ -554,7 +610,9 @@
     else {
       for (var i = 0; i < state.notes.length; i++){
         var n = state.notes[i];
-        html += '<div class="note-item" data-id="' + n.id + '"><div class="nt">' + esc(n.title) + '</div><div class="nm">ID: ' + n.id + ' · ' + esc(n.create_time) + '</div></div>';
+        var sel = n.id === state.selectedId ? ' selected' : '';
+        var snippet = n.content.length > 22 ? n.content.slice(0, 22) + '…' : n.content;
+        html += '<div class="note-item' + sel + '" data-id="' + n.id + '"><div class="nt">' + esc(n.title) + '</div><div class="ns">' + esc(snippet) + '</div><div class="nm">' + esc(n.create_time.slice(5, 16)) + '</div></div>';
       }
     }
     noteListEl.innerHTML = html;
@@ -589,8 +647,8 @@
     var el = $('statBox');
     el.classList.remove('stat-flash'); void el.offsetWidth; el.classList.add('stat-flash');
   }
-  function setReqJson(t){ $('reqJson').textContent = t || '（暂无）'; }
-  function setRespJson(t){ $('respJson').textContent = t || '（暂无）'; }
+  function setReqJson(t){ state.lastReqJson = t || ''; }
+  function setRespJson(t){ state.lastRespJson = t || ''; }
   function setExplain(html){ $('explain').innerHTML = html; }
   function updateStepCounter(){
     var idx = state.stepIndex < 0 ? 0 : state.stepIndex + 1;
@@ -603,13 +661,48 @@
     $('scenarioSelect').value = state.scenario;
   }
   function showDetail(note){
-    if (!note) return;
-    $('detailPanel').style.display = '';
-    $('detailTitle').textContent = note.title;
-    $('detailContent').textContent = note.content;
-    $('detailTime').textContent = note.create_time;
+    if (!note){ showEditorEmpty(); return; }
+    $('editorEmpty').style.display = 'none';
+    $('editorForm').style.display = '';
+    $('editTitle').value = note.title;
+    $('editContent').value = note.content;
+    $('editMeta').textContent = 'ID: ' + note.id + ' · 创建于 ' + note.create_time;
   }
-  function clearDetail(){ $('detailPanel').style.display = 'none'; }
+  function showEditorEmpty(){
+    $('editorEmpty').style.display = '';
+    $('editorForm').style.display = 'none';
+  }
+  function selectNote(id){
+    state.selectedId = id;
+    var note = state.notes.filter(function(n){return n.id === id;})[0];
+    if (note) showDetail(note); else showEditorEmpty();
+    renderNotes();
+  }
+  function triggerNew(){
+    state.selectedId = null;
+    $('editorEmpty').style.display = 'none';
+    $('editorForm').style.display = '';
+    $('editTitle').value = '';
+    $('editContent').value = '';
+    $('editMeta').textContent = '新建笔记 · 未保存';
+    $('editTitle').focus();
+    renderNotes();
+  }
+  function setupEditorForScenario(scenario, params){
+    if (scenario === 'save'){
+      state.selectedId = null;
+      $('editorEmpty').style.display = 'none';
+      $('editorForm').style.display = '';
+      $('editTitle').value = params.title;
+      $('editContent').value = params.content;
+      $('editMeta').textContent = '新建笔记 · 未保存';
+      renderNotes();
+    } else if (scenario === 'get'){
+      selectNote(params.id);
+    } else {
+      if (!state.selectedId && state.notes.length) selectNote(state.notes[0].id);
+    }
+  }
 
   // ---------- 数据库动效 ----------
   function applyDb(db){
@@ -633,17 +726,13 @@
   // ---------- 前端联动 ----------
   function applyFrontend(type, step){
     if (type === 'addNote'){
-      renderNotes();
+      selectNote(step.frontendId);
       updateStat();
       flashStat();
-      $('titleInput').value = '';
-      $('contentInput').value = '';
     } else if (type === 'highlightNote'){
-      renderNotes();
+      selectNote(step.frontendId);
       var li = noteListEl.querySelector('.note-item[data-id="' + step.frontendId + '"]');
       if (li){ li.classList.remove('note-hit'); void li.offsetWidth; li.classList.add('note-hit'); }
-      var note = state.notes.filter(function(n){return n.id === step.frontendId;})[0];
-      showDetail(note);
     } else if (type === 'flashMatched'){
       var kw = step.frontendKeyword;
       var items = noteListEl.querySelectorAll('.note-item');
@@ -682,11 +771,27 @@
   }
   function flashArrowForNode(curr, prev){
     if (curr === prev) return;
-    if (curr === 1 && prev <= 0) flashArrow('LM', 'right');
+    if (curr === 1 && prev <= 0) highlightFlow('req');
     else if (curr === 3 && prev === 2) flashArrow('MR', 'right');
     else if (curr === 2 && prev === 3) flashArrow('MR', 'left');
-    else if (curr === 4 && prev === 2) flashArrow('LM', 'left');
+    else if (curr === 4 && prev === 2) highlightFlow('resp');
   }
+  function highlightFlow(which){
+    var el = $(which === 'req' ? 'reqBtn' : 'respBtn');
+    if (!el) return;
+    el.classList.remove('highlight'); void el.offsetWidth; el.classList.add('highlight');
+    el.classList.add('has-data');
+  }
+  function openJsonModal(which){
+    var isReq = which === 'req';
+    $('modalTitle').innerHTML = (isReq ? '请求' : '响应') + ' <span class="term" data-tip="JSON：一种轻量级的数据格式，用键值对表示结构化数据">JSON</span>' + (isReq ? '（前端 -> 后端）' : '（后端 -> 前端）');
+    $('modalJson').textContent = (isReq ? state.lastReqJson : state.lastRespJson) || '（暂无报文，请先运行动画）';
+    $('modalFoot').textContent = isReq
+      ? '前端把页面数据组装成 JSON，通过网络发给后端接口（API）。'
+      : '后端处理完成后，把结果以 JSON 返回前端，前端据此刷新页面。';
+    $('jsonModal').style.display = '';
+  }
+  function closeJsonModal(){ $('jsonModal').style.display = 'none'; }
 
   // ---------- 执行步骤 ----------
   function applyStep(i){
@@ -751,8 +856,11 @@
     state.vars = { param: '', sql: '', result: '' };
     state.currentNode = -1;
     state.currentMax = -1;
-    clearDetail();
     setReqJson(''); setRespJson('');
+    closeJsonModal();
+    var rb = $('reqBtn'), sb = $('respBtn');
+    if (rb) rb.classList.remove('has-data','highlight');
+    if (sb) sb.classList.remove('has-data','highlight');
     renderCode(); renderNotes(); renderDb(); renderVars(); renderProgress();
     highlightLine(null);
     $('dbStat').textContent = '统计结果：—';
@@ -764,22 +872,30 @@
     stopAutoPlay();
     state.notes = initialNotes.map(function(n){ return { id:n.id, title:n.title, content:n.content, create_time:n.create_time }; });
     loadScenario(state.scenario, defaultParams[state.scenario]);
+    setupEditorForScenario(state.scenario, defaultParams[state.scenario]);
   }
 
   // ---------- 页面操作触发 ----------
   function triggerSave(){
-    var title = $('titleInput').value.trim() || '未命名笔记';
-    var content = $('contentInput').value.trim() || '（无内容）';
+    var title = $('editTitle').value.trim() || '未命名笔记';
+    var content = $('editContent').value.trim() || '（无内容）';
+    state.selectedId = null;
     loadScenario('save', { title: title, content: content });
     startAutoPlay();
   }
   function triggerSearch(){
     var keyword = $('searchInput').value.trim();
-    if (!keyword){ setExplain('请先在搜索框输入关键词，再点击「查询」。'); return; }
+    if (!keyword){
+      var items = noteListEl.querySelectorAll('.note-item');
+      for (var i = 0; i < items.length; i++) items[i].classList.remove('dim');
+      setExplain('已清除搜索条件，展示全部笔记。');
+      return;
+    }
     loadScenario('list', { keyword: keyword });
     startAutoPlay();
   }
   function triggerGet(id){
+    selectNote(id);
     loadScenario('get', { id: id });
     startAutoPlay();
   }
@@ -787,24 +903,29 @@
     loadScenario('statistic', {});
     startAutoPlay();
   }
-  function toggleJson(){ $('jsonArea').classList.toggle('collapsed'); }
-
   // ---------- 初始化 ----------
   function init(){
     state.notes = initialNotes.map(function(n){ return { id:n.id, title:n.title, content:n.content, create_time:n.create_time }; });
+    selectNote(state.notes[0].id);
     loadScenario('save', defaultParams.save);
 
     $('scenarioSelect').addEventListener('change', function(e){
       loadScenario(e.target.value, defaultParams[e.target.value]);
+      setupEditorForScenario(e.target.value, defaultParams[e.target.value]);
     });
     $('nextBtn').addEventListener('click', function(){ stopAutoPlay(); nextStep(); });
     $('playBtn').addEventListener('click', toggleAutoPlay);
     $('resetBtn').addEventListener('click', reset);
     $('saveBtn').addEventListener('click', triggerSave);
-    $('searchBtn').addEventListener('click', triggerSearch);
+    $('newNoteBtn').addEventListener('click', triggerNew);
     $('statBtn').addEventListener('click', triggerStat);
     $('statBox').addEventListener('click', triggerStat);
-    $('jsonToggle').addEventListener('click', toggleJson);
+    $('searchIco').addEventListener('click', triggerSearch);
+    $('searchInput').addEventListener('keydown', function(e){ if (e.key === 'Enter') triggerSearch(); });
+    $('reqBtn').addEventListener('click', function(){ openJsonModal('req'); });
+    $('respBtn').addEventListener('click', function(){ openJsonModal('resp'); });
+    $('modalClose').addEventListener('click', closeJsonModal);
+    $('jsonModal').addEventListener('click', function(e){ if (e.target === this) closeJsonModal(); });
     noteListEl.addEventListener('click', function(e){
       var item = e.target.closest('.note-item');
       if (item) triggerGet(+item.dataset.id);
