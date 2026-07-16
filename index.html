@@ -317,21 +317,6 @@
       </div>
       <div class="card-bd" id="codeBody"></div>
     </div>
-    <div class="vars">
-      <div class="card-hd"><span>运行时变量面板</span><span class="tag">随执行步骤实时更新</span></div>
-      <div class="var-item">
-        <div class="v-lbl"><span class="vi" style="background:var(--blue)"></span>请求入参（前端传来的参数）</div>
-        <pre id="varParam">（等待执行）</pre>
-      </div>
-      <div class="var-item">
-        <div class="v-lbl"><span class="vi" style="background:var(--green)"></span>执行 <span class="term" data-tip="SQL：操作数据库的专用语言，用来增删改查数据">SQL</span>（即将发给数据库）</div>
-        <pre id="varSql">（等待执行）</pre>
-      </div>
-      <div class="var-item">
-        <div class="v-lbl"><span class="vi" style="background:var(--yellow)"></span>返回结果（接口最终返回）</div>
-        <pre id="varResult">（等待执行）</pre>
-      </div>
-    </div>
   </div>
 
   <div class="flow-btns" id="dbFlowBtns">
@@ -348,13 +333,6 @@
     <div class="card" style="flex:1;min-height:0;">
       <div class="card-hd"><span>数据库区 · MySQL 模拟</span><span class="tag">notes 表</span></div>
       <div class="card-bd">
-        <div class="struct-box">
-          <div class="st-title">notes 表结构</div>
-          <div class="st-line">· id          <b>INT</b>          主键自增</div>
-          <div class="st-line">· title       <b>VARCHAR(100)</b>  笔记标题</div>
-          <div class="st-line">· content     <b>TEXT</b>          笔记正文</div>
-          <div class="st-line">· create_time <b>DATETIME</b>      创建时间</div>
-        </div>
         <table class="db-table">
           <thead>
             <tr><th>id</th><th>title</th><th>content</th><th>create_time</th></tr>
@@ -662,11 +640,7 @@
     }
     dbBodyEl.innerHTML = html;
   }
-  function renderVars(){
-    $('varParam').textContent = state.vars.param || '（等待执行）';
-    $('varSql').textContent = state.vars.sql || '（等待执行）';
-    $('varResult').textContent = state.vars.result || '（等待执行）';
-  }
+  function renderVars(){ /* 变量面板已移除；state.vars 仍内部维护，供数据库浮窗读取 SQL */ }
   function renderProgress(){
     var nodes = document.querySelectorAll('.prog-node');
     for (var i = 0; i < nodes.length; i++){
