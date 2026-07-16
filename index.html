@@ -130,15 +130,17 @@
   .flow-btn.has-data .fb-lbl { color: var(--primary); font-weight: 700; }
   .flow-btn.highlight { animation: flowPulse 1s ease-out; }
   @keyframes flowPulse { 0%{ box-shadow: 0 0 0 0 rgba(47,111,237,.5); transform: scale(1);} 50%{ box-shadow: 0 0 0 8px rgba(47,111,237,.15); transform: scale(1.14);} 100%{ box-shadow: 0 0 0 0 rgba(47,111,237,0); transform: scale(1);} }
-  /* JSON 报文弹窗 */
-  .modal-mask { position: fixed; inset: 0; background: rgba(30,42,58,.55); display: flex; align-items: center; justify-content: center; z-index: 2000; }
-  .modal { width: 520px; max-width: 92vw; background: #fff; border-radius: 10px; box-shadow: 0 12px 40px rgba(0,0,0,.25); overflow: hidden; }
-  .modal-hd { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); background: #f7f9fc; font-size: 14px; font-weight: 700; }
-  .modal-close { border: none; background: #eef1f6; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 14px; color: #5a6678; }
-  .modal-close:hover { background: #e1e6ee; }
-  .modal-bd { padding: 14px 16px; }
-  .modal-bd pre { background: #1e2a3a; color: #9cdcfe; padding: 12px 14px; border-radius: 6px; font-size: 13px; font-family: Consolas, monospace; white-space: pre-wrap; word-break: break-all; min-height: 60px; max-height: 50vh; overflow: auto; }
-  .modal-ft { padding: 10px 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted); background: #fafbfd; line-height: 1.5; }
+  /* JSON 报文浮窗（一二栏之间，按步骤自动弹出） */
+  .json-popup { position: fixed; width: 380px; max-width: 40vw; background: #fff; border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 12px 40px rgba(0,0,0,.22); z-index: 1500; overflow: visible; }
+  .json-popup::before { content: ''; position: absolute; left: -8px; top: 50%; transform: translateY(-50%); border: 8px solid transparent; border-right-color: #fff; }
+  .jp-hd { display: flex; align-items: center; justify-content: space-between; padding: 9px 14px; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 700; border-radius: 10px 10px 0 0; }
+  .json-popup.req .jp-hd { background: #eaf3ff; color: var(--primary); border-bottom-color: #cfe0ff; }
+  .json-popup.resp .jp-hd { background: #eafbf1; color: var(--green); border-bottom-color: #bfe9cf; }
+  .jp-close { border: none; background: #eef1f6; width: 24px; height: 24px; border-radius: 6px; cursor: pointer; font-size: 13px; color: #5a6678; }
+  .jp-close:hover { background: #e1e6ee; }
+  .jp-bd { padding: 10px 12px; }
+  .jp-bd pre { background: #1e2a3a; color: #9cdcfe; padding: 10px 12px; border-radius: 6px; font-size: 12px; font-family: Consolas, monospace; white-space: pre-wrap; word-break: break-all; min-height: 48px; max-height: 38vh; overflow: auto; margin: 0; }
+  .jp-ft { padding: 8px 14px; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted); background: #fafbfd; line-height: 1.5; border-radius: 0 0 10px 10px; }
   .btn { border: none; border-radius: 5px; padding: 6px 12px; font-size: 13px; cursor: pointer; font-family: inherit; transition: all .15s; white-space: nowrap; }
   .btn-primary { background: var(--primary); color: #fff; }
   .btn-primary:hover { background: #1f5fd6; }
@@ -342,16 +344,14 @@
   </div>
 </div>
 
-<!-- JSON 报文弹窗 -->
-<div class="modal-mask" id="jsonModal" style="display:none;">
-  <div class="modal">
-    <div class="modal-hd">
-      <span id="modalTitle">请求 JSON</span>
-      <button class="modal-close" id="modalClose">✕</button>
-    </div>
-    <div class="modal-bd"><pre id="modalJson">（暂无）</pre></div>
-    <div class="modal-ft" id="modalFoot"></div>
+<!-- JSON 报文浮窗 -->
+<div class="json-popup req" id="jsonModal" style="display:none;">
+  <div class="jp-hd">
+    <span id="modalTitle">请求 JSON</span>
+    <button class="jp-close" id="modalClose">✕</button>
   </div>
+  <div class="jp-bd"><pre id="modalJson">（暂无）</pre></div>
+  <div class="jp-ft" id="modalFoot"></div>
 </div>
 
 <!-- 底部控制栏 -->
@@ -784,12 +784,25 @@
   }
   function openJsonModal(which){
     var isReq = which === 'req';
+    var popup = $('jsonModal');
     $('modalTitle').innerHTML = (isReq ? '请求' : '响应') + ' <span class="term" data-tip="JSON：一种轻量级的数据格式，用键值对表示结构化数据">JSON</span>' + (isReq ? '（前端 -> 后端）' : '（后端 -> 前端）');
     $('modalJson').textContent = (isReq ? state.lastReqJson : state.lastRespJson) || '（暂无报文，请先运行动画）';
     $('modalFoot').textContent = isReq
       ? '前端把页面数据组装成 JSON，通过网络发给后端接口（API）。'
       : '后端处理完成后，把结果以 JSON 返回前端，前端据此刷新页面。';
-    $('jsonModal').style.display = '';
+    popup.className = 'json-popup ' + (isReq ? 'req' : 'resp');
+    popup.style.display = '';
+    var btn = $(isReq ? 'reqBtn' : 'respBtn');
+    if (btn){
+      var r = btn.getBoundingClientRect();
+      var ph = popup.offsetHeight;
+      var top = r.top + r.height / 2 - ph / 2;
+      var maxTop = window.innerHeight - 150 - ph;
+      if (top > maxTop) top = maxTop;
+      if (top < 76) top = 76;
+      popup.style.top = top + 'px';
+      popup.style.left = (r.right + 10) + 'px';
+    }
   }
   function closeJsonModal(){ $('jsonModal').style.display = 'none'; }
 
@@ -812,6 +825,9 @@
     setExplain(termify(step.explain));
     updateStepCounter();
     flashArrowForNode(step.node, prevNode);
+    if (step.node === 1) openJsonModal('req');
+    else if (step.node === 4) openJsonModal('resp');
+    else if (step.node === 2 || step.node === 3) closeJsonModal();
   }
 
   function nextStep(){
@@ -881,7 +897,7 @@
     var content = $('editContent').value.trim() || '（无内容）';
     state.selectedId = null;
     loadScenario('save', { title: title, content: content });
-    startAutoPlay();
+    setExplain('已捕捉到「保存笔记」操作，进入单步调试：点击「下一步」逐步追踪数据如何写入数据库（请求/响应报文会在对应步骤自动弹出）。');
   }
   function triggerSearch(){
     var keyword = $('searchInput').value.trim();
@@ -892,16 +908,16 @@
       return;
     }
     loadScenario('list', { keyword: keyword });
-    startAutoPlay();
+    setExplain('已捕捉到「查询」操作（关键词：' + keyword + '），进入单步调试：点击「下一步」逐步追踪查询如何命中数据。');
   }
   function triggerGet(id){
     selectNote(id);
     loadScenario('get', { id: id });
-    startAutoPlay();
+    setExplain('已捕捉到「查看详情」操作（ID=' + id + '），进入单步调试：点击「下一步」逐步追踪数据如何被读取。');
   }
   function triggerStat(){
     loadScenario('statistic', {});
-    startAutoPlay();
+    setExplain('已捕捉到「统计」操作，进入单步调试：点击「下一步」逐步追踪数量如何被聚合计算。');
   }
   // ---------- 初始化 ----------
   function init(){
@@ -925,7 +941,6 @@
     $('reqBtn').addEventListener('click', function(){ openJsonModal('req'); });
     $('respBtn').addEventListener('click', function(){ openJsonModal('resp'); });
     $('modalClose').addEventListener('click', closeJsonModal);
-    $('jsonModal').addEventListener('click', function(e){ if (e.target === this) closeJsonModal(); });
     noteListEl.addEventListener('click', function(e){
       var item = e.target.closest('.note-item');
       if (item) triggerGet(+item.dataset.id);
