@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Web 请求全链路演示</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+    background: #eef2f7; color: #2c3e50;
+    display: flex; flex-direction: column;
+    min-width: 1280px; overflow-x: hidden;
+  }
+  :root {
+    --primary: #2f6fed; --green: #21c46b; --blue: #2f9bed; --yellow: #f5a623;
+    --border: #e1e6ed; --muted: #8a94a6; --card: #ffffff;
+  }
+  .term { position: relative; border-bottom: 1px dashed var(--muted); cursor: help; color: var(--primary); }
+  .term:hover::after {
+    content: attr(data-tip); position: absolute; bottom: 140%; left: 50%;
+    transform: translateX(-50%); background: #2c3e50; color: #fff;
+    padding: 8px 12px; border-radius: 6px; width: 220px; white-space: normal;
+    z-index: 1000; font-size: 12px; line-height: 1.5; font-weight: normal;
+    box-shadow: 0 4px 14px rgba(0,0,0,.2);
+  }
+  .term:hover::before {
+    content: ''; position: absolute; bottom: 115%; left: 50%; transform: translateX(-50%);
+    border: 6px solid transparent; border-top-color: #2c3e50; z-index: 1000;
+  }
+
+  /* ===== 顶部进度条 ===== */
+  .topbar {
+    height: 70px; background: var(--card); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 32px; flex-shrink: 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,.04);
+  }
+  .brand { font-size: 18px; font-weight: 700; margin-right: 36px; white-space: nowrap; }
+  .brand small { font-size: 12px; font-weight: 400; color: var(--muted); margin-left: 8px; }
+  .progress { display: flex; align-items: center; flex: 1; }
+  .prog-node {
+    display: flex; flex-direction: column; align-items: center; position: relative; z-index: 2;
+  }
+  .prog-node .dot {
+    width: 26px; height: 26px; border-radius: 50%; background: #d8dee8; color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700;
+    transition: all .3s;
+  }
+  .prog-node .lbl { font-size: 12px; margin-top: 4px; color: var(--muted); }
+  .prog-node.passed .dot { background: #9bb7f5; }
+  .prog-node.active .dot {
+    background: var(--primary); transform: scale(1.18);
+    box-shadow: 0 0 0 5px rgba(47,111,237,.18); animation: pulse 1.2s infinite;
+  }
+  .prog-node.active .lbl { color: var(--primary); font-weight: 700; }
+  @keyframes pulse { 0%,100%{ box-shadow: 0 0 0 5px rgba(47,111,237,.18);} 50%{ box-shadow: 0 0 0 9px rgba(47,111,237,.08);} }
+  .prog-line { flex: 1; height: 3px; background: #e1e6ed; margin: 0 -2px; position: relative; top: -10px; z-index: 1; }
+
+  /* ===== 主体三栏 ===== */
+  .main { flex: 1; display: flex; min-height: 0; padding: 10px; gap: 0; }
+  .col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+  .arrow-slot {
+    width: 30px; display: flex; align-items: center; justify-content: center;
+    font-size: 26px; color: var(--primary); opacity: 0; align-self: stretch;
+  }
+  .arrow-slot.show { animation: arrowFlash .9s ease-out; }
+  .arrow-slot.left { transform: scaleX(-1); }
+  @keyframes arrowFlash {
+    0% { opacity: 0; transform: translateX(-14px) scale(.7); }
+    35% { opacity: 1; transform: translateX(0) scale(1.2); }
+    70% { opacity: 1; transform: translateX(0) scale(1); }
+    100% { opacity: 0; transform: translateX(14px) scale(.7); }
+  }
+  .arrow-slot.left.show { animation: arrowFlashL .9s ease-out; }
+  @keyframes arrowFlashL {
+    0% { opacity: 0; transform: scaleX(-1) translateX(-14px) scale(.7); }
+    35% { opacity: 1; transform: scaleX(-1) translateX(0) scale(1.2); }
+    70% { opacity: 1; transform: scaleX(-1) translateX(0) scale(1); }
+    100% { opacity: 0; transform: scaleX(-1) translateX(14px) scale(.7); }
+  }
+
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; display: flex; flex-direction: column; min-height: 0; box-shadow: 0 1px 3px rgba(0,0,0,.03); }
+  .card-hd { padding: 8px 14px; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; background: #f7f9fc; border-radius: 8px 8px 0 0; }
+  .card-hd .tag { font-size: 11px; font-weight: 400; color: var(--muted); }
+  .card-bd { padding: 10px 12px; flex: 1; min-height: 0; overflow: auto; }
+
+  /* ===== 左栏 前端 ===== */
+  .left .stat-row { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+  .stat-box { background: #fff7e6; border: 1px solid #ffd591; border-radius: 6px; padding: 2px 10px; font-weight: 700; color: #d46b08; }
+  .stat-box.stat-flash { animation: statFlash 1.6s ease-out; }
+  @keyframes statFlash { 0%{ background:#ffe58f; transform:scale(1.15);} 100%{ background:#fff7e6; transform:scale(1);} }
+  .row { display: flex; gap: 6px; margin-bottom: 8px; }
+  .row input, .row textarea { flex: 1; border: 1px solid var(--border); border-radius: 5px; padding: 6px 8px; font-size: 13px; font-family: inherit; outline: none; }
+  .row input:focus, .row textarea:focus { border-color: var(--primary); }
+  .row textarea { resize: vertical; min-height: 42px; }
+  .btn { border: none; border-radius: 5px; padding: 6px 12px; font-size: 13px; cursor: pointer; font-family: inherit; transition: all .15s; white-space: nowrap; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: #1f5fd6; }
+  .btn-green { background: var(--green); color: #fff; }
+  .btn-green:hover { background: #1ab85f; }
+  .btn-blue { background: var(--blue); color: #fff; }
+  .btn-blue:hover { background: #1a8ad6; }
+  .btn-yellow { background: var(--yellow); color: #fff; }
+  .btn-yellow:hover { background: #e09512; }
+  .btn-ghost { background: #f0f3f8; color: #5a6678; border: 1px solid var(--border); }
+  .btn-ghost:hover { background: #e6ebf3; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .note-list { display: flex; flex-direction: column; gap: 6px; }
+  .note-item { border: 1px solid var(--border); border-radius: 6px; padding: 7px 10px; cursor: pointer; transition: all .15s; background: #fff; }
+  .note-item:hover { border-color: var(--blue); background: #f5fbff; }
+  .note-item .nt { font-size: 13px; font-weight: 600; }
+  .note-item .nm { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .note-item.note-hit { animation: queryFlash .5s ease-in-out 2; }
+  .note-item.dim { opacity: .28; }
+  .empty { color: var(--muted); font-size: 12px; text-align: center; padding: 16px 0; }
+  .detail-box { background: #f5fbff; border: 1px solid #bae0ff; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .detail-box .dt { font-size: 14px; font-weight: 700; color: var(--primary); }
+  .detail-box .dc { font-size: 13px; margin: 4px 0; line-height: 1.5; }
+  .detail-box .dm { font-size: 11px; color: var(--muted); }
+  .json-area { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  .json-area .ja-hd { background: #f7f9fc; padding: 6px 10px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+  .json-area .ja-bd { padding: 8px 10px; }
+  .json-area.collapsed .ja-bd { display: none; }
+  .json-block { margin-bottom: 6px; }
+  .json-block .jb-lbl { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+  .json-block pre { background: #1e2a3a; color: #9cdcfe; padding: 6px 8px; border-radius: 4px; font-size: 12px; font-family: Consolas, monospace; white-space: pre-wrap; word-break: break-all; min-height: 18px; }
+
+  /* ===== 中栏 后端代码 ===== */
+  .mid .code-card { flex: 1; min-height: 0; }
+  .mid .code-card .card-bd { background: #1e2a3a; padding: 10px 0; }
+  .code-line { display: flex; font-family: Consolas, "Courier New", monospace; font-size: 13px; line-height: 1.7; padding: 0 12px; transition: background .2s; }
+  .code-line .ln { width: 30px; text-align: right; color: #5a6a82; padding-right: 12px; user-select: none; flex-shrink: 0; }
+  .code-line .lc { color: #d4d4d4; white-space: pre; }
+  .code-line.active { background: rgba(47,111,237,.22); border-left: 3px solid var(--primary); padding-left: 9px; }
+  .c-kw { color: #c678dd; }
+  .c-str { color: #98c379; }
+  .c-com { color: #7f848e; font-style: italic; }
+  .c-dec { color: #56b6c2; }
+  .c-fn { color: #61afef; }
+  .c-num { color: #d19a66; }
+  .vars { background: var(--card); border: 1px solid var(--border); border-radius: 8px; flex-shrink: 0; }
+  .vars .card-hd { background: #f7f9fc; }
+  .var-item { padding: 7px 12px; border-bottom: 1px solid var(--border); }
+  .var-item:last-child { border-bottom: none; }
+  .var-item .v-lbl { font-size: 11px; color: var(--muted); margin-bottom: 3px; display: flex; align-items: center; gap: 4px; }
+  .var-item .v-lbl .vi { display: inline-block; width: 6px; height: 6px; border-radius: 50%; }
+  .var-item pre { background: #f5f7fa; padding: 5px 8px; border-radius: 4px; font-size: 12px; font-family: Consolas, monospace; white-space: pre-wrap; word-break: break-all; color: #2c3e50; min-height: 16px; }
+
+  /* ===== 右栏 数据库 ===== */
+  .right .struct-box { background: #f7f9fc; border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .struct-box .st-title { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+  .struct-box .st-line { font-size: 11px; color: #5a6678; font-family: Consolas, monospace; line-height: 1.6; }
+  .struct-box .st-line b { color: #d46b08; }
+  .db-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .db-table th, .db-table td { border: 1px solid var(--border); padding: 5px 7px; text-align: left; }
+  .db-table th { background: #f7f9fc; font-weight: 700; color: #5a6678; position: sticky; top: 0; }
+  .db-table td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90px; }
+  .db-table td.c-ct { max-width: 160px; }
+  .db-row.db-insert { animation: insertFlash 1.5s ease-out; }
+  @keyframes insertFlash { 0%{ background:#b7eb8f;} 100%{ background:transparent;} }
+  .db-row.db-hit { animation: queryFlash .5s ease-in-out 2; }
+  @keyframes queryFlash { 0%,100%{ background:transparent;} 50%{ background:#91d5ff;} }
+  .db-stat { margin-top: 8px; background: #fffbe6; border: 1px solid #ffe58f; border-radius: 6px; padding: 7px 10px; font-size: 13px; font-family: Consolas, monospace; color: #d46b08; min-height: 18px; }
+  .db-stat.db-stat-flash { animation: dbStatFlash 1.6s ease-out; }
+  @keyframes dbStatFlash { 0%{ background:#ffe58f; transform:scale(1.05);} 100%{ background:#fffbe6; transform:scale(1);} }
+
+  /* ===== 底部控制栏 ===== */
+  .bottombar { background: var(--card); border-top: 1px solid var(--border); padding: 10px 24px 12px; flex-shrink: 0; box-shadow: 0 -1px 4px rgba(0,0,0,.04); }
+  .bb-row1 { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .bb-row1 select { border: 1px solid var(--border); border-radius: 5px; padding: 6px 10px; font-size: 13px; font-family: inherit; background: #fff; outline: none; }
+  .bb-step { margin-left: auto; font-size: 12px; color: var(--muted); }
+  .bb-step b { color: var(--primary); }
+  .bb-explain { background: #f5f7fa; border-left: 3px solid var(--primary); border-radius: 4px; padding: 8px 12px; font-size: 13px; line-height: 1.6; min-height: 38px; }
+  .bb-hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<!-- 顶部进度条 -->
+<div class="topbar">
+  <div class="brand">Web 请求全链路演示 <small>页面 → JSON → 后端 → 数据库</small></div>
+  <div class="progress" id="progress">
+    <div class="prog-node"><div class="dot">1</div><div class="lbl">前端页面</div></div>
+    <div class="prog-line"></div>
+    <div class="prog-node"><div class="dot">2</div><div class="lbl">网络传输</div></div>
+    <div class="prog-line"></div>
+    <div class="prog-node"><div class="dot">3</div><div class="lbl">后端处理</div></div>
+    <div class="prog-line"></div>
+    <div class="prog-node"><div class="dot">4</div><div class="lbl">数据库交互</div></div>
+    <div class="prog-line"></div>
+    <div class="prog-node"><div class="dot">5</div><div class="lbl">返回前端</div></div>
+  </div>
+</div>
+
+<!-- 主体三栏 -->
+<div class="main">
+  <!-- 左栏 -->
+  <div class="col left">
+    <div class="card" style="flex:1;min-height:0;">
+      <div class="card-hd">
+        <span>前端页面区 · 记事本应用</span>
+        <div class="stat-row">
+          <span class="tag">笔记总数</span>
+          <span class="stat-box" id="statBox" title="点击触发统计接口">0</span>
+        </div>
+      </div>
+      <div class="card-bd">
+        <div class="row">
+          <input type="text" id="searchInput" placeholder="按标题模糊查询..." />
+          <button class="btn btn-blue" id="searchBtn">查询</button>
+          <button class="btn btn-yellow" id="statBtn">统计</button>
+        </div>
+        <div class="row">
+          <input type="text" id="titleInput" placeholder="新笔记标题" />
+        </div>
+        <div class="row">
+          <textarea id="contentInput" placeholder="新笔记内容..."></textarea>
+          <button class="btn btn-green" id="saveBtn">保存</button>
+        </div>
+
+        <div class="detail-box" id="detailPanel" style="display:none;">
+          <div class="dt" id="detailTitle"></div>
+          <div class="dc" id="detailContent"></div>
+          <div class="dm" id="detailTime"></div>
+        </div>
+
+        <div style="font-size:12px;color:var(--muted);margin:4px 0;">笔记列表（点击单条查看详情）</div>
+        <div class="note-list" id="noteList"></div>
+
+        <div class="json-area" style="margin-top:10px;" id="jsonArea">
+          <div class="ja-hd" id="jsonToggle">
+            <span><span class="term" data-tip="JSON：一种轻量级的数据格式，用键值对表示结构化数据">JSON</span> 报文区（请求 / 响应）</span>
+            <span style="font-weight:400;font-size:11px;color:var(--muted)">点击折叠/展开 ▾</span>
+          </div>
+          <div class="ja-bd">
+            <div class="json-block">
+              <div class="jb-lbl">请求 <span class="term" data-tip="JSON：一种轻量级的数据格式，用键值对表示结构化数据">JSON</span>（前端 → 后端）</div>
+              <pre id="reqJson">（暂无）</pre>
+            </div>
+            <div class="json-block">
+              <div class="jb-lbl">响应 <span class="term" data-tip="JSON：一种轻量级的数据格式，用键值对表示结构化数据">JSON</span>（后端 → 前端）</div>
+              <pre id="respJson">（暂无）</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-slot" id="arrowLM">➜</div>
+
+  <!-- 中栏 -->
+  <div class="col mid">
+    <div class="card code-card">
+      <div class="card-hd">
+        <span>后端代码区 · <span class="term" data-tip="API：应用程序接口，前后端约定好的数据交流通道">Python</span> 伪代码（单步调试）</span>
+        <span class="tag" id="codeTag">save 接口</span>
+      </div>
+      <div class="card-bd" id="codeBody"></div>
+    </div>
+    <div class="vars">
+      <div class="card-hd"><span>运行时变量面板</span><span class="tag">随执行步骤实时更新</span></div>
+      <div class="var-item">
+        <div class="v-lbl"><span class="vi" style="background:var(--blue)"></span>请求入参（前端传来的参数）</div>
+        <pre id="varParam">（等待执行）</pre>
+      </div>
+      <div class="var-item">
+        <div class="v-lbl"><span class="vi" style="background:var(--green)"></span>执行 <span class="term" data-tip="SQL：操作数据库的专用语言，用来增删改查数据">SQL</span>（即将发给数据库）</div>
+        <pre id="varSql">（等待执行）</pre>
+      </div>
+      <div class="var-item">
+        <div class="v-lbl"><span class="vi" style="background:var(--yellow)"></span>返回结果（接口最终返回）</div>
+        <pre id="varResult">（等待执行）</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-slot" id="arrowMR">➜</div>
+
+  <!-- 右栏 -->
+  <div class="col right">
+    <div class="card" style="flex:1;min-height:0;">
+      <div class="card-hd"><span>数据库区 · MySQL 模拟</span><span class="tag">notes 表</span></div>
+      <div class="card-bd">
+        <div class="struct-box">
+          <div class="st-title">notes 表结构</div>
+          <div class="st-line">· id          <b>INT</b>          主键自增</div>
+          <div class="st-line">· title       <b>VARCHAR(100)</b>  笔记标题</div>
+          <div class="st-line">· content     <b>TEXT</b>          笔记正文</div>
+          <div class="st-line">· create_time <b>DATETIME</b>      创建时间</div>
+        </div>
+        <table class="db-table">
+          <thead>
+            <tr><th>id</th><th>title</th><th>content</th><th>create_time</th></tr>
+          </thead>
+          <tbody id="dbBody"></tbody>
+        </table>
+        <div class="db-stat" id="dbStat">统计结果：—</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 底部控制栏 -->
+<div class="bottombar">
+  <div class="bb-row1">
+    <select id="scenarioSelect">
+      <option value="save">场景 1：新增笔记（save · 写入）</option>
+      <option value="get">场景 2：查看详情（get · 单条查询）</option>
+      <option value="list">场景 3：搜索列表（list · 模糊查询）</option>
+      <option value="statistic">场景 4：数量统计（statistic · 聚合）</option>
+    </select>
+    <button class="btn btn-primary" id="nextBtn">下一步</button>
+    <button class="btn btn-ghost" id="playBtn">自动播放</button>
+    <button class="btn btn-ghost" id="resetBtn">重置</button>
+    <span class="bb-step">步骤 <b id="stepCounter">0 / 0</b></span>
+  </div>
+  <div class="bb-explain" id="explain">选择场景后点击「下一步」逐步演示，或点击「自动播放」全自动展示全链路。也可直接在左侧页面操作触发演示。</div>
+  <div class="bb-hint">提示：鼠标悬浮在 <span class="term" data-tip="API：应用程序接口，前后端约定好的数据交流通道">API</span> / <span class="term" data-tip="JSON：一种轻量级的数据格式，用键值对表示结构化数据">JSON</span> / <span class="term" data-tip="SQL：操作数据库的专用语言，用来增删改查数据">SQL</span> 等术语上可查看通俗解释。</div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- 初始数据 ----------
+  var initialNotes = [
+    { id: 1, title: '学习笔记', content: '今天学习了 Web 开发的基础知识，包括 HTML、CSS 和 JavaScript。', create_time: '2026-07-15 10:00:00' },
+    { id: 2, title: '项目计划', content: '完成需求文档编写和原型设计，确定技术方案。', create_time: '2026-07-15 14:30:00' },
+    { id: 3, title: '会议纪要', content: '周会讨论了项目进度和待解决问题，明确了下周任务。', create_time: '2026-07-16 09:00:00' }
+  ];
+
+  var defaultParams = {
+    save: { title: '今日复盘', content: '今天完成了演示程序的开发与调试。' },
+    get: { id: 2 },
+    list: { keyword: '笔记' },
+    statistic: {}
+  };
+
+  // ---------- 后端伪代码（每个接口一块，带行号） ----------
+  var codeMap = {
+    save: [
+      '# 接口：新增笔记（写入数据）',
+      '@app.route(\'/api/save\', methods=[\'POST\'])',
+      'def save():',
+      '    data = request.json',
+      '    title = data[\'title\']',
+      '    content = data[\'content\']',
+      '    sql = f"INSERT INTO notes(title, content) VALUES(\'{title}\',\'{content}\')"',
+      '    db.execute(sql)',
+      '    return {\'code\': 0, \'msg\': \'保存成功\'}'
+    ],
+    get: [
+      '# 接口：查看详情（单条查询）',
+      '@app.route(\'/api/get\', methods=[\'GET\'])',
+      'def get():',
+      '    note_id = request.args[\'id\']',
+      '    sql = f"SELECT * FROM notes WHERE id={note_id}"',
+      '    row = db.query_one(sql)',
+      '    return {\'code\': 0, \'data\': row}'
+    ],
+    list: [
+      '# 接口：搜索列表（模糊查询）',
+      '@app.route(\'/api/list\', methods=[\'GET\'])',
+      'def list():',
+      '    keyword = request.args[\'keyword\']',
+      '    sql = f"SELECT * FROM notes WHERE title LIKE \'%{keyword}%\'"',
+      '    rows = db.query(sql)',
+      '    return {\'code\': 0, \'data\': rows}'
+    ],
+    statistic: [
+      '# 接口：数量统计（聚合查询）',
+      '@app.route(\'/api/statistic\', methods=[\'GET\'])',
+      'def statistic():',
+      '    sql = "SELECT COUNT(*) AS total FROM notes"',
+      '    row = db.query_one(sql)',
+      '    return {\'code\': 0, \'data\': row}'
+    ]
+  };
+
+  var scenarioName = { save: 'save 接口', get: 'get 接口', list: 'list 接口', statistic: 'statistic 接口' };
+
+  // ---------- 状态 ----------
+  var state = {
+    scenario: 'save',
+    steps: [],
+    stepIndex: -1,
+    playing: false,
+    playTimer: null,
+    notes: [],
+    vars: { param: '', sql: '', result: '' },
+    currentNode: -1,
+    currentMax: -1,
+    lastParams: null
+  };
+
+  // ---------- DOM ----------
+  var $ = function(id){ return document.getElementById(id); };
+  var codeBody = $('codeBody'), noteListEl = $('noteList'), dbBodyEl = $('dbBody');
+
+  // ---------- 工具 ----------
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function J(o){ return JSON.stringify(o, null, 2); }
+  function formatTime(d){
+    var p = function(n){ return String(n).padStart(2,'0'); };
+    return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());
+  }
+  function termify(text){
+    var e = esc(text);
+    e = e.replace(/\bAPI\b/g, '<span class="term" data-tip="API：应用程序接口，前后端约定好的数据交流通道">API</span>');
+    e = e.replace(/\bJSON\b/g, '<span class="term" data-tip="JSON：一种轻量级的数据格式，用键值对表示结构化数据">JSON</span>');
+    e = e.replace(/\bSQL\b/g, '<span class="term" data-tip="SQL：操作数据库的专用语言，用来增删改查数据">SQL</span>');
+    return e;
+  }
+
+  // ---------- 代码语法着色（简易 tokenizer） ----------
+  function highlight(line){
+    var out = '', i = 0, n = line.length;
+    while (i < n){
+      var ch = line[i];
+      if (ch === '#'){
+        out += '<span class="c-com">' + esc(line.slice(i)) + '</span>';
+        break;
+      }
+      if ((ch === 'f' && (line[i+1] === '"' || line[i+1] === '\'')) || ch === '"' || ch === '\''){
+        var j = i; if (ch === 'f') j++;
+        var quote = line[j]; j++;
+        while (j < n && line[j] !== quote) j++;
+        j++;
+        out += '<span class="c-str">' + esc(line.slice(i, j)) + '</span>';
+        i = j; continue;
+      }
+      if (ch === '@'){
+        var j2 = i + 1;
+        while (j2 < n && /[\w.]/.test(line[j2])) j2++;
+        out += '<span class="c-dec">' + esc(line.slice(i, j2)) + '</span>';
+        i = j2; continue;
+      }
+      if (/[a-zA-Z_]/.test(ch)){
+        var k = i + 1;
+        while (k < n && /[\w]/.test(line[k])) k++;
+        var w = line.slice(i, k);
+        if (/^(def|return|import|from|None|True|False|if|else|for|in|class)$/.test(w)){
+          out += '<span class="c-kw">' + w + '</span>';
+        } else if (line[k] === '('){
+          out += '<span class="c-fn">' + w + '</span>';
+        } else {
+          out += w;
+        }
+        i = k; continue;
+      }
+      if (/\d/.test(ch)){
+        var m = i + 1;
+        while (m < n && /[\d.]/.test(line[m])) m++;
+        out += '<span class="c-num">' + line.slice(i, m) + '</span>';
+        i = m; continue;
+      }
+      out += esc(ch); i++;
+    }
+    return out;
+  }
+
+  // ---------- 构建步骤 ----------
+  function buildSteps(scenario, params){
+    var steps = [];
+    if (scenario === 'save'){
+      var title = params.title, content = params.content;
+      var newId = state.notes.length ? Math.max.apply(null, state.notes.map(function(n){return n.id;})) + 1 : 1;
+      var now = formatTime(new Date());
+      var newNote = { id: newId, title: title, content: content, create_time: now };
+      var reqJson = J({ title: title, content: content });
+      var sql = "INSERT INTO notes(title, content) VALUES('" + title + "','" + content + "')";
+      var result = J({ code: 0, msg: '保存成功' });
+      steps.push(
+        { node: 0, explain: '用户在页面填写标题「' + title + '」和内容，点击「保存」按钮' },
+        { node: 1, param: reqJson, reqJson: reqJson, explain: '前端把表单数据组装成 JSON 报文，通过网络发给后端的 save 接口（API）' },
+        { node: 2, line: 4, param: reqJson, explain: '后端接收到请求，进入 save 接口，解析出 JSON 数据' },
+        { node: 2, line: 5, param: reqJson, explain: '从 JSON 中取出 title（标题）字段' },
+        { node: 2, line: 6, param: reqJson, explain: '从 JSON 中取出 content（正文字段）' },
+        { node: 2, line: 7, param: reqJson, sql: sql, explain: '把标题和内容拼成一条 INSERT 插入语句（SQL）' },
+        { node: 3, line: 8, param: reqJson, sql: sql, db: { type: 'insert', newNote: newNote }, explain: '后端把 SQL 发给数据库，正式把数据写入表中' },
+        { node: 2, line: 9, param: reqJson, sql: sql, result: result, explain: '数据库写入成功，后端组装返回结果' },
+        { node: 4, param: reqJson, sql: sql, result: result, respJson: result, frontend: 'addNote', explain: '后端把结果以 JSON 返回前端，页面刷新笔记列表并更新总数' }
+      );
+    } else if (scenario === 'get'){
+      var id = params.id;
+      var note = state.notes.filter(function(n){return n.id === id;})[0] || state.notes[0];
+      var reqJson2 = J({ id: id });
+      var sql2 = 'SELECT * FROM notes WHERE id = ' + id;
+      var result2 = J({ code: 0, data: note });
+      steps.push(
+        { node: 0, explain: '用户在笔记列表中点击某条笔记（ID=' + id + '），触发查看详情' },
+        { node: 1, param: reqJson2, reqJson: reqJson2, explain: '前端把笔记 ID 作为参数，通过网络发给后端的 get 接口（API）' },
+        { node: 2, line: 4, param: reqJson2, explain: '后端进入 get 接口，从请求中取出笔记 ID' },
+        { node: 2, line: 5, param: reqJson2, sql: sql2, explain: '把 ID 拼成一条按主键查询的 SELECT 语句（SQL）' },
+        { node: 3, line: 6, param: reqJson2, sql: sql2, db: { type: 'query', ids: [id] }, explain: '后端把 SQL 发给数据库，查询命中的行' },
+        { node: 2, line: 7, param: reqJson2, sql: sql2, result: result2, explain: '把查询到的数据组装成返回结果' },
+        { node: 4, param: reqJson2, sql: sql2, result: result2, respJson: result2, frontend: 'highlightNote', frontendId: id, explain: '后端把结果以 JSON 返回前端，页面展示该笔记的详情' }
+      );
+    } else if (scenario === 'list'){
+      var keyword = params.keyword;
+      var matched = state.notes.filter(function(n){return n.title.indexOf(keyword) >= 0;});
+      var ids = matched.map(function(n){return n.id;});
+      var reqJson3 = J({ keyword: keyword });
+      var sql3 = "SELECT * FROM notes WHERE title LIKE '%" + keyword + "%'";
+      var result3 = J({ code: 0, data: matched });
+      steps.push(
+        { node: 0, explain: '用户在搜索框输入关键词「' + keyword + '」，点击「查询」' },
+        { node: 1, param: reqJson3, reqJson: reqJson3, explain: '前端把关键词作为参数，通过网络发给后端的 list 接口（API）' },
+        { node: 2, line: 4, param: reqJson3, explain: '后端进入 list 接口，取出关键词' },
+        { node: 2, line: 5, param: reqJson3, sql: sql3, explain: '把关键词拼成一条模糊查询的 SELECT 语句（SQL）' },
+        { node: 3, line: 6, param: reqJson3, sql: sql3, db: { type: 'query', ids: ids }, frontend: 'flashMatched', frontendKeyword: keyword, explain: '后端把 SQL 发给数据库，查询所有标题包含关键词的行，命中的行高亮' },
+        { node: 2, line: 7, param: reqJson3, sql: sql3, result: result3, explain: '把查询到的列表组装成返回结果' },
+        { node: 4, param: reqJson3, sql: sql3, result: result3, respJson: result3, frontend: 'filterList', frontendKeyword: keyword, explain: '后端把结果以 JSON 返回前端，页面列表只展示命中的笔记' }
+      );
+    } else if (scenario === 'statistic'){
+      var total = state.notes.length;
+      var reqJson4 = '{}';
+      var sql4 = 'SELECT COUNT(*) AS total FROM notes';
+      var result4 = J({ code: 0, data: { total: total } });
+      steps.push(
+        { node: 0, explain: '页面加载或用户点击「统计」按钮，查看笔记总数' },
+        { node: 1, param: reqJson4, reqJson: reqJson4, explain: '前端发起无参数请求，通过网络发给后端的 statistic 接口（API）' },
+        { node: 2, line: 4, param: reqJson4, sql: sql4, explain: '后端进入 statistic 接口，拼成一条 COUNT 聚合统计语句（SQL）' },
+        { node: 3, line: 5, param: reqJson4, sql: sql4, db: { type: 'statistic' }, explain: '后端把 SQL 发给数据库，统计全部笔记数量' },
+        { node: 2, line: 6, param: reqJson4, sql: sql4, result: result4, explain: '把统计结果组装成返回数据' },
+        { node: 4, param: reqJson4, sql: sql4, result: result4, respJson: result4, frontend: 'updateStat', explain: '后端把结果以 JSON 返回前端，页面刷新笔记总数' }
+      );
+    }
+    return steps;
+  }
+
+  // ---------- 渲染 ----------
+  function renderCode(){
+    var lines = codeMap[state.scenario];
+    var html = '';
+    for (var i = 0; i < lines.length; i++){
+      html += '<div class="code-line" data-line="' + (i+1) + '"><span class="ln">' + (i+1) + '</span><span class="lc">' + highlight(lines[i]) + '</span></div>';
+    }
+    codeBody.innerHTML = html;
+    $('codeTag').textContent = scenarioName[state.scenario];
+  }
+  function highlightLine(line){
+    var all = codeBody.querySelectorAll('.code-line');
+    for (var i = 0; i < all.length; i++) all[i].classList.remove('active');
+    if (line){
+      var el = codeBody.querySelector('.code-line[data-line="' + line + '"]');
+      if (el) el.classList.add('active');
+    }
+  }
+  function renderNotes(){
+    var html = '';
+    if (!state.notes.length){ html = '<div class="empty">暂无笔记</div>'; }
+    else {
+      for (var i = 0; i < state.notes.length; i++){
+        var n = state.notes[i];
+        html += '<div class="note-item" data-id="' + n.id + '"><div class="nt">' + esc(n.title) + '</div><div class="nm">ID: ' + n.id + ' · ' + esc(n.create_time) + '</div></div>';
+      }
+    }
+    noteListEl.innerHTML = html;
+  }
+  function renderDb(){
+    var html = '';
+    if (!state.notes.length){ html = '<tr><td colspan="4" class="empty">无数据</td></tr>'; }
+    else {
+      for (var i = 0; i < state.notes.length; i++){
+        var n = state.notes[i];
+        html += '<tr class="db-row" data-id="' + n.id + '"><td>' + n.id + '</td><td>' + esc(n.title) + '</td><td class="c-ct">' + esc(n.content) + '</td><td>' + esc(n.create_time) + '</td></tr>';
+      }
+    }
+    dbBodyEl.innerHTML = html;
+  }
+  function renderVars(){
+    $('varParam').textContent = state.vars.param || '（等待执行）';
+    $('varSql').textContent = state.vars.sql || '（等待执行）';
+    $('varResult').textContent = state.vars.result || '（等待执行）';
+  }
+  function renderProgress(){
+    var nodes = document.querySelectorAll('.prog-node');
+    for (var i = 0; i < nodes.length; i++){
+      nodes[i].classList.remove('active','passed');
+      var reached = i <= state.currentMax;
+      if (i === state.currentNode) nodes[i].classList.add('active');
+      else if (reached) nodes[i].classList.add('passed');
+    }
+  }
+  function updateStat(){ $('statBox').textContent = state.notes.length; }
+  function flashStat(){
+    var el = $('statBox');
+    el.classList.remove('stat-flash'); void el.offsetWidth; el.classList.add('stat-flash');
+  }
+  function setReqJson(t){ $('reqJson').textContent = t || '（暂无）'; }
+  function setRespJson(t){ $('respJson').textContent = t || '（暂无）'; }
+  function setExplain(html){ $('explain').innerHTML = html; }
+  function updateStepCounter(){
+    var idx = state.stepIndex < 0 ? 0 : state.stepIndex + 1;
+    $('stepCounter').innerHTML = idx + ' / ' + state.steps.length;
+  }
+  function updateButtons(){
+    var atEnd = state.stepIndex >= state.steps.length - 1;
+    $('nextBtn').disabled = atEnd || state.playing;
+    $('playBtn').textContent = state.playing ? '暂停' : '自动播放';
+    $('scenarioSelect').value = state.scenario;
+  }
+  function showDetail(note){
+    if (!note) return;
+    $('detailPanel').style.display = '';
+    $('detailTitle').textContent = note.title;
+    $('detailContent').textContent = note.content;
+    $('detailTime').textContent = note.create_time;
+  }
+  function clearDetail(){ $('detailPanel').style.display = 'none'; }
+
+  // ---------- 数据库动效 ----------
+  function applyDb(db){
+    if (db.type === 'insert'){
+      state.notes.push(db.newNote);
+      renderDb();
+      var row = dbBodyEl.querySelector('.db-row[data-id="' + db.newNote.id + '"]');
+      if (row) row.classList.add('db-insert');
+    } else if (db.type === 'query'){
+      db.ids.forEach(function(id){
+        var row = dbBodyEl.querySelector('.db-row[data-id="' + id + '"]');
+        if (row){ row.classList.remove('db-hit'); void row.offsetWidth; row.classList.add('db-hit'); }
+      });
+    } else if (db.type === 'statistic'){
+      var el = $('dbStat');
+      el.textContent = '统计结果：COUNT(*) = ' + state.notes.length;
+      el.classList.remove('db-stat-flash'); void el.offsetWidth; el.classList.add('db-stat-flash');
+    }
+  }
+
+  // ---------- 前端联动 ----------
+  function applyFrontend(type, step){
+    if (type === 'addNote'){
+      renderNotes();
+      updateStat();
+      flashStat();
+      $('titleInput').value = '';
+      $('contentInput').value = '';
+    } else if (type === 'highlightNote'){
+      renderNotes();
+      var li = noteListEl.querySelector('.note-item[data-id="' + step.frontendId + '"]');
+      if (li){ li.classList.remove('note-hit'); void li.offsetWidth; li.classList.add('note-hit'); }
+      var note = state.notes.filter(function(n){return n.id === step.frontendId;})[0];
+      showDetail(note);
+    } else if (type === 'flashMatched'){
+      var kw = step.frontendKeyword;
+      var items = noteListEl.querySelectorAll('.note-item');
+      for (var i = 0; i < items.length; i++){
+        var id = +items[i].dataset.id;
+        var nt = state.notes.filter(function(n){return n.id === id;})[0];
+        if (nt && nt.title.indexOf(kw) >= 0){
+          items[i].classList.remove('note-hit'); void items[i].offsetWidth; items[i].classList.add('note-hit');
+        }
+      }
+    } else if (type === 'filterList'){
+      var kw2 = step.frontendKeyword;
+      var items2 = noteListEl.querySelectorAll('.note-item');
+      for (var j = 0; j < items2.length; j++){
+        var id2 = +items2[j].dataset.id;
+        var nt2 = state.notes.filter(function(n){return n.id === id2;})[0];
+        if (nt2 && nt2.title.indexOf(kw2) >= 0) items2[j].classList.remove('dim');
+        else items2[j].classList.add('dim');
+      }
+    } else if (type === 'updateStat'){
+      updateStat();
+      flashStat();
+    }
+  }
+
+  // ---------- 数据流向箭头 ----------
+  function flashArrow(slot, dir){
+    var el = $('arrow' + slot);
+    if (!el) return;
+    el.classList.remove('show','left');
+    void el.offsetWidth;
+    if (dir === 'left') el.classList.add('left');
+    el.classList.add('show');
+    clearTimeout(el._t);
+    el._t = setTimeout(function(){ el.classList.remove('show'); }, 900);
+  }
+  function flashArrowForNode(curr, prev){
+    if (curr === prev) return;
+    if (curr === 1 && prev <= 0) flashArrow('LM', 'right');
+    else if (curr === 3 && prev === 2) flashArrow('MR', 'right');
+    else if (curr === 2 && prev === 3) flashArrow('MR', 'left');
+    else if (curr === 4 && prev === 2) flashArrow('LM', 'left');
+  }
+
+  // ---------- 执行步骤 ----------
+  function applyStep(i){
+    var step = state.steps[i];
+    var prevNode = state.currentNode;
+    state.currentNode = step.node;
+    if (step.node > state.currentMax) state.currentMax = step.node;
+    renderProgress();
+    highlightLine(step.line || null);
+    if (step.param != null) state.vars.param = step.param;
+    if (step.sql != null) state.vars.sql = step.sql;
+    if (step.result != null) state.vars.result = step.result;
+    renderVars();
+    if (step.reqJson != null) setReqJson(step.reqJson);
+    if (step.respJson != null) setRespJson(step.respJson);
+    if (step.db) applyDb(step.db);
+    if (step.frontend) applyFrontend(step.frontend, step);
+    setExplain(termify(step.explain));
+    updateStepCounter();
+    flashArrowForNode(step.node, prevNode);
+  }
+
+  function nextStep(){
+    if (state.stepIndex >= state.steps.length - 1) return;
+    state.stepIndex++;
+    applyStep(state.stepIndex);
+    updateButtons();
+  }
+
+  // ---------- 自动播放 ----------
+  function startAutoPlay(){
+    state.playing = true;
+    updateButtons();
+    tick();
+  }
+  function tick(){
+    if (!state.playing) return;
+    if (state.stepIndex >= state.steps.length - 1){ stopAutoPlay(); return; }
+    nextStep();
+    state.playTimer = setTimeout(tick, 1300);
+  }
+  function stopAutoPlay(){
+    state.playing = false;
+    if (state.playTimer){ clearTimeout(state.playTimer); state.playTimer = null; }
+    updateButtons();
+  }
+  function toggleAutoPlay(){
+    if (state.playing){ stopAutoPlay(); return; }
+    if (state.stepIndex >= state.steps.length - 1){
+      loadScenario(state.scenario, state.lastParams);
+    }
+    startAutoPlay();
+  }
+
+  // ---------- 场景加载/重置 ----------
+  function loadScenario(scenario, params){
+    stopAutoPlay();
+    state.scenario = scenario;
+    state.lastParams = params;
+    state.steps = buildSteps(scenario, params);
+    state.stepIndex = -1;
+    state.vars = { param: '', sql: '', result: '' };
+    state.currentNode = -1;
+    state.currentMax = -1;
+    clearDetail();
+    setReqJson(''); setRespJson('');
+    renderCode(); renderNotes(); renderDb(); renderVars(); renderProgress();
+    highlightLine(null);
+    $('dbStat').textContent = '统计结果：—';
+    setExplain('场景已就绪：点击「下一步」逐步演示，或点击「自动播放」全自动展示全链路。');
+    updateStepCounter();
+    updateButtons();
+  }
+  function reset(){
+    stopAutoPlay();
+    state.notes = initialNotes.map(function(n){ return { id:n.id, title:n.title, content:n.content, create_time:n.create_time }; });
+    loadScenario(state.scenario, defaultParams[state.scenario]);
+  }
+
+  // ---------- 页面操作触发 ----------
+  function triggerSave(){
+    var title = $('titleInput').value.trim() || '未命名笔记';
+    var content = $('contentInput').value.trim() || '（无内容）';
+    loadScenario('save', { title: title, content: content });
+    startAutoPlay();
+  }
+  function triggerSearch(){
+    var keyword = $('searchInput').value.trim();
+    if (!keyword){ setExplain('请先在搜索框输入关键词，再点击「查询」。'); return; }
+    loadScenario('list', { keyword: keyword });
+    startAutoPlay();
+  }
+  function triggerGet(id){
+    loadScenario('get', { id: id });
+    startAutoPlay();
+  }
+  function triggerStat(){
+    loadScenario('statistic', {});
+    startAutoPlay();
+  }
+  function toggleJson(){ $('jsonArea').classList.toggle('collapsed'); }
+
+  // ---------- 初始化 ----------
+  function init(){
+    state.notes = initialNotes.map(function(n){ return { id:n.id, title:n.title, content:n.content, create_time:n.create_time }; });
+    loadScenario('save', defaultParams.save);
+
+    $('scenarioSelect').addEventListener('change', function(e){
+      loadScenario(e.target.value, defaultParams[e.target.value]);
+    });
+    $('nextBtn').addEventListener('click', function(){ stopAutoPlay(); nextStep(); });
+    $('playBtn').addEventListener('click', toggleAutoPlay);
+    $('resetBtn').addEventListener('click', reset);
+    $('saveBtn').addEventListener('click', triggerSave);
+    $('searchBtn').addEventListener('click', triggerSearch);
+    $('statBtn').addEventListener('click', triggerStat);
+    $('statBox').addEventListener('click', triggerStat);
+    $('jsonToggle').addEventListener('click', toggleJson);
+    noteListEl.addEventListener('click', function(e){
+      var item = e.target.closest('.note-item');
+      if (item) triggerGet(+item.dataset.id);
+    });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
+</body>
+</html>
