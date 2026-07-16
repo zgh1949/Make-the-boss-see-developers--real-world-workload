@@ -225,6 +225,25 @@
   .db-stat { margin-top: 8px; background: #fffbe6; border: 1px solid #ffe58f; border-radius: 6px; padding: 7px 10px; font-size: 13px; font-family: Consolas, monospace; color: #d46b08; min-height: 18px; }
   .db-stat.db-stat-flash { animation: dbStatFlash 1.6s ease-out; }
   @keyframes dbStatFlash { 0%{ background:#ffe58f; transform:scale(1.05);} 100%{ background:#fffbe6; transform:scale(1);} }
+  /* 缓存层（数据库区） */
+  .cache-panel { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; overflow: hidden; opacity: .5; transition: opacity .2s, border-color .2s; }
+  .cache-panel.active { opacity: 1; border-color: var(--green); }
+  .cp-hd { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; background: #f7f9fc; border-bottom: 1px solid var(--border); }
+  .cache-panel.active .cp-hd { background: #eafbf1; }
+  .cp-title { font-size: 12px; font-weight: 700; color: #8a94a6; }
+  .cache-panel.active .cp-title { color: var(--green); }
+  .cp-body { padding: 6px 10px; font-size: 12px; color: var(--muted); }
+  .cache-panel.active .cp-body { color: #2c3e50; }
+  .cache-panel.active .cp-body b { color: var(--green); font-size: 15px; }
+  .cache-panel.cache-flash { animation: cacheFlash 1.4s ease-out; }
+  @keyframes cacheFlash { 0%{ box-shadow: 0 0 0 2px var(--green); background:#d9f7be; } 100%{ box-shadow: 0 0 0 0 transparent; background:transparent; } }
+  .switch { position: relative; display: inline-block; width: 34px; height: 18px; vertical-align: middle; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; inset: 0; background: #c5cdd9; border-radius: 18px; transition: .2s; }
+  .slider::before { content: ''; position: absolute; height: 14px; width: 14px; left: 2px; top: 2px; background: #fff; border-radius: 50%; transition: .2s; }
+  .switch input:checked + .slider { background: var(--green); }
+  .switch input:checked + .slider::before { transform: translateX(16px); }
+  .db-popup.cache .dp-hd { background: #f3eaff; color: #722ed1; border-bottom-color: #d3adf7; }
 
   /* ===== 底部控制栏 ===== */
   .bottombar { background: var(--card); border-top: 1px solid var(--border); padding: 10px 24px 12px; flex-shrink: 0; box-shadow: 0 -1px 4px rgba(0,0,0,.04); }
@@ -333,6 +352,16 @@
     <div class="card" style="flex:1;min-height:0;">
       <div class="card-hd"><span>数据库区 · MySQL 模拟</span><span class="tag">notes 表</span></div>
       <div class="card-bd">
+        <div class="cache-panel" id="cachePanel">
+          <div class="cp-hd">
+            <span class="cp-title">⚡ 缓存 Cache</span>
+            <label class="switch" title="开启/关闭缓存（开启后统计总数优先读缓存）">
+              <input type="checkbox" id="cacheToggle">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="cp-body" id="cacheBody">缓存未启用</div>
+        </div>
         <table class="db-table">
           <thead>
             <tr><th>id</th><th>title</th><th>content</th><th>create_time</th></tr>
@@ -459,7 +488,9 @@
     selectedId: null,
     lastReqJson: '',
     lastRespJson: '',
-    dbResult: null
+    dbResult: null,
+    cacheEnabled: false,
+    cacheCount: null
   };
 
   // ---------- DOM ----------
@@ -546,7 +577,7 @@
         { node: 2, line: 5, param: reqJson, explain: '从 JSON 中取出 title（标题）字段' },
         { node: 2, line: 6, param: reqJson, explain: '从 JSON 中取出 content（正文字段）' },
         { node: 2, line: 7, param: reqJson, sql: sql, explain: '把标题和内容拼成一条 INSERT 插入语句（SQL）' },
-        { node: 3, line: 8, param: reqJson, sql: sql, db: { type: 'insert', newNote: newNote }, explain: '后端把 SQL 发给数据库，正式把数据写入表中' },
+        { node: 3, line: 8, param: reqJson, sql: sql, db: { type: 'insert', newNote: newNote, updateCache: state.cacheEnabled }, explain: '后端把 SQL 发给数据库，正式把数据写入表中' + (state.cacheEnabled ? '，并同步更新缓存总数' : '') },
         { node: 2, line: 9, param: reqJson, sql: sql, result: result, dbResult: { type: 'insert', row: newNote }, explain: '数据库写入成功，后端组装返回结果' },
         { node: 4, param: reqJson, sql: sql, result: result, respJson: result, frontend: 'addNote', frontendId: newId, explain: '后端把结果以 JSON 返回前端，页面刷新笔记列表并更新总数' }
       );
@@ -586,14 +617,27 @@
       var reqJson4 = '{}';
       var sql4 = 'SELECT COUNT(*) AS total FROM notes';
       var result4 = J({ code: 0, data: { total: total } });
-      steps.push(
-        { node: 0, explain: '页面加载或用户点击「统计」按钮，查看笔记总数' },
-        { node: 1, param: reqJson4, reqJson: reqJson4, explain: '前端发起无参数请求，通过网络发给后端的 statistic 接口（API）' },
-        { node: 2, line: 4, param: reqJson4, sql: sql4, explain: '后端进入 statistic 接口，拼成一条 COUNT 聚合统计语句（SQL）' },
-        { node: 3, line: 5, param: reqJson4, sql: sql4, db: { type: 'statistic' }, explain: '后端把 SQL 发给数据库，统计全部笔记数量' },
-        { node: 2, line: 6, param: reqJson4, sql: sql4, result: result4, dbResult: { type: 'stat', total: total }, explain: '把统计结果组装成返回数据' },
-        { node: 4, param: reqJson4, sql: sql4, result: result4, respJson: result4, frontend: 'updateStat', explain: '后端把结果以 JSON 返回前端，页面刷新笔记总数' }
-      );
+      if (state.cacheEnabled){
+        var cachedTotal = state.cacheCount != null ? state.cacheCount : total;
+        var cacheResult = J({ code: 0, data: { total: cachedTotal } });
+        steps.push(
+          { node: 0, explain: '页面加载或用户点击「统计」按钮，查看笔记总数（缓存已开启）' },
+          { node: 1, param: reqJson4, reqJson: reqJson4, explain: '前端发起无参数请求，通过网络发给后端的 statistic 接口（API）' },
+          { node: 2, line: 4, param: reqJson4, sql: sql4, explain: '后端进入 statistic 接口，准备查询总数' },
+          { node: 3, line: 5, param: reqJson4, sql: sql4, cacheHit: true, db: { type: 'cacheHit' }, dbResult: { type: 'stat', total: cachedTotal }, explain: '命中缓存！后端直接从缓存读取总数 ' + cachedTotal + '，无需查询数据库，速度更快' },
+          { node: 2, line: 6, param: reqJson4, sql: sql4, result: cacheResult, dbResult: { type: 'stat', total: cachedTotal }, explain: '把缓存返回的总数组装成返回数据' },
+          { node: 4, param: reqJson4, sql: sql4, result: cacheResult, respJson: cacheResult, frontend: 'updateStat', explain: '后端把结果以 JSON 返回前端，页面刷新笔记总数' }
+        );
+      } else {
+        steps.push(
+          { node: 0, explain: '页面加载或用户点击「统计」按钮，查看笔记总数' },
+          { node: 1, param: reqJson4, reqJson: reqJson4, explain: '前端发起无参数请求，通过网络发给后端的 statistic 接口（API）' },
+          { node: 2, line: 4, param: reqJson4, sql: sql4, explain: '后端进入 statistic 接口，拼成一条 COUNT 聚合统计语句（SQL）' },
+          { node: 3, line: 5, param: reqJson4, sql: sql4, db: { type: 'statistic' }, explain: '后端把 SQL 发给数据库，统计全部笔记数量' },
+          { node: 2, line: 6, param: reqJson4, sql: sql4, result: result4, dbResult: { type: 'stat', total: total }, explain: '把统计结果组装成返回数据' },
+          { node: 4, param: reqJson4, sql: sql4, result: result4, respJson: result4, frontend: 'updateStat', explain: '后端把结果以 JSON 返回前端，页面刷新笔记总数' }
+        );
+      }
     }
     return steps;
   }
@@ -654,6 +698,23 @@
   function flashStat(){
     var el = $('statBox');
     el.classList.remove('stat-flash'); void el.offsetWidth; el.classList.add('stat-flash');
+  }
+  function renderCache(){
+    var panel = $('cachePanel'), body = $('cacheBody'), toggle = $('cacheToggle');
+    if (!panel) return;
+    toggle.checked = state.cacheEnabled;
+    if (state.cacheEnabled){
+      panel.classList.add('active');
+      body.innerHTML = '缓存总数：<b>' + (state.cacheCount != null ? state.cacheCount : '-') + '</b> · 统计直接读缓存';
+    } else {
+      panel.classList.remove('active','cache-flash');
+      body.textContent = '缓存未启用（统计将直接查询数据库）';
+    }
+  }
+  function flashCache(){
+    var panel = $('cachePanel');
+    if (!panel) return;
+    panel.classList.remove('cache-flash'); void panel.offsetWidth; panel.classList.add('cache-flash');
   }
   function setReqJson(t){ state.lastReqJson = t || ''; }
   function setRespJson(t){ state.lastRespJson = t || ''; }
@@ -719,6 +780,11 @@
       renderDb();
       var row = dbBodyEl.querySelector('.db-row[data-id="' + db.newNote.id + '"]');
       if (row) row.classList.add('db-insert');
+      if (db.updateCache){
+        state.cacheCount = (state.cacheCount != null ? state.cacheCount + 1 : state.notes.length);
+        renderCache();
+        flashCache();
+      }
     } else if (db.type === 'query'){
       db.ids.forEach(function(id){
         var row = dbBodyEl.querySelector('.db-row[data-id="' + id + '"]');
@@ -728,6 +794,8 @@
       var el = $('dbStat');
       el.textContent = '统计结果：COUNT(*) = ' + state.notes.length;
       el.classList.remove('db-stat-flash'); void el.offsetWidth; el.classList.add('db-stat-flash');
+    } else if (db.type === 'cacheHit'){
+      flashCache();
     }
   }
 
@@ -846,6 +914,11 @@
         $('dbModalFoot').textContent = '后端把拼接好的 SQL 语句发给数据库执行。';
       }
       popup.className = 'db-popup sql';
+    } else if (which === 'cache'){
+      $('dbModalTitle').textContent = '缓存命中（后端 -> 缓存）';
+      body.innerHTML = '<div class="dp-msg">⚡ 命中缓存，直接返回缓存总数 ' + (state.cacheCount != null ? state.cacheCount : '-') + '</div>';
+      $('dbModalFoot').textContent = '统计接口优先读缓存，无需查询数据库，响应更快。';
+      popup.className = 'db-popup cache';
     } else {
       $('dbModalTitle').textContent = '查询结果（数据库 -> 后端）';
       body.innerHTML = renderResultTable(state.dbResult);
@@ -853,7 +926,7 @@
       popup.className = 'db-popup result';
     }
     popup.style.display = '';
-    var btn = $(which === 'sql' ? 'dbExecBtn' : 'dbResultBtn');
+    var btn = $(which === 'result' ? 'dbResultBtn' : 'dbExecBtn');
     if (btn){
       var r = btn.getBoundingClientRect();
       var pw = popup.offsetWidth, ph = popup.offsetHeight;
@@ -891,7 +964,7 @@
     flashArrowForNode(step.node, prevNode);
     if (step.node === 1) openJsonModal('req');
     else if (step.node === 2 && prevNode === 1) closeJsonModal();
-    else if (step.node === 3) { closeJsonModal(); openDbModal('sql'); }
+    else if (step.node === 3) { closeJsonModal(); openDbModal(step.cacheHit ? 'cache' : 'sql'); }
     else if (step.node === 2 && prevNode === 3) { closeDbModal(); openDbModal('result'); }
     else if (step.node === 4) { closeDbModal(); openJsonModal('resp'); }
   }
@@ -946,7 +1019,7 @@
     if (sb) sb.classList.remove('has-data','highlight');
     if (eb) eb.classList.remove('has-data','highlight');
     if (tb) tb.classList.remove('has-data','highlight');
-    renderCode(); renderNotes(); renderDb(); renderVars(); renderProgress();
+    renderCode(); renderNotes(); renderDb(); renderVars(); renderProgress(); renderCache();
     highlightLine(null);
     $('dbStat').textContent = '统计结果：—';
     setExplain('场景已就绪：点击「下一步」逐步演示，或点击「自动播放」全自动展示全链路。');
@@ -956,6 +1029,7 @@
   function reset(){
     stopAutoPlay();
     state.notes = initialNotes.map(function(n){ return { id:n.id, title:n.title, content:n.content, create_time:n.create_time }; });
+    if (state.cacheEnabled) state.cacheCount = state.notes.length;
     loadScenario(state.scenario, defaultParams[state.scenario]);
     setupEditorForScenario(state.scenario, defaultParams[state.scenario]);
   }
@@ -1013,6 +1087,13 @@
     $('dbResultBtn').addEventListener('click', function(){ openDbModal('result'); });
     $('modalClose').addEventListener('click', closeJsonModal);
     $('dbModalClose').addEventListener('click', closeDbModal);
+    $('cacheToggle').addEventListener('change', function(e){
+      state.cacheEnabled = e.target.checked;
+      if (state.cacheEnabled) state.cacheCount = state.notes.length;
+      else state.cacheCount = null;
+      renderCache();
+      loadScenario(state.scenario, state.lastParams);
+    });
     noteListEl.addEventListener('click', function(e){
       var item = e.target.closest('.note-item');
       if (item) triggerGet(+item.dataset.id);
