@@ -262,12 +262,12 @@
 #intro-stage { position:fixed; inset:0; z-index:10000; background:linear-gradient(135deg,#f6f8fb,#e9edf3); display:flex; flex-direction:column; font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; color:#2c3e50; }
 #intro-stage * { box-sizing:border-box; }
 #intro-stage .i-top { flex:1; display:flex; align-items:center; justify-content:center; gap:18px; padding:20px 36px; min-height:0; }
-#intro-stage .i-char { width:230px; flex-shrink:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
-#intro-stage .i-char img { max-height:60vh; max-width:100%; object-fit:contain; filter:drop-shadow(0 12px 24px rgba(0,0,0,.18)); transition:opacity .35s; }
+#intro-stage .i-char { width:360px; flex-shrink:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
+#intro-stage .i-char img { max-height:70vh; max-width:100%; object-fit:contain; filter:drop-shadow(0 12px 24px rgba(0,0,0,.18)); transition:opacity .35s; }
 #intro-stage .i-char-name { margin-top:4px; font-size:15px; font-weight:700; color:#5a6678; }
 #intro-stage .i-stage-area { flex:1; display:flex; align-items:center; justify-content:center; min-height:0; min-width:0; }
 #intro-stage .i-region { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; }
-#intro-stage .i-ref-img { max-width:460px; max-height:60vh; border-radius:14px; box-shadow:0 14px 40px rgba(0,0,0,.2); }
+#intro-stage .i-ref-img { max-width:460px; max-height:54vh; border-radius:14px; box-shadow:0 14px 40px rgba(0,0,0,.2); }
 #intro-stage .i-ref-label { font-size:14px; color:#8a94a6; }
 
 /* 备忘录组件 */
@@ -331,11 +331,48 @@
 #intro-stage .i-btn:hover { filter:brightness(.95); }
 #intro-stage .i-btn:disabled { opacity:.45; cursor:not-allowed; }
 #intro-stage .i-progress { font-size:12px; color:#8a94a6; margin-left:8px; }
+#intro-stage .i-hero { text-align:center; padding:14px 20px 2px; flex-shrink:0; }
+#intro-stage .i-map { display:flex; align-items:flex-start; justify-content:center; padding:12px 20px 8px; flex-shrink:0; }
+#intro-stage .i-map-node { display:flex; flex-direction:column; align-items:center; width:128px; position:relative; z-index:1; }
+#intro-stage .i-map-node:not(:last-child)::after { content:''; position:absolute; top:15px; left:calc(50% + 18px); width:calc(100% - 36px); height:3px; background:#e1e6ed; }
+#intro-stage .i-map-node.done:not(:last-child)::after { background:#2f6fed; }
+#intro-stage .i-node-dot { width:36px; height:36px; border-radius:50%; background:#fff; border:2px solid #c5cdd9; color:#8a94a6; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:700; transition:all .3s; }
+#intro-stage .i-node-label { font-size:12px; color:#8a94a6; margin-top:6px; transition:all .3s; white-space:nowrap; }
+#intro-stage .i-map-node.done .i-node-dot { background:#2f6fed; border-color:#2f6fed; color:#fff; }
+#intro-stage .i-map-node.active .i-node-dot { background:#ffd60a; border-color:#ffd60a; color:#1a1a1a; transform:scale(1.18); box-shadow:0 0 0 5px rgba(255,214,10,.25); }
+#intro-stage .i-map-node.active .i-node-label { color:#1a1a1a; font-weight:700; }
+#intro-cover { position:fixed; inset:0; z-index:10001; background:linear-gradient(135deg,#f6f8fb,#e9edf3); display:flex; align-items:center; justify-content:center; font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; }
+#intro-cover .cov-inner { text-align:center; padding:30px; max-width:980px; }
+#intro-cover .cov-tag { display:inline-block; font-size:13px; color:#2f6fed; background:#eaf2ff; padding:4px 14px; border-radius:12px; font-weight:600; margin-bottom:18px; }
+#intro-cover .cov-title { font-size:50px; font-weight:800; color:#1a1a1a; line-height:1.25; margin:0 0 16px; letter-spacing:1px; }
+#intro-cover .cov-title b { color:#2f6fed; }
+#intro-cover .cov-sub { font-size:16px; color:#5a6678; line-height:1.6; margin-bottom:28px; }
+#intro-cover .cov-chars { display:flex; justify-content:center; gap:16px; margin-bottom:30px; }
+#intro-cover .cov-chars img { height:175px; width:auto; object-fit:contain; filter:drop-shadow(0 10px 22px rgba(0,0,0,.16)); }
+#intro-cover .cov-start { font-size:18px; padding:13px 38px; border:none; border-radius:10px; background:#1a1a1a; color:#fff; cursor:pointer; font-family:inherit; box-shadow:0 8px 22px rgba(0,0,0,.2); transition:transform .15s; }
+#intro-cover .cov-start:hover { transform:translateY(-2px); }
 </style>
 </head>
 <body>
 
-<div id="intro-stage">
+<div id="intro-cover">
+  <div class="cov-inner">
+    <div class="cov-tag">交互式可视化科普</div>
+    <h1 class="cov-title">一个 <b>Web 请求</b><br/>是怎么跑通的？</h1>
+    <div class="cov-sub">从产品构想到代码落地，再到 页面 -> JSON -> 后端 -> 数据库 的完整链路，交互式逐步看清。</div>
+    <div class="cov-chars" id="cov-chars"></div>
+    <button class="cov-start" id="cov-start">开始旅程 -&gt;</button>
+  </div>
+</div>
+
+<div id="intro-stage" style="display:none;">
+  <div class="i-map">
+    <div class="i-map-node" data-stage="0"><div class="i-node-dot">1</div><div class="i-node-label">老板构想</div></div>
+    <div class="i-map-node" data-stage="1"><div class="i-node-dot">2</div><div class="i-node-label">产品原型</div></div>
+    <div class="i-map-node" data-stage="2"><div class="i-node-dot">3</div><div class="i-node-label">UI 设计</div></div>
+    <div class="i-map-node" data-stage="3"><div class="i-node-dot">4</div><div class="i-node-label">程序员研发</div></div>
+    <div class="i-map-node" data-stage="4"><div class="i-node-dot">5</div><div class="i-node-label">全链路演示</div></div>
+  </div>
   <div class="i-top">
     <div class="i-char"><img id="i-char-img" alt="" /><div class="i-char-name" id="i-char-name"></div></div>
     <div class="i-stage-area">
@@ -1297,6 +1334,26 @@
   var charImg = el('i-char-img'), charName = el('i-char-name'), caption = el('i-caption');
   charImg.style.opacity = 0;
   el('i-ref-img').src = I_IMG.ref;
+  var covChars = el('cov-chars');
+  ['boss','pm','ui','dev'].forEach(function(k){
+    var img = document.createElement('img');
+    img.src = I_IMG[k]; img.alt = NAMES[k]; img.title = NAMES[k];
+    covChars.appendChild(img);
+  });
+  function stageOf(i){ if(i<2)return 0; if(i<7)return 1; if(i<11)return 2; if(i<18)return 3; return 4; }
+  function updateMap(stage){
+    var nodes = document.querySelectorAll('#intro-stage .i-map-node');
+    for (var k=0;k<nodes.length;k++){
+      nodes[k].classList.remove('active','done');
+      if (k < stage) nodes[k].classList.add('done');
+      else if (k === stage) nodes[k].classList.add('active');
+    }
+  }
+  function startIntro(){
+    el('intro-cover').style.display = 'none';
+    el('intro-stage').style.display = 'flex';
+    go(0);
+  }
 
   function showRegion(name){
     ['i-ref','i-mock','i-overview'].forEach(function(id){ el(id).style.display = (id === name ? '' : 'none'); });
@@ -1348,6 +1405,7 @@
     setChar(s.char);
     caption.textContent = s.cap;
     if (s.fn) s.fn();
+    updateMap(stageOf(i));
     el('i-progress').textContent = (i+1) + ' / ' + STEPS.length;
     el('i-prev').disabled = (i === 0);
     el('i-next').textContent = (i >= STEPS.length-1) ? '进入演示 →' : '下一步';
@@ -1360,12 +1418,16 @@
   el('i-prev').addEventListener('click', prev);
   el('i-skip').addEventListener('click', finish);
   el('i-enter').addEventListener('click', finish);
+  el('cov-start').addEventListener('click', startIntro);
   document.addEventListener('keydown', function(e){
+    if (el('intro-cover').style.display !== 'none'){
+      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); startIntro(); }
+      return;
+    }
     if (el('intro-stage').style.display === 'none') return;
     if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
     else if (e.key === 'ArrowLeft') { prev(); }
   });
-  go(0);
 })();
 </script>
 </body>
