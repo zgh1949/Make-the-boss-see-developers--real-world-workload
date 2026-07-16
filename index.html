@@ -1359,7 +1359,9 @@
     ['i-ref','i-mock','i-overview'].forEach(function(id){ el(id).style.display = (id === name ? '' : 'none'); });
   }
   function setChar(name){
-    if (!name){ charImg.style.opacity = 0; charName.textContent = ''; return; }
+    var col = charImg.parentElement;
+    if (!name){ charImg.style.opacity = 0; charName.textContent = ''; col.style.display = 'none'; return; }
+    col.style.display = '';
     charImg.src = I_IMG[name];
     charImg.style.opacity = 1;
     charName.textContent = NAMES[name] || '';
