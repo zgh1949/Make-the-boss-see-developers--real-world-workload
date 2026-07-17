@@ -357,6 +357,62 @@
 #intro-cover .cov-start:hover { transform:translateY(-2px); }
 </style>
 
+<style id="blob-css">
+  /* ===== UI 设计阶段：漂浮颜料拖拽 ===== */
+  #intro-stage .i-char { position: relative; }
+  #intro-stage .color-blobs { position: absolute; top: 2%; left: 0; right: 0; height: 26%; pointer-events: none; z-index: 5; display: none; }
+  #intro-stage .color-blobs.show { display: block; }
+  #intro-stage .color-blob {
+    position: absolute; width: 54px; height: 46px;
+    pointer-events: auto; cursor: grab; user-select: none; touch-action: none;
+    animation: floatBlob 7s ease-in-out infinite;
+    transition: transform .15s ease, box-shadow .15s ease;
+    filter: drop-shadow(0 5px 8px rgba(0,0,0,.14));
+  }
+  #intro-stage .color-blob::before {
+    content: ''; position: absolute; inset: 0; border-radius: inherit;
+    background: linear-gradient(135deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,.1) 34%, transparent 56%);
+    pointer-events: none;
+  }
+  #intro-stage .color-blob::after {
+    content: ''; position: absolute; top: 20%; left: 22%; width: 18%; height: 14%;
+    border-radius: 50%; background: rgba(255,255,255,.75); pointer-events: none;
+  }
+  #intro-stage .color-blob:hover { transform: scale(1.1) rotate(-3deg); }
+  #intro-stage .color-blob.dragging { cursor: grabbing; animation: none; z-index: 12; transition: none; filter: drop-shadow(0 10px 16px rgba(0,0,0,.25)); }
+  @keyframes floatBlob { 0%,100%{ transform: translate(0,0) rotate(0);} 33%{ transform: translate(7px,-10px) rotate(3deg);} 66%{ transform: translate(-9px,6px) rotate(-3deg);} }
+  #intro-stage .color-hint {
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    background: rgba(47,111,237,.92); color: #fff; font-size: 13px; font-weight: 600;
+    padding: 6px 14px; border-radius: 16px; box-shadow: 0 6px 18px rgba(47,111,237,.3);
+    z-index: 6; display: none; pointer-events: none; white-space: nowrap;
+    animation: hintBob 2.2s ease-in-out infinite;
+  }
+  #intro-stage .color-hint.show { display: block; }
+  @keyframes hintBob { 0%,100%{ transform: translateX(-50%) translateY(0);} 50%{ transform: translateX(-50%) translateY(-5px);} }
+  #intro-stage .color-hint.nudge { background: rgba(235,47,150,.92); box-shadow: 0 6px 18px rgba(235,47,150,.35); animation: hintNudge .5s ease-in-out 2; }
+  @keyframes hintNudge { 0%,100%{ transform: translateX(-50%) translateY(0);} 25%{ transform: translateX(-58%) translateY(-3px);} 75%{ transform: translateX(-42%) translateY(-3px);} }
+  /* 主题色应用 */
+  #intro-stage .notes-app.themed .n-fab:not(.wf) { background: var(--n-accent); box-shadow: 0 6px 18px var(--n-accent-glow); border-color: var(--n-accent); transition: background .4s, box-shadow .4s; }
+  #intro-stage .notes-app.themed .n-count { background: var(--n-accent); color: #fff; }
+  #intro-stage .notes-app.themed .n-search:not(.wf) { border-color: var(--n-accent); }
+  #intro-stage .notes-app.themed .n-search:not(.wf) > span:first-child { color: var(--n-accent); }
+  #intro-stage .notes-app.themed .n-dt { color: var(--n-accent); }
+  #intro-stage .notes-app.drop-target { box-shadow: 0 0 0 4px var(--drop-glow, rgba(47,111,237,.35)), 0 18px 44px rgba(0,0,0,.22) !important; transform: scale(1.02); }
+  #intro-stage .theme-ripple { position: absolute; width: 16px; height: 16px; border-radius: 50%; transform: translate(-50%,-50%) scale(0); pointer-events: none; z-index: 8; opacity: .4; animation: themeRipple .7s ease-out forwards; }
+  @keyframes themeRipple { to { transform: translate(-50%,-50%) scale(45); opacity: 0; } }
+</style>
+
+<style id="app-theme-css">
+  .app.themed-app .app-fab { background: var(--app-accent); box-shadow: 0 6px 16px var(--app-accent-glow); color: #fff; }
+  .app.themed-app .cnt { background: var(--app-accent); color: #fff; }
+  .app.themed-app .cnt:hover { filter: brightness(1.1); }
+  .app.themed-app .cnt.stat-flash { animation: statFlashThemed 1.6s ease-out; }
+  @keyframes statFlashThemed { 0%{ transform: scale(1.18); filter: brightness(1.35); } 100%{ transform: scale(1); filter: none; } }
+  .app.themed-app .note-item.selected { background: var(--app-accent-tint); }
+  .app.themed-app .ed-save { background: var(--app-accent); }
+</style>
+
 <style id="ch-style">
 #ch-switcher { position:fixed; top:16px; right:16px; z-index:10002; font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; }
 .ch-sw-btn { padding:7px 14px; border:1px solid #c5cdd9; background:rgba(255,255,255,.92); color:#5a6678; font-size:13px; border-radius:20px; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,.1); font-weight:600; }
@@ -417,7 +473,11 @@
     <div class="i-map-node" data-stage="4"><div class="i-node-dot">5</div><div class="i-node-label">全链路演示</div></div>
   </div>
   <div class="i-top">
-    <div class="i-char"><img id="i-char-img" alt="" /><div class="i-char-name" id="i-char-name"></div></div>
+    <div class="i-char">
+      <div class="color-blobs" id="color-blobs"></div>
+      <div class="color-hint" id="color-hint">选一个颜料，拖到设计稿上 -&gt;</div>
+      <img id="i-char-img" alt="" /><div class="i-char-name" id="i-char-name"></div>
+    </div>
     <div class="i-stage-area">
       <div class="i-region" id="i-ref">
         <img id="i-ref-img" class="i-ref-img" alt="" />
@@ -1440,6 +1500,118 @@
     { char:null, nobubble:true, cap:'点击下方按钮，进入 Web 请求全链路演示', fn:function(){ el('i-enter').style.display=''; } }
   ];
 
+  // ---------- UI 设计阶段：漂浮颜色拖拽 ----------
+  var blobsBuilt = false, chosenThemeColor = null;
+  function shadeColor(hex){
+    var n = parseInt(hex.slice(1),16);
+    var r=(n>>16)&255, g=(n>>8)&255, b=n&255;
+    r=Math.max(0,r-45); g=Math.max(0,g-45); b=Math.max(0,b-45);
+    return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
+  }
+  function hslToHex(h, s, l){
+    s/=100; l/=100;
+    var k = function(n){ return (n + h/30) % 12; };
+    var a = s * Math.min(l, 1-l);
+    var f = function(n){ return Math.round(255 * (l - a * Math.max(-1, Math.min(k(n)-3, Math.min(9-k(n), 1))))); };
+    return '#'+((1<<24)+(f(0)<<16)+(f(8)<<8)+f(4)).toString(16).slice(1);
+  }
+  function makeColor(){
+    var h = Math.floor(Math.random()*360);
+    var s = 68 + Math.floor(Math.random()*18);
+    var l = 50 + Math.floor(Math.random()*10);
+    var hex = hslToHex(h, s, l);
+    var n = parseInt(hex.slice(1),16);
+    var r=(n>>16)&255, g=(n>>8)&255, b=n&255;
+    return { color: hex, glow: 'rgba('+r+','+g+','+b+',.55)', tint: 'rgba('+r+','+g+','+b+',.18)' };
+  }
+  function organicRadius(){
+    var r = function(){ return 42 + Math.floor(Math.random()*30); };
+    return r()+'% '+r()+'% '+r()+'% '+r()+'% / '+r()+'% '+r()+'% '+r()+'% '+r()+'%';
+  }
+  function buildBlobs(){
+    if (blobsBuilt) return;
+    var wrap = el('color-blobs');
+    if (!wrap) return;
+    var homes = [ {x:'12%', y:'46%'}, {x:'42%', y:'10%'}, {x:'72%', y:'48%'} ];
+    for (var i=0;i<3;i++){
+      var c = makeColor();
+      var b = document.createElement('div');
+      b.className = 'color-blob';
+      b.style.borderRadius = organicRadius();
+      b.style.background = 'radial-gradient(circle at 32% 28%, rgba(255,255,255,.7), '+c.color+' 52%, '+shadeColor(c.color)+' 100%)';
+      b.style.boxShadow = '0 8px 22px '+c.glow+', inset 0 -10px 16px rgba(0,0,0,.25), inset 0 9px 14px rgba(255,255,255,.4)';
+      b.style.left = homes[i].x; b.style.top = homes[i].y;
+      b.style.animationDelay = (i*0.9)+'s';
+      b._color = c; b._home = homes[i];
+      wrap.appendChild(b);
+      attachBlobDrag(b);
+    }
+    blobsBuilt = true;
+  }
+  function attachBlobDrag(b){
+    b.addEventListener('pointerdown', function(e){
+      e.preventDefault(); e.stopPropagation();
+      var mock = el('n-app');
+      if (!mock) return;
+      var r = b.getBoundingClientRect();
+      var ox = e.clientX - r.left, oy = e.clientY - r.top;
+      b.classList.add('dragging');
+      b.style.position = 'fixed';
+      b.style.left = r.left + 'px'; b.style.top = r.top + 'px';
+      function move(ev){
+        b.style.left = (ev.clientX - ox) + 'px';
+        b.style.top = (ev.clientY - oy) + 'px';
+        var mr = mock.getBoundingClientRect();
+        var hit = ev.clientX>=mr.left && ev.clientX<=mr.right && ev.clientY>=mr.top && ev.clientY<=mr.bottom;
+        mock.classList.toggle('drop-target', hit);
+        if (hit) mock.style.setProperty('--drop-glow', b._color.glow);
+      }
+      function up(ev){
+        document.removeEventListener('pointermove', move);
+        document.removeEventListener('pointerup', up);
+        b.classList.remove('dragging');
+        var mr = mock.getBoundingClientRect();
+        var hit = ev.clientX>=mr.left && ev.clientX<=mr.right && ev.clientY>=mr.top && ev.clientY<=mr.bottom;
+        mock.classList.remove('drop-target');
+        if (hit) applyTheme(b._color, ev.clientX, ev.clientY);
+        b.style.position = '';
+        b.style.left = b._home.x; b.style.top = b._home.y;
+        function swallowOnce(e2){ e2.stopPropagation(); e2.preventDefault(); document.removeEventListener('click', swallowOnce, true); }
+        document.addEventListener('click', swallowOnce, true);
+        setTimeout(function(){ document.removeEventListener('click', swallowOnce, true); }, 500);
+      }
+      document.addEventListener('pointermove', move);
+      document.addEventListener('pointerup', up);
+    });
+  }
+  function applyTheme(c, x, y){
+    chosenThemeColor = c;
+    var app = el('n-app');
+    app.style.setProperty('--n-accent', c.color);
+    app.style.setProperty('--n-accent-glow', c.glow);
+    app.classList.add('themed');
+    var ripple = document.createElement('div');
+    ripple.className = 'theme-ripple';
+    ripple.style.background = c.color;
+    var mr = app.getBoundingClientRect();
+    ripple.style.left = (x - mr.left) + 'px';
+    ripple.style.top = (y - mr.top) + 'px';
+    app.appendChild(ripple);
+    setTimeout(function(){ if (ripple.parentNode) ripple.parentNode.removeChild(ripple); }, 720);
+  }
+  function toggleColorBlobs(on){
+    var wrap = el('color-blobs'), hint = el('color-hint');
+    if (!wrap) return;
+    if (on){
+      buildBlobs();
+      wrap.classList.add('show');
+      if (hint) hint.classList.add('show');
+    } else {
+      wrap.classList.remove('show');
+      if (hint) hint.classList.remove('show');
+    }
+  }
+
   var idx = -1;
   function go(i){
     if (i < 0 || i >= STEPS.length) return;
@@ -1460,19 +1632,38 @@
     }
     if (s.fn) s.fn();
     updateMap(stageOf(i));
+    toggleColorBlobs(stageOf(i) === 2);
     el('i-progress').textContent = (i+1) + ' / ' + STEPS.length;
     el('i-prev').disabled = (i === 0);
   }
-  function next(){ if (idx >= STEPS.length-1){ finish(); return; } go(idx+1); }
+  function next(){
+    if (stageOf(idx) === 2 && !chosenThemeColor){ nudgeColor(); return; }
+    if (idx >= STEPS.length-1){ finish(); return; }
+    go(idx+1);
+  }
+  function nudgeColor(){
+    var hint = el('color-hint');
+    if (!hint) return;
+    hint.classList.remove('nudge'); void hint.offsetWidth; hint.classList.add('nudge');
+    setTimeout(function(){ hint.classList.remove('nudge'); }, 1000);
+  }
   function prev(){ if (idx > 0) go(idx-1); }
-  function finish(){ el('intro-stage').style.display = 'none'; window.scrollTo(0,0); var sw = document.getElementById('ch-switcher'); if (sw) sw.style.display = ''; }
+  function applyAppTheme(c){
+    var app = document.querySelector('.app');
+    if (!app || !c) return;
+    app.style.setProperty('--app-accent', c.color);
+    app.style.setProperty('--app-accent-glow', c.glow);
+    app.style.setProperty('--app-accent-tint', c.tint);
+    app.classList.add('themed-app');
+  }
+  function finish(){ el('intro-stage').style.display = 'none'; window.scrollTo(0,0); window.__themeColor = chosenThemeColor; applyAppTheme(chosenThemeColor); var sw = document.getElementById('ch-switcher'); if (sw) sw.style.display = ''; }
 
   el('i-prev').addEventListener('click', function(e){ e.stopPropagation(); prev(); });
   el('i-skip').addEventListener('click', function(e){ e.stopPropagation(); finish(); });
   el('i-enter').addEventListener('click', function(e){ e.stopPropagation(); finish(); });
   el('cov-start').addEventListener('click', startIntro);
   el('intro-stage').addEventListener('click', function(e){
-    if (e.target.closest('.i-corner') || e.target.closest('#i-enter')) return;
+    if (e.target.closest('.i-corner') || e.target.closest('#i-enter') || e.target.closest('.color-blob')) return;
     next();
   });
   document.addEventListener('keydown', function(e){
