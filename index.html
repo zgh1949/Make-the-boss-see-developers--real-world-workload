@@ -392,6 +392,23 @@
   @keyframes hintBob { 0%,100%{ transform: translateX(-50%) translateY(0);} 50%{ transform: translateX(-50%) translateY(-5px);} }
   #intro-stage .color-hint.nudge { background: rgba(235,47,150,.92); box-shadow: 0 6px 18px rgba(235,47,150,.35); animation: hintNudge .5s ease-in-out 2; }
   @keyframes hintNudge { 0%,100%{ transform: translateX(-50%) translateY(0);} 25%{ transform: translateX(-58%) translateY(-3px);} 75%{ transform: translateX(-42%) translateY(-3px);} }
+  /* 产品原型阶段：组件拖拽块 */
+  #intro-stage .pm-chip {
+    position: absolute; left: 50%; top: 9%;
+    display: none; pointer-events: auto; cursor: grab; user-select: none; touch-action: none;
+    background: #fff; border: 2px dashed #b7c2d6; border-radius: 10px;
+    padding: 9px 16px; box-shadow: 0 8px 22px rgba(0,0,0,.12);
+    font-size: 13px; font-weight: 600; color: #5a6678; white-space: nowrap;
+    z-index: 5; animation: floatChip 5s ease-in-out infinite;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  #intro-stage .pm-chip.show { display: flex; align-items: center; gap: 8px; }
+  #intro-stage .pm-chip .pc-ico { font-size: 17px; line-height: 1; }
+  #intro-stage .pm-chip:hover { box-shadow: 0 12px 26px rgba(0,0,0,.16); }
+  #intro-stage .pm-chip.dragging { cursor: grabbing; animation: none; z-index: 12; transition: none; box-shadow: 0 14px 30px rgba(0,0,0,.22); border-style: solid; border-color: #2f6fed; }
+  @keyframes floatChip { 0%,100%{ transform: translateX(-50%) translateY(0);} 50%{ transform: translateX(-50%) translateY(-8px);} }
+  #intro-stage .pm-chip.nudge { border-color: #eb2f96; color: #eb2f96; animation: chipNudge .5s ease-in-out 2; }
+  @keyframes chipNudge { 0%,100%{ transform: translateX(-50%) translateY(0);} 25%{ transform: translateX(-58%) translateY(-3px);} 75%{ transform: translateX(-42%) translateY(-3px);} }
   /* 主题色应用 */
   #intro-stage .notes-app.themed .n-fab:not(.wf) { background: var(--n-accent); box-shadow: 0 6px 18px var(--n-accent-glow); border-color: var(--n-accent); transition: background .4s, box-shadow .4s; }
   #intro-stage .notes-app.themed .n-count { background: var(--n-accent); color: #fff; }
@@ -476,6 +493,7 @@
     <div class="i-char">
       <div class="color-blobs" id="color-blobs"></div>
       <div class="color-hint" id="color-hint">选一个颜料，拖到设计稿上 -&gt;</div>
+      <div class="pm-chip" id="pm-chip"><span class="pc-ico"></span><span class="pc-lbl"></span></div>
       <img id="i-char-img" alt="" /><div class="i-char-name" id="i-char-name"></div>
     </div>
     <div class="i-stage-area">
@@ -1481,10 +1499,10 @@
     { char:'boss', cap:'我想做个像苹果备忘录那样的软件--简单、好用，能记事、能搜、还能统计', fn:function(){ showRegion('i-ref'); el('i-code').style.display='none'; el('i-backend').style.display='none'; } },
     { char:'boss', cap:'这事儿就交给老潘了，你先把原型理出来', fn:function(){ showRegion('i-ref'); } },
     { char:'pm', cap:'好嘞，我先把页面结构搭出来--最上面是标题栏', fn:function(){ showRegion('i-mock'); el('i-code').style.display='none'; el('i-backend').style.display='none'; resetMock(); reveal('n-header'); } },
-    { char:'pm', cap:'标题栏下面放个搜索框，方便找笔记', fn:function(){ reveal('n-search'); } },
-    { char:'pm', cap:'再画出笔记列表，一条条排下来', fn:function(){ reveal('n-list'); } },
-    { char:'pm', cap:'右下角加个「新建」按钮，标题栏旁边显示总数', fn:function(){ reveal('n-fab'); } },
-    { char:'pm', cap:'点开任意一条还能看详情--原型齐活了，小雅接手', fn:function(){ reveal('n-detail'); } },
+    { char:'pm', cap:'标题栏下面放个搜索框，方便找笔记', fn:function(){ showPmChip(3); } },
+    { char:'pm', cap:'再画出笔记列表，一条条排下来', fn:function(){ showPmChip(4); } },
+    { char:'pm', cap:'右下角加个「新建」按钮，标题栏旁边显示总数', fn:function(){ showPmChip(5); } },
+    { char:'pm', cap:'点开任意一条还能看详情--原型齐活了，小雅接手', fn:function(){ showPmChip(6); } },
     { char:'ui', cap:'我来给它整整容，先定个主色调--蓝色，清爽又专业', fn:function(){ morph('n-app'); morph('n-header'); } },
     { char:'ui', cap:'列表做成卡片，加阴影、拉间距，要有呼吸感', fn:function(){ morph('n-list'); } },
     { char:'ui', cap:'搜索框和按钮也统一一下样式，看着才舒服', fn:function(){ morph('n-search'); morph('n-fab'); } },
@@ -1612,6 +1630,72 @@
     }
   }
 
+  // ---------- 产品原型阶段：组件拖拽 ----------
+  var PM_DRAG_STEPS = {
+    3: { target:'n-search', ico:'🔍', lbl:'搜索框' },
+    4: { target:'n-list',   ico:'☰',  lbl:'笔记列表' },
+    5: { target:'n-fab',    ico:'＋', lbl:'新建按钮' },
+    6: { target:'n-detail', ico:'📄', lbl:'详情区' }
+  };
+  function showPmChip(stepIdx){
+    var chip = el('pm-chip');
+    if (!chip) return;
+    var info = PM_DRAG_STEPS[stepIdx];
+    if (!info){ hidePmChip(); return; }
+    chip.querySelector('.pc-ico').textContent = info.ico;
+    chip.querySelector('.pc-lbl').textContent = info.lbl;
+    chip._target = info.target;
+    chip.classList.add('show');
+  }
+  function hidePmChip(){ var chip = el('pm-chip'); if (chip){ chip.classList.remove('show'); chip._target = null; } }
+  function nudgePm(){
+    var chip = el('pm-chip');
+    if (!chip) return;
+    chip.classList.remove('nudge'); void chip.offsetWidth; chip.classList.add('nudge');
+    setTimeout(function(){ chip.classList.remove('nudge'); }, 1000);
+  }
+  function attachPmChipDrag(){
+    var chip = el('pm-chip');
+    if (!chip) return;
+    chip.addEventListener('pointerdown', function(e){
+      e.preventDefault(); e.stopPropagation();
+      var mock = el('n-app');
+      if (!mock || !chip._target) return;
+      var r = chip.getBoundingClientRect();
+      var ox = e.clientX - r.left, oy = e.clientY - r.top;
+      chip.classList.add('dragging');
+      chip.style.position = 'fixed';
+      chip.style.left = r.left + 'px'; chip.style.top = r.top + 'px';
+      function move(ev){
+        chip.style.left = (ev.clientX - ox) + 'px';
+        chip.style.top = (ev.clientY - oy) + 'px';
+        var mr = mock.getBoundingClientRect();
+        var hit = ev.clientX>=mr.left && ev.clientX<=mr.right && ev.clientY>=mr.top && ev.clientY<=mr.bottom;
+        mock.classList.toggle('drop-target', hit);
+      }
+      function up(ev){
+        document.removeEventListener('pointermove', move);
+        document.removeEventListener('pointerup', up);
+        chip.classList.remove('dragging');
+        var mr = mock.getBoundingClientRect();
+        var hit = ev.clientX>=mr.left && ev.clientX<=mr.right && ev.clientY>=mr.top && ev.clientY<=mr.bottom;
+        mock.classList.remove('drop-target');
+        var target = chip._target;
+        chip.style.position = ''; chip.style.left = ''; chip.style.top = '';
+        function swallowOnce(e2){ e2.stopPropagation(); e2.preventDefault(); document.removeEventListener('click', swallowOnce, true); }
+        document.addEventListener('click', swallowOnce, true);
+        setTimeout(function(){ document.removeEventListener('click', swallowOnce, true); }, 500);
+        if (hit){
+          reveal(target);
+          hidePmChip();
+          if (idx < STEPS.length-1) go(idx+1);
+        }
+      }
+      document.addEventListener('pointermove', move);
+      document.addEventListener('pointerup', up);
+    });
+  }
+
   var idx = -1;
   function go(i){
     if (i < 0 || i >= STEPS.length) return;
@@ -1631,12 +1715,17 @@
       bubble.classList.toggle('narrate', !s.char);
     }
     if (s.fn) s.fn();
+    if (!PM_DRAG_STEPS[i]) hidePmChip();
     updateMap(stageOf(i));
     toggleColorBlobs(stageOf(i) === 2);
     el('i-progress').textContent = (i+1) + ' / ' + STEPS.length;
     el('i-prev').disabled = (i === 0);
   }
   function next(){
+    if (stageOf(idx) === 1 && PM_DRAG_STEPS[idx]){
+      var t = el(PM_DRAG_STEPS[idx].target);
+      if (!t || t.classList.contains('hidden')){ nudgePm(); return; }
+    }
     if (stageOf(idx) === 2 && !chosenThemeColor){ nudgeColor(); return; }
     if (idx >= STEPS.length-1){ finish(); return; }
     go(idx+1);
@@ -1662,8 +1751,9 @@
   el('i-skip').addEventListener('click', function(e){ e.stopPropagation(); finish(); });
   el('i-enter').addEventListener('click', function(e){ e.stopPropagation(); finish(); });
   el('cov-start').addEventListener('click', startIntro);
+  attachPmChipDrag();
   el('intro-stage').addEventListener('click', function(e){
-    if (e.target.closest('.i-corner') || e.target.closest('#i-enter') || e.target.closest('.color-blob')) return;
+    if (e.target.closest('.i-corner') || e.target.closest('#i-enter') || e.target.closest('.color-blob') || e.target.closest('.pm-chip')) return;
     next();
   });
   document.addEventListener('keydown', function(e){
