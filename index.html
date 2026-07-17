@@ -1499,14 +1499,14 @@
     { char:'boss', cap:'我想做个像苹果备忘录那样的软件--简单、好用，能记事、能搜、还能统计', fn:function(){ showRegion('i-ref'); el('i-code').style.display='none'; el('i-backend').style.display='none'; } },
     { char:'boss', cap:'这事儿就交给老潘了，你先把原型理出来', fn:function(){ showRegion('i-ref'); } },
     { char:'pm', cap:'好嘞，我先把页面结构搭出来--最上面是标题栏', fn:function(){ showRegion('i-mock'); el('i-code').style.display='none'; el('i-backend').style.display='none'; resetMock(); reveal('n-header'); } },
-    { char:'pm', cap:'标题栏下面放个搜索框，方便找笔记', fn:function(){ showPmChip(3); } },
-    { char:'pm', cap:'再画出笔记列表，一条条排下来', fn:function(){ showPmChip(4); } },
-    { char:'pm', cap:'右下角加个「新建」按钮，标题栏旁边显示总数', fn:function(){ showPmChip(5); } },
-    { char:'pm', cap:'点开任意一条还能看详情--原型齐活了，小雅接手', fn:function(){ showPmChip(6); } },
+    { char:'pm', cap:'标题栏下面放个搜索框，方便找笔记', fn:function(){ showChip(3); } },
+    { char:'pm', cap:'再画出笔记列表，一条条排下来', fn:function(){ showChip(4); } },
+    { char:'pm', cap:'右下角加个「新建」按钮，标题栏旁边显示总数', fn:function(){ showChip(5); } },
+    { char:'pm', cap:'点开任意一条还能看详情--原型齐活了，小雅接手', fn:function(){ showChip(6); } },
     { char:'ui', cap:'我来给它整整容，先定个主色调--蓝色，清爽又专业', fn:function(){ morph('n-app'); morph('n-header'); } },
-    { char:'ui', cap:'列表做成卡片，加阴影、拉间距，要有呼吸感', fn:function(){ morph('n-list'); } },
-    { char:'ui', cap:'搜索框和按钮也统一一下样式，看着才舒服', fn:function(){ morph('n-search'); morph('n-fab'); } },
-    { char:'ui', cap:'详情区顺手美化一下--设计稿搞定，阿强该你了', fn:function(){ morph('n-detail'); } },
+    { char:'ui', cap:'列表做成卡片，加阴影、拉间距，要有呼吸感', fn:function(){ showChip(8); } },
+    { char:'ui', cap:'搜索框和按钮也统一一下样式，看着才舒服', fn:function(){ showChip(9); } },
+    { char:'ui', cap:'详情区顺手美化一下--设计稿搞定，阿强该你了', fn:function(){ showChip(10); } },
     { char:'dev', cap:'收到，我先把设计稿翻译成代码--先写页面结构', fn:function(){ el('i-code').style.display=''; el('i-backend').style.display='none'; resetCode(); el('i-code-html').style.display=''; } },
     { char:'dev', cap:'再补上样式，让页面长得跟设计稿一样', fn:function(){ el('i-code-css').style.display=''; } },
     { char:'dev', cap:'最后加上交互--点击、搜索、新建，都能动了', fn:function(){ el('i-code-js').style.display=''; } },
@@ -1630,37 +1630,40 @@
     }
   }
 
-  // ---------- 产品原型阶段：组件拖拽 ----------
-  var PM_DRAG_STEPS = {
-    3: { target:'n-search', ico:'🔍', lbl:'搜索框' },
-    4: { target:'n-list',   ico:'☰',  lbl:'笔记列表' },
-    5: { target:'n-fab',    ico:'＋', lbl:'新建按钮' },
-    6: { target:'n-detail', ico:'📄', lbl:'详情区' }
+  // ---------- 拖拽步骤：产品组件 / UI 样式 ----------
+  var DRAG_STEPS = {
+    3:  { type:'reveal', targets:['n-search'],            ico:'🔍', lbl:'搜索框' },
+    4:  { type:'reveal', targets:['n-list'],              ico:'☰',  lbl:'笔记列表' },
+    5:  { type:'reveal', targets:['n-fab'],               ico:'＋', lbl:'新建按钮' },
+    6:  { type:'reveal', targets:['n-detail'],            ico:'📄', lbl:'详情区' },
+    8:  { type:'morph',  targets:['n-list'],              ico:'▤',  lbl:'列表样式' },
+    9:  { type:'morph',  targets:['n-search','n-fab'],    ico:'🎛', lbl:'搜索框·按钮' },
+    10: { type:'morph',  targets:['n-detail'],            ico:'📄', lbl:'详情样式' }
   };
-  function showPmChip(stepIdx){
+  function showChip(stepIdx){
     var chip = el('pm-chip');
     if (!chip) return;
-    var info = PM_DRAG_STEPS[stepIdx];
-    if (!info){ hidePmChip(); return; }
+    var info = DRAG_STEPS[stepIdx];
+    if (!info){ hideChip(); return; }
     chip.querySelector('.pc-ico').textContent = info.ico;
     chip.querySelector('.pc-lbl').textContent = info.lbl;
-    chip._target = info.target;
+    chip._info = info;
     chip.classList.add('show');
   }
-  function hidePmChip(){ var chip = el('pm-chip'); if (chip){ chip.classList.remove('show'); chip._target = null; } }
-  function nudgePm(){
+  function hideChip(){ var chip = el('pm-chip'); if (chip){ chip.classList.remove('show'); chip._info = null; } }
+  function nudgeChip(){
     var chip = el('pm-chip');
     if (!chip) return;
     chip.classList.remove('nudge'); void chip.offsetWidth; chip.classList.add('nudge');
     setTimeout(function(){ chip.classList.remove('nudge'); }, 1000);
   }
-  function attachPmChipDrag(){
+  function attachChipDrag(){
     var chip = el('pm-chip');
     if (!chip) return;
     chip.addEventListener('pointerdown', function(e){
       e.preventDefault(); e.stopPropagation();
       var mock = el('n-app');
-      if (!mock || !chip._target) return;
+      if (!mock || !chip._info) return;
       var r = chip.getBoundingClientRect();
       var ox = e.clientX - r.left, oy = e.clientY - r.top;
       chip.classList.add('dragging');
@@ -1680,14 +1683,14 @@
         var mr = mock.getBoundingClientRect();
         var hit = ev.clientX>=mr.left && ev.clientX<=mr.right && ev.clientY>=mr.top && ev.clientY<=mr.bottom;
         mock.classList.remove('drop-target');
-        var target = chip._target;
+        var info = chip._info;
         chip.style.position = ''; chip.style.left = ''; chip.style.top = '';
         function swallowOnce(e2){ e2.stopPropagation(); e2.preventDefault(); document.removeEventListener('click', swallowOnce, true); }
         document.addEventListener('click', swallowOnce, true);
         setTimeout(function(){ document.removeEventListener('click', swallowOnce, true); }, 500);
         if (hit){
-          reveal(target);
-          hidePmChip();
+          info.targets.forEach(function(t){ info.type === 'reveal' ? reveal(t) : morph(t); });
+          hideChip();
           if (idx < STEPS.length-1) go(idx+1);
         }
       }
@@ -1715,16 +1718,17 @@
       bubble.classList.toggle('narrate', !s.char);
     }
     if (s.fn) s.fn();
-    if (!PM_DRAG_STEPS[i]) hidePmChip();
+    if (!DRAG_STEPS[i]) hideChip();
     updateMap(stageOf(i));
-    toggleColorBlobs(stageOf(i) === 2);
+    toggleColorBlobs(i === 7);
     el('i-progress').textContent = (i+1) + ' / ' + STEPS.length;
     el('i-prev').disabled = (i === 0);
   }
   function next(){
-    if (stageOf(idx) === 1 && PM_DRAG_STEPS[idx]){
-      var t = el(PM_DRAG_STEPS[idx].target);
-      if (!t || t.classList.contains('hidden')){ nudgePm(); return; }
+    if (DRAG_STEPS[idx]){
+      var info = DRAG_STEPS[idx];
+      var done = info.targets.every(function(t){ var e = el(t); return e && (info.type === 'reveal' ? !e.classList.contains('hidden') : !e.classList.contains('wf')); });
+      if (!done){ nudgeChip(); return; }
     }
     if (stageOf(idx) === 2 && !chosenThemeColor){ nudgeColor(); return; }
     if (idx >= STEPS.length-1){ finish(); return; }
@@ -1751,7 +1755,7 @@
   el('i-skip').addEventListener('click', function(e){ e.stopPropagation(); finish(); });
   el('i-enter').addEventListener('click', function(e){ e.stopPropagation(); finish(); });
   el('cov-start').addEventListener('click', startIntro);
-  attachPmChipDrag();
+  attachChipDrag();
   el('intro-stage').addEventListener('click', function(e){
     if (e.target.closest('.i-corner') || e.target.closest('#i-enter') || e.target.closest('.color-blob') || e.target.closest('.pm-chip')) return;
     next();
