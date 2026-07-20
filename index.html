@@ -380,6 +380,7 @@
   }
   #intro-stage .color-blob:hover { transform: scale(1.1) rotate(-3deg); }
   #intro-stage .color-blob.dragging { cursor: grabbing; animation: none; z-index: 12; transition: none; filter: drop-shadow(0 10px 16px rgba(0,0,0,.25)); }
+  #intro-stage .color-blob.flying { animation: none; z-index: 12; filter: drop-shadow(0 10px 16px rgba(0,0,0,.25)); }
   @keyframes floatBlob { 0%,100%{ transform: translate(0,0) rotate(0);} 33%{ transform: translate(7px,-10px) rotate(3deg);} 66%{ transform: translate(-9px,6px) rotate(-3deg);} }
   #intro-stage .color-hint {
     position: absolute; top: 0; left: 50%; transform: translateX(-50%);
@@ -406,6 +407,7 @@
   #intro-stage .pm-chip .pc-ico { font-size: 17px; line-height: 1; }
   #intro-stage .pm-chip:hover { box-shadow: 0 12px 26px rgba(0,0,0,.16); }
   #intro-stage .pm-chip.dragging { cursor: grabbing; animation: none; z-index: 12; transition: none; box-shadow: 0 14px 30px rgba(0,0,0,.22); border-style: solid; border-color: #2f6fed; }
+  #intro-stage .pm-chip.flying { animation: none; z-index: 12; box-shadow: 0 14px 30px rgba(0,0,0,.22); border-style: solid; border-color: #2f6fed; }
   @keyframes floatChip { 0%,100%{ transform: translateX(-50%) translateY(0);} 50%{ transform: translateX(-50%) translateY(-8px);} }
   #intro-stage .pm-chip.nudge { border-color: #eb2f96; color: #eb2f96; animation: chipNudge .5s ease-in-out 2; }
   @keyframes chipNudge { 0%,100%{ transform: translateX(-50%) translateY(0);} 25%{ transform: translateX(-58%) translateY(-3px);} 75%{ transform: translateX(-42%) translateY(-3px);} }
@@ -1566,17 +1568,49 @@
     }
     blobsBuilt = true;
   }
+  function flyToTarget(el, mock, onArrive){
+    var r = el.getBoundingClientRect();
+    var mr = mock.getBoundingClientRect();
+    var tx = mr.left + mr.width/2 - r.width/2;
+    var ty = mr.top + mr.height/2 - r.height/2;
+    el.classList.add('flying');
+    el.style.position = 'fixed';
+    el.style.transition = 'none';
+    el.style.left = r.left + 'px';
+    el.style.top = r.top + 'px';
+    void el.offsetWidth;
+    el.style.transition = 'left .45s ease, top .45s ease';
+    el.style.left = tx + 'px';
+    el.style.top = ty + 'px';
+    var cx = mr.left + mr.width/2, cy = mr.top + mr.height/2;
+    var done = false;
+    function onTE(e){ if (e.target === el && (e.propertyName === 'left' || e.propertyName === 'top')) finish(); }
+    function finish(){
+      if (done) return; done = true;
+      el.removeEventListener('transitionend', onTE);
+      el.style.transition = '';
+      onArrive(cx, cy);
+    }
+    el.addEventListener('transitionend', onTE);
+    setTimeout(finish, 520);
+  }
   function attachBlobDrag(b){
     b.addEventListener('pointerdown', function(e){
       e.preventDefault(); e.stopPropagation();
       var mock = el('n-app');
       if (!mock) return;
       var r = b.getBoundingClientRect();
+      var sx = e.clientX, sy = e.clientY;
       var ox = e.clientX - r.left, oy = e.clientY - r.top;
-      b.classList.add('dragging');
-      b.style.position = 'fixed';
-      b.style.left = r.left + 'px'; b.style.top = r.top + 'px';
+      var dragging = false;
       function move(ev){
+        if (!dragging){
+          if (Math.abs(ev.clientX - sx) < 5 && Math.abs(ev.clientY - sy) < 5) return;
+          dragging = true;
+          b.classList.add('dragging');
+          b.style.position = 'fixed';
+          b.style.left = r.left + 'px'; b.style.top = r.top + 'px';
+        }
         b.style.left = (ev.clientX - ox) + 'px';
         b.style.top = (ev.clientY - oy) + 'px';
         var mr = mock.getBoundingClientRect();
@@ -1587,6 +1621,21 @@
       function up(ev){
         document.removeEventListener('pointermove', move);
         document.removeEventListener('pointerup', up);
+        function swallowOnce(e2){ e2.stopPropagation(); e2.preventDefault(); document.removeEventListener('click', swallowOnce, true); }
+        document.addEventListener('click', swallowOnce, true);
+        setTimeout(function(){ document.removeEventListener('click', swallowOnce, true); }, 500);
+        if (!dragging){
+          mock.style.setProperty('--drop-glow', b._color.glow);
+          mock.classList.add('drop-target');
+          flyToTarget(b, mock, function(x, y){
+            b.classList.remove('flying');
+            b.style.position = '';
+            b.style.left = b._home.x; b.style.top = b._home.y;
+            mock.classList.remove('drop-target');
+            applyTheme(b._color, x, y);
+          });
+          return;
+        }
         b.classList.remove('dragging');
         var mr = mock.getBoundingClientRect();
         var hit = ev.clientX>=mr.left && ev.clientX<=mr.right && ev.clientY>=mr.top && ev.clientY<=mr.bottom;
@@ -1594,9 +1643,6 @@
         if (hit) applyTheme(b._color, ev.clientX, ev.clientY);
         b.style.position = '';
         b.style.left = b._home.x; b.style.top = b._home.y;
-        function swallowOnce(e2){ e2.stopPropagation(); e2.preventDefault(); document.removeEventListener('click', swallowOnce, true); }
-        document.addEventListener('click', swallowOnce, true);
-        setTimeout(function(){ document.removeEventListener('click', swallowOnce, true); }, 500);
       }
       document.addEventListener('pointermove', move);
       document.addEventListener('pointerup', up);
@@ -1665,11 +1711,17 @@
       var mock = el('n-app');
       if (!mock || !chip._info) return;
       var r = chip.getBoundingClientRect();
+      var sx = e.clientX, sy = e.clientY;
       var ox = e.clientX - r.left, oy = e.clientY - r.top;
-      chip.classList.add('dragging');
-      chip.style.position = 'fixed';
-      chip.style.left = r.left + 'px'; chip.style.top = r.top + 'px';
+      var dragging = false;
       function move(ev){
+        if (!dragging){
+          if (Math.abs(ev.clientX - sx) < 5 && Math.abs(ev.clientY - sy) < 5) return;
+          dragging = true;
+          chip.classList.add('dragging');
+          chip.style.position = 'fixed';
+          chip.style.left = r.left + 'px'; chip.style.top = r.top + 'px';
+        }
         chip.style.left = (ev.clientX - ox) + 'px';
         chip.style.top = (ev.clientY - oy) + 'px';
         var mr = mock.getBoundingClientRect();
@@ -1679,15 +1731,27 @@
       function up(ev){
         document.removeEventListener('pointermove', move);
         document.removeEventListener('pointerup', up);
+        var info = chip._info;
+        function swallowOnce(e2){ e2.stopPropagation(); e2.preventDefault(); document.removeEventListener('click', swallowOnce, true); }
+        document.addEventListener('click', swallowOnce, true);
+        setTimeout(function(){ document.removeEventListener('click', swallowOnce, true); }, 500);
+        if (!dragging){
+          mock.classList.add('drop-target');
+          flyToTarget(chip, mock, function(){
+            chip.classList.remove('flying');
+            chip.style.position = ''; chip.style.left = ''; chip.style.top = '';
+            mock.classList.remove('drop-target');
+            info.targets.forEach(function(t){ info.type === 'reveal' ? reveal(t) : morph(t); });
+            hideChip();
+            if (idx < STEPS.length-1) go(idx+1);
+          });
+          return;
+        }
         chip.classList.remove('dragging');
         var mr = mock.getBoundingClientRect();
         var hit = ev.clientX>=mr.left && ev.clientX<=mr.right && ev.clientY>=mr.top && ev.clientY<=mr.bottom;
         mock.classList.remove('drop-target');
-        var info = chip._info;
         chip.style.position = ''; chip.style.left = ''; chip.style.top = '';
-        function swallowOnce(e2){ e2.stopPropagation(); e2.preventDefault(); document.removeEventListener('click', swallowOnce, true); }
-        document.addEventListener('click', swallowOnce, true);
-        setTimeout(function(){ document.removeEventListener('click', swallowOnce, true); }, 500);
         if (hit){
           info.targets.forEach(function(t){ info.type === 'reveal' ? reveal(t) : morph(t); });
           hideChip();
