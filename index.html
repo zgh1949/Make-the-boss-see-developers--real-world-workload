@@ -455,6 +455,33 @@
 
   /* 代码面板：流式输出滚动 */
   #intro-stage .i-code .i-code-block { flex:1; overflow:auto; }
+
+  /* ===== 角色登场特效 ===== */
+  #intro-stage .i-reveal { position:absolute; inset:0; z-index:50; display:none; overflow:hidden; }
+  #intro-stage .i-reveal.show { display:flex; align-items:center; }
+  #intro-stage .i-reveal-bg { position:absolute; inset:0; background:var(--reveal-color,#2f6fed); }
+  #intro-stage .i-reveal-bg::before { content:''; position:absolute; inset:-50%; background:repeating-linear-gradient(45deg, transparent 0 30px, rgba(255,255,255,.09) 30px 60px); animation: stripePan 5s linear infinite; }
+  @keyframes stripePan { from{ transform:translate(0,0); } to{ transform:translate(60px,60px); } }
+  #intro-stage .i-reveal-left { position:relative; z-index:2; flex:0 0 46%; height:100%; display:flex; align-items:center; justify-content:center; }
+  #intro-stage .i-reveal-left img { max-height:78vh; max-width:100%; object-fit:contain; filter:drop-shadow(0 18px 36px rgba(0,0,0,.32)); animation: revealImg .7s cubic-bezier(.2,.85,.2,1); }
+  @keyframes revealImg { from{ transform:translateX(-80px) scale(.92); opacity:0; } to{ transform:translateX(0) scale(1); opacity:1; } }
+  #intro-stage .i-reveal-right { position:relative; z-index:2; flex:1; padding:0 7% 0 3%; color:#fff; }
+  #intro-stage .i-reveal-role { font-size:14px; font-weight:800; letter-spacing:9px; opacity:.82; animation: revealTxt .5s .2s both; }
+  #intro-stage .i-reveal-name { font-size:clamp(44px,7vw,88px); font-weight:900; line-height:1; margin-top:12px; letter-spacing:-1px; animation: revealTxt .5s .3s both; }
+  #intro-stage .i-reveal-person { font-size:30px; font-weight:700; opacity:.95; margin-top:14px; animation: revealTxt .5s .4s both; }
+  #intro-stage .i-reveal-rule { width:64px; height:4px; background:#fff; margin:22px 0; animation: revealTxt .5s .5s both; }
+  #intro-stage .i-reveal-desc { font-size:22px; font-weight:500; opacity:.92; max-width:440px; line-height:1.5; animation: revealTxt .5s .6s both; }
+  @keyframes revealTxt { from{ transform:translateY(24px); opacity:0; } to{ transform:translateY(0); opacity:1; } }
+
+  /* ===== 头脑风暴 ===== */
+  #intro-stage .i-brainstorm { display:flex; flex-direction:column; align-items:center; gap:18px; }
+  #intro-stage .i-bs-head { display:flex; flex-direction:column; align-items:center; gap:12px; }
+  #intro-stage .i-bs-title { font-size:16px; font-weight:800; letter-spacing:5px; color:#5a6678; }
+  #intro-stage .i-bs-progress { width:280px; height:5px; background:#e1e6ed; border-radius:3px; overflow:hidden; }
+  #intro-stage .i-bs-bar { height:100%; width:0; background:var(--bs-color,#2f6fed); border-radius:3px; transition:width .4s ease; }
+  #intro-stage .i-bs-terms { position:relative; width:480px; height:300px; overflow:hidden; }
+  #intro-stage .i-bs-term { position:absolute; font-weight:900; white-space:nowrap; transform:translate(-50%,-50%) scale(.4); opacity:0; animation: bsTerm 2.2s ease-out forwards; }
+  @keyframes bsTerm { 0%{ transform:translate(-50%,-50%) scale(.4); opacity:0; } 18%{ opacity:1; } 65%{ transform:translate(-50%,-50%) scale(1.5); opacity:.92; } 100%{ transform:translate(-50%,-50%) scale(2.3); opacity:0; } }
 </style>
 
 <style id="app-theme-css">
@@ -608,8 +635,26 @@
         </div>
         <button class="i-btn i-primary i-enter" id="i-enter" style="display:none;">进入 Web 请求全链路演示 →</button>
       </div>
+      <div class="i-region" id="i-brainstorm" style="display:none;">
+        <div class="i-bs-head">
+          <div class="i-bs-title" id="i-bs-title">头脑风暴</div>
+          <div class="i-bs-progress"><div class="i-bs-bar" id="i-bs-bar"></div></div>
+        </div>
+        <div class="i-bs-terms" id="i-bs-terms"></div>
+      </div>
     </div>
     <div class="i-bubble" id="i-bubble"></div>
+    <div class="i-reveal" id="i-reveal">
+      <div class="i-reveal-bg"></div>
+      <div class="i-reveal-left"><img id="i-reveal-img" alt=""/></div>
+      <div class="i-reveal-right">
+        <div class="i-reveal-role" id="i-reveal-role"></div>
+        <div class="i-reveal-name" id="i-reveal-name"></div>
+        <div class="i-reveal-person" id="i-reveal-person"></div>
+        <div class="i-reveal-rule"></div>
+        <div class="i-reveal-desc" id="i-reveal-desc"></div>
+      </div>
+    </div>
   </div>
   <div class="i-corner">
     <button class="i-btn" id="i-prev">← 上一步</button>
@@ -1516,7 +1561,7 @@
     img.src = I_IMG[k]; img.alt = NAMES[k]; img.title = NAMES[k];
     covChars.appendChild(img);
   });
-  function stageOf(i){ if(i<2)return 0; if(i<7)return 1; if(i<11)return 2; if(i<18)return 3; return 4; }
+  function stageOf(i){ if(i<2)return 0; if(i<9)return 1; if(i<15)return 2; if(i<26)return 3; return 4; }
   function updateMap(stage){
     var nodes = document.querySelectorAll('#intro-stage .i-map-node');
     for (var k=0;k<nodes.length;k++){
@@ -1532,7 +1577,7 @@
   }
 
   function showRegion(name){
-    ['i-ref','i-mock','i-overview'].forEach(function(id){ el(id).style.display = (id === name ? '' : 'none'); });
+    ['i-ref','i-mock','i-overview','i-brainstorm'].forEach(function(id){ el(id).style.display = (id === name ? '' : 'none'); });
   }
   function setChar(name){
     var col = charImg.parentElement;
@@ -1662,22 +1707,82 @@
     });
   }
 
+  // ---------- 角色登场：特写 + 头脑风暴 ----------
+  var REVEALS = {
+    pm: { color:'#2f6fed', role:'PRODUCT MANAGER', name:'产品经理', person:'老潘', desc:'把老板的构想，拆成可执行的原型', terms:['需求分析','用户故事','原型设计','MVP','PRD','竞品分析','迭代规划','优先级','流程图'] },
+    ui: { color:'#eb2f96', role:'UI DESIGNER', name:'UI 设计师', person:'小雅', desc:'给原型穿上好看的外衣', terms:['视觉规范','配色','栅格','留白','组件库','Figma','设计稿','交互细节','字体排版'] },
+    fe: { color:'#21c46b', role:'FRONTEND ENGINEER', name:'前端工程师', person:'阿强', desc:'把设计稿翻译成会动的页面', terms:['HTML','CSS','JavaScript','DOM','响应式','React','状态管理','浏览器渲染','打包构建'] },
+    be: { color:'#d46b08', role:'BACKEND ENGINEER', name:'后端工程师', person:'阿强', desc:'在看不见的地方处理数据', terms:['API','数据库','SQL','RESTful','并发','缓存','鉴权','索引优化','部署上线'] }
+  };
+  function playReveal(key){
+    var r = REVEALS[key]; if (!r) return;
+    var charKey = (key === 'fe' || key === 'be') ? 'dev' : key;
+    el('i-reveal-img').src = I_IMG[charKey];
+    el('i-reveal-role').textContent = r.role;
+    el('i-reveal-name').textContent = r.name;
+    el('i-reveal-person').textContent = '— ' + r.person;
+    el('i-reveal-desc').textContent = r.desc;
+    el('i-reveal').style.setProperty('--reveal-color', r.color);
+    el('i-reveal').classList.add('show');
+  }
+  function hideReveal(){ el('i-reveal').classList.remove('show'); }
+  function spawnBsTerm(text, color){
+    var box = el('i-bs-terms'); if (!box) return;
+    var s = document.createElement('span');
+    s.className = 'i-bs-term';
+    s.textContent = text;
+    s.style.color = color;
+    s.style.fontSize = (28 + Math.random()*10) + 'px';
+    var x = (Math.random()*140-70), y = (Math.random()*120-60);
+    s.style.left = 'calc(50% + '+x+'px)';
+    s.style.top = 'calc(50% + '+y+'px)';
+    box.appendChild(s);
+    setTimeout(function(){ if (s.parentNode) s.parentNode.removeChild(s); }, 2400);
+  }
+  function playBrainstorm(key){
+    var r = REVEALS[key]; if (!r) return;
+    hideReveal();
+    showRegion('i-brainstorm');
+    el('i-bs-title').textContent = r.name + ' · 头脑风暴';
+    el('i-bs-terms').style.setProperty('--bs-color', r.color);
+    el('i-bs-bar').style.background = r.color;
+    el('i-bs-bar').style.width = '0%';
+    el('i-bs-terms').innerHTML = '';
+    var i = 0;
+    function step(){
+      if (i >= r.terms.length){ autoTimer = null; return; }
+      spawnBsTerm(r.terms[i], r.color);
+      el('i-bs-bar').style.width = Math.round((i+1)/r.terms.length*100) + '%';
+      i++;
+      autoTimer = setTimeout(step, 850);
+    }
+    step();
+  }
+
   var STEPS = [
     { char:'boss', cap:'我想做个像苹果备忘录那样的软件--简单、好用，能记事、能搜、还能统计', fn:function(){ showRegion('i-ref'); el('i-code').style.display='none'; el('i-backend').style.display='none'; } },
     { char:'boss', cap:'这事儿就交给老潘了，你先把原型理出来', fn:function(){ showRegion('i-ref'); } },
+    { char:'pm', nobubble:true, cap:'产品经理登场', fn:function(){ playReveal('pm'); } },
+    { char:'pm', cap:'让我理一理这个产品的思路……', fn:function(){ playBrainstorm('pm'); } },
     { char:'pm', cap:'好嘞，我先把页面结构搭出来--最上面是标题栏', fn:function(){ showRegion('i-mock'); el('i-code').style.display='none'; el('i-backend').style.display='none'; resetMock(); reveal('n-header'); } },
-    { char:'pm', cap:'标题栏下面放个搜索框，方便找笔记', fn:function(){ showChip(3); } },
-    { char:'pm', cap:'再画出笔记列表，一条条排下来', fn:function(){ showChip(4); } },
-    { char:'pm', cap:'右下角加个「新建」按钮，标题栏旁边显示总数', fn:function(){ showChip(5); } },
-    { char:'pm', cap:'点开任意一条还能看详情--原型齐活了，小雅接手', fn:function(){ showChip(6); } },
-    { char:'ui', cap:'我来给它整整容，先定个主色调--蓝色，清爽又专业', fn:function(){ morph('n-app'); morph('n-header'); } },
-    { char:'ui', cap:'列表做成卡片，加阴影、拉间距，要有呼吸感', fn:function(){ showChip(8); } },
-    { char:'ui', cap:'搜索框和按钮也统一一下样式，看着才舒服', fn:function(){ showChip(9); } },
-    { char:'ui', cap:'详情区顺手美化一下--设计稿搞定，阿强该你了', fn:function(){ showChip(10); } },
-    { char:'dev', cap:'先写 HTML，把页面结构搭出来——只有内容，还没有样式', fn: playHtmlStep },
+    { char:'pm', cap:'标题栏下面放个搜索框，方便找笔记', fn:function(){ showChip(5); } },
+    { char:'pm', cap:'再画出笔记列表，一条条排下来', fn:function(){ showChip(6); } },
+    { char:'pm', cap:'右下角加个「新建」按钮，标题栏旁边显示总数', fn:function(){ showChip(7); } },
+    { char:'pm', cap:'点开任意一条还能看详情--原型齐活了，小雅接手', fn:function(){ showChip(8); } },
+    { char:'ui', nobubble:true, cap:'UI 设计师登场', fn:function(){ playReveal('ui'); } },
+    { char:'ui', cap:'先在脑子里过一遍视觉风格……', fn:function(){ playBrainstorm('ui'); } },
+    { char:'ui', cap:'我来给它整整容，先定个主色调--蓝色，清爽又专业', fn:function(){ showRegion('i-mock'); morph('n-app'); morph('n-header'); } },
+    { char:'ui', cap:'列表做成卡片，加阴影、拉间距，要有呼吸感', fn:function(){ showChip(12); } },
+    { char:'ui', cap:'搜索框和按钮也统一一下样式，看着才舒服', fn:function(){ showChip(13); } },
+    { char:'ui', cap:'详情区顺手美化一下--设计稿搞定，阿强该你了', fn:function(){ showChip(14); } },
+    { char:'dev', nobubble:true, cap:'前端工程师登场', fn:function(){ playReveal('fe'); } },
+    { char:'dev', cap:'前端这块我先理一理……', fn:function(){ playBrainstorm('fe'); } },
+    { char:'dev', cap:'先写 HTML，把页面结构搭出来--只有内容，还没有样式', fn: playHtmlStep },
     { char:'dev', cap:'再写 CSS，一点点把样式加上，页面就好看了', fn: playCssStep },
-    { char:'dev', cap:'最后写 JS，给组件绑上事件——它们就能动了', fn: playJsStep },
-    { char:'dev', cap:'后端我也同步写好了接口--这是保存笔记的', fn:function(){ el('i-code').style.display='none'; el('i-backend').style.display=''; resetApi(); el('i-api-save').style.display=''; } },
+    { char:'dev', cap:'最后写 JS，给组件绑上事件--它们就能动了', fn: playJsStep },
+    { char:'dev', nobubble:true, cap:'后端工程师登场', fn:function(){ playReveal('be'); } },
+    { char:'dev', cap:'后端接口我来梳理一下……', fn:function(){ playBrainstorm('be'); } },
+    { char:'dev', cap:'后端我也同步写好了接口--这是保存笔记的', fn:function(){ showRegion('i-mock'); el('i-code').style.display='none'; el('i-backend').style.display=''; resetApi(); el('i-api-save').style.display=''; } },
     { char:'dev', cap:'这个是查看详情的', fn:function(){ el('i-api-get').style.display=''; } },
     { char:'dev', cap:'搜索列表的', fn:function(){ el('i-api-list').style.display=''; } },
     { char:'dev', cap:'还有统计总数的', fn:function(){ el('i-api-stat').style.display=''; } },
@@ -1843,13 +1948,13 @@
 
   // ---------- 拖拽步骤：产品组件 / UI 样式 ----------
   var DRAG_STEPS = {
-    3:  { type:'reveal', targets:['n-search'],            ico:'🔍', lbl:'搜索框' },
-    4:  { type:'reveal', targets:['n-list'],              ico:'☰',  lbl:'笔记列表' },
-    5:  { type:'reveal', targets:['n-fab'],               ico:'＋', lbl:'新建按钮' },
-    6:  { type:'reveal', targets:['n-detail'],            ico:'📄', lbl:'详情区' },
-    8:  { type:'morph',  targets:['n-list'],              ico:'▤',  lbl:'列表样式' },
-    9:  { type:'morph',  targets:['n-search','n-fab'],    ico:'🎛', lbl:'搜索框·按钮' },
-    10: { type:'morph',  targets:['n-detail'],            ico:'📄', lbl:'详情样式' }
+    5:  { type:'reveal', targets:['n-search'],            ico:'🔍', lbl:'搜索框' },
+    6:  { type:'reveal', targets:['n-list'],              ico:'☰',  lbl:'笔记列表' },
+    7:  { type:'reveal', targets:['n-fab'],               ico:'＋', lbl:'新建按钮' },
+    8:  { type:'reveal', targets:['n-detail'],            ico:'📄', lbl:'详情区' },
+    12: { type:'morph',  targets:['n-list'],              ico:'▤',  lbl:'列表样式' },
+    13: { type:'morph',  targets:['n-search','n-fab'],    ico:'🎛', lbl:'搜索框·按钮' },
+    14: { type:'morph',  targets:['n-detail'],            ico:'📄', lbl:'详情样式' }
   };
   function showChip(stepIdx){
     var chip = el('pm-chip');
@@ -1935,9 +2040,10 @@
     var s = STEPS[i];
     cancelAuto();
     hideMagazine();
+    hideReveal();
     showDevMock(false);
     clearDevMarks();
-    var isDev = (i >= 11 && i <= 13);
+    var isDev = (i >= 17 && i <= 19);
     el('i-replay').style.display = isDev ? '' : 'none';
     setChar(s.char);
     if (s.nobubble){
@@ -1955,7 +2061,7 @@
     if (s.fn) s.fn();
     if (!DRAG_STEPS[i]) hideChip();
     updateMap(stageOf(i));
-    toggleColorBlobs(i === 7);
+    toggleColorBlobs(i === 11);
     el('i-progress').textContent = (i+1) + ' / ' + STEPS.length;
     el('i-prev').disabled = (i === 0);
   }
@@ -1966,7 +2072,7 @@
       var done = info.targets.every(function(t){ var e = el(t); return e && (info.type === 'reveal' ? !e.classList.contains('hidden') : !e.classList.contains('wf')); });
       if (!done){ nudgeChip(); return; }
     }
-    if (stageOf(idx) === 2 && !chosenThemeColor){ nudgeColor(); return; }
+    if (idx === 11 && !chosenThemeColor){ nudgeColor(); return; }
     if (idx >= STEPS.length-1){ finish(); return; }
     go(idx+1);
   }
