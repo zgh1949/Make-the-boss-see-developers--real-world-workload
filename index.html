@@ -482,6 +482,14 @@
   #intro-stage .i-bs-terms { position:relative; width:480px; height:300px; overflow:hidden; }
   #intro-stage .i-bs-term { position:absolute; font-weight:900; white-space:nowrap; transform:translate(-50%,-50%) scale(.4); opacity:0; animation: bsTerm 2.2s ease-out forwards; }
   @keyframes bsTerm { 0%{ transform:translate(-50%,-50%) scale(.4); opacity:0; } 18%{ opacity:1; } 65%{ transform:translate(-50%,-50%) scale(1.5); opacity:.92; } 100%{ transform:translate(-50%,-50%) scale(2.3); opacity:0; } }
+
+  /* ===== 作品展示帧 ===== */
+  #intro-stage .i-showcase { position:absolute; inset:0; z-index:40; pointer-events:none; display:none; }
+  #intro-stage .i-showcase.show { display:block; }
+  #intro-stage .i-sc-plaque { position:absolute; top:14px; left:50%; transform:translateX(-50%); background:#161616; color:#fff; padding:9px 28px; border-radius:26px; font-size:16px; font-weight:800; letter-spacing:3px; box-shadow:0 10px 28px rgba(0,0,0,.22); animation: scPlaque .4s ease-out; }
+  @keyframes scPlaque { from{ transform:translateX(-50%) translateY(-18px); opacity:0; } to{ transform:translateX(-50%) translateY(0); opacity:1; } }
+  #intro-stage .i-sc-stamp { position:absolute; right:12%; top:40%; transform:rotate(-14deg); border:3px solid #21c46b; color:#21c46b; font-size:22px; font-weight:900; padding:6px 18px; border-radius:8px; letter-spacing:2px; background:rgba(255,255,255,.72); animation: scStamp .5s .15s both cubic-bezier(.2,1.5,.4,1); }
+  @keyframes scStamp { 0%{ transform:rotate(-14deg) scale(2.6); opacity:0; } 60%{ opacity:1; } 100%{ transform:rotate(-14deg) scale(1); opacity:.88; } }
 </style>
 
 <style id="app-theme-css">
@@ -644,6 +652,10 @@
       </div>
     </div>
     <div class="i-bubble" id="i-bubble"></div>
+    <div class="i-showcase" id="i-showcase">
+      <div class="i-sc-plaque" id="i-plaque">作品展示</div>
+      <div class="i-sc-stamp" id="i-stamp">✓ 交付</div>
+    </div>
   </div>
   <div class="i-corner">
     <button class="i-btn" id="i-prev">← 上一步</button>
@@ -1561,7 +1573,7 @@
     img.src = I_IMG[k]; img.alt = NAMES[k]; img.title = NAMES[k];
     covChars.appendChild(img);
   });
-  function stageOf(i){ if(i<2)return 0; if(i<9)return 1; if(i<15)return 2; if(i<26)return 3; return 4; }
+  function stageOf(i){ if(i<2)return 0; if(i<10)return 1; if(i<17)return 2; if(i<30)return 3; return 4; }
   function updateMap(stage){
     var nodes = document.querySelectorAll('#intro-stage .i-map-node');
     for (var k=0;k<nodes.length;k++){
@@ -1759,6 +1771,34 @@
     step();
   }
 
+  // ---------- 作品展示帧 ----------
+  function playShowcase(key){
+    var data = {
+      pm:{ title:'产品原型', cap:'原型交付！结构、搜索、列表、按钮、详情，该有的都有了' },
+      ui:{ title:'UI 设计稿', cap:'设计稿完成！配色、卡片、样式，看着舒服多了' },
+      fe:{ title:'前端页面', cap:'前端搞定！HTML 搭结构、CSS 上样式、JS 加交互' },
+      be:{ title:'后端接口', cap:'后端就绪！保存、查看、搜索、统计，接口都写好了' }
+    }[key];
+    el('i-code').style.display = 'none';
+    el('i-backend').style.display = 'none';
+    if (key === 'pm'){
+      showRegion('i-mock'); showDevMock(false);
+      el('n-app').classList.add('wf');
+      ['n-header','n-search','n-list','n-fab','n-detail'].forEach(function(id){ var e = el(id); e.classList.add('wf'); e.classList.remove('hidden'); });
+    } else if (key === 'ui'){
+      showRegion('i-mock'); showDevMock(false);
+      ['n-app','n-header','n-search','n-list','n-fab','n-detail'].forEach(function(id){ var e = el(id); e.classList.remove('wf','hidden'); });
+    } else if (key === 'fe'){
+      showRegion('i-mock'); showDevMock(true); resetDevMock(false); styleAllDev();
+    } else if (key === 'be'){
+      showRegion('i-mock'); showDevMock(false); el('i-backend').style.display = '';
+      resetApi(); ['save','get','list','stat'].forEach(function(n){ el('i-api-'+n).style.display = ''; });
+    }
+    el('i-plaque').textContent = '作品展示 · ' + data.title;
+    el('i-showcase').classList.add('show');
+  }
+  function hideShowcase(){ el('i-showcase').classList.remove('show'); }
+
   var STEPS = [
     { char:'boss', cap:'我想做个像苹果备忘录那样的软件--简单、好用，能记事、能搜、还能统计', fn:function(){ showRegion('i-ref'); el('i-code').style.display='none'; el('i-backend').style.display='none'; } },
     { char:'boss', cap:'这事儿就交给老潘了，你先把原型理出来', fn:function(){ showRegion('i-ref'); } },
@@ -1768,24 +1808,28 @@
     { char:'pm', cap:'标题栏下面放个搜索框，方便找笔记', fn:function(){ showChip(5); } },
     { char:'pm', cap:'再画出笔记列表，一条条排下来', fn:function(){ showChip(6); } },
     { char:'pm', cap:'右下角加个「新建」按钮，标题栏旁边显示总数', fn:function(){ showChip(7); } },
-    { char:'pm', cap:'点开任意一条还能看详情--原型齐活了，小雅接手', fn:function(){ showChip(8); } },
+    { char:'pm', cap:'点开任意一条还能看详情--原型齐活了', fn:function(){ showChip(8); } },
+    { char:'pm', cap:'原型交付！结构、搜索、列表、按钮、详情，该有的都有了', fn:function(){ playShowcase('pm'); } },
     { char:'ui', nobubble:true, cap:'UI 设计师登场', fn:function(){ playReveal('ui'); } },
     { char:'ui', cap:'先在脑子里过一遍视觉风格……', fn:function(){ playBrainstorm('ui'); } },
     { char:'ui', cap:'我来给它整整容，先定个主色调--蓝色，清爽又专业', fn:function(){ showRegion('i-mock'); morph('n-app'); morph('n-header'); } },
-    { char:'ui', cap:'列表做成卡片，加阴影、拉间距，要有呼吸感', fn:function(){ showChip(12); } },
-    { char:'ui', cap:'搜索框和按钮也统一一下样式，看着才舒服', fn:function(){ showChip(13); } },
-    { char:'ui', cap:'详情区顺手美化一下--设计稿搞定，阿强该你了', fn:function(){ showChip(14); } },
+    { char:'ui', cap:'列表做成卡片，加阴影、拉间距，要有呼吸感', fn:function(){ showChip(13); } },
+    { char:'ui', cap:'搜索框和按钮也统一一下样式，看着才舒服', fn:function(){ showChip(14); } },
+    { char:'ui', cap:'详情区顺手美化一下--设计稿搞定', fn:function(){ showChip(15); } },
+    { char:'ui', cap:'设计稿完成！配色、卡片、样式，看着舒服多了', fn:function(){ playShowcase('ui'); } },
     { char:'dev', nobubble:true, cap:'前端工程师登场', fn:function(){ playReveal('fe'); } },
     { char:'dev', cap:'前端这块我先理一理……', fn:function(){ playBrainstorm('fe'); } },
     { char:'dev', cap:'先写 HTML，把页面结构搭出来--只有内容，还没有样式', fn: playHtmlStep },
     { char:'dev', cap:'再写 CSS，一点点把样式加上，页面就好看了', fn: playCssStep },
     { char:'dev', cap:'最后写 JS，给组件绑上事件--它们就能动了', fn: playJsStep },
+    { char:'dev', cap:'前端搞定！HTML 搭结构、CSS 上样式、JS 加交互', fn:function(){ playShowcase('fe'); } },
     { char:'dev', nobubble:true, cap:'后端工程师登场', fn:function(){ playReveal('be'); } },
     { char:'dev', cap:'后端接口我来梳理一下……', fn:function(){ playBrainstorm('be'); } },
     { char:'dev', cap:'后端我也同步写好了接口--这是保存笔记的', fn:function(){ showRegion('i-mock'); el('i-code').style.display='none'; el('i-backend').style.display=''; resetApi(); el('i-api-save').style.display=''; } },
     { char:'dev', cap:'这个是查看详情的', fn:function(){ el('i-api-get').style.display=''; } },
     { char:'dev', cap:'搜索列表的', fn:function(){ el('i-api-list').style.display=''; } },
     { char:'dev', cap:'还有统计总数的', fn:function(){ el('i-api-stat').style.display=''; } },
+    { char:'dev', cap:'后端就绪！保存、查看、搜索、统计，接口都写好了', fn:function(){ playShowcase('be'); } },
     { char:'dev', cap:'前后端都就绪了，我带你看看一个请求是怎么跑通的', fn:function(){ showRegion('i-overview'); el('i-overview').classList.add('i-flow-on'); } },
     { char:null, nobubble:true, cap:'点击下方按钮，进入 Web 请求全链路演示', fn:function(){ el('i-enter').style.display=''; } }
   ];
@@ -1952,9 +1996,9 @@
     6:  { type:'reveal', targets:['n-list'],              ico:'☰',  lbl:'笔记列表' },
     7:  { type:'reveal', targets:['n-fab'],               ico:'＋', lbl:'新建按钮' },
     8:  { type:'reveal', targets:['n-detail'],            ico:'📄', lbl:'详情区' },
-    12: { type:'morph',  targets:['n-list'],              ico:'▤',  lbl:'列表样式' },
-    13: { type:'morph',  targets:['n-search','n-fab'],    ico:'🎛', lbl:'搜索框·按钮' },
-    14: { type:'morph',  targets:['n-detail'],            ico:'📄', lbl:'详情样式' }
+    13: { type:'morph',  targets:['n-list'],              ico:'▤',  lbl:'列表样式' },
+    14: { type:'morph',  targets:['n-search','n-fab'],    ico:'🎛', lbl:'搜索框·按钮' },
+    15: { type:'morph',  targets:['n-detail'],            ico:'📄', lbl:'详情样式' }
   };
   function showChip(stepIdx){
     var chip = el('pm-chip');
@@ -2041,9 +2085,10 @@
     cancelAuto();
     hideMagazine();
     hideReveal();
+    hideShowcase();
     showDevMock(false);
     clearDevMarks();
-    var isDev = (i >= 17 && i <= 19);
+    var isDev = (i >= 19 && i <= 21);
     el('i-replay').style.display = isDev ? '' : 'none';
     setChar(s.char);
     if (s.nobubble){
@@ -2061,7 +2106,7 @@
     if (s.fn) s.fn();
     if (!DRAG_STEPS[i]) hideChip();
     updateMap(stageOf(i));
-    toggleColorBlobs(i === 11);
+    toggleColorBlobs(i === 12);
     el('i-progress').textContent = (i+1) + ' / ' + STEPS.length;
     el('i-prev').disabled = (i === 0);
   }
@@ -2072,7 +2117,7 @@
       var done = info.targets.every(function(t){ var e = el(t); return e && (info.type === 'reveal' ? !e.classList.contains('hidden') : !e.classList.contains('wf')); });
       if (!done){ nudgeChip(); return; }
     }
-    if (idx === 11 && !chosenThemeColor){ nudgeColor(); return; }
+    if (idx === 12 && !chosenThemeColor){ nudgeColor(); return; }
     if (idx >= STEPS.length-1){ finish(); return; }
     go(idx+1);
   }
