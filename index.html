@@ -420,6 +420,41 @@
   #intro-stage .notes-app.drop-target { box-shadow: 0 0 0 4px var(--drop-glow, rgba(47,111,237,.35)), 0 18px 44px rgba(0,0,0,.22) !important; transform: scale(1.02); }
   #intro-stage .theme-ripple { position: absolute; width: 16px; height: 16px; border-radius: 50%; transform: translate(-50%,-50%) scale(0); pointer-events: none; z-index: 8; opacity: .4; animation: themeRipple .7s ease-out forwards; }
   @keyframes themeRipple { to { transform: translate(-50%,-50%) scale(45); opacity: 0; } }
+
+  /* ===== 程序员阶段：杂志大标题 / HTML 骨架 / CSS 样式 / JS 交互 ===== */
+  #intro-stage .i-magazine { position:absolute; top:3%; left:0; right:0; text-align:center; z-index:4; pointer-events:none; padding:0 10px; animation: magIn .5s ease-out; }
+  @keyframes magIn { from{ opacity:0; transform:translateY(-14px); } to{ opacity:1; transform:translateY(0); } }
+  #intro-stage .i-mag-num { font-size:64px; font-weight:900; color:transparent; -webkit-text-stroke:1.5px #c5cdd9; line-height:.95; letter-spacing:-2px; }
+  #intro-stage .i-mag-kicker { font-size:12px; font-weight:800; letter-spacing:7px; margin-top:8px; }
+  #intro-stage .i-mag-title { font-size:74px; font-weight:900; color:#161616; line-height:1; margin-top:4px; letter-spacing:-1px; }
+  #intro-stage .i-mag-rule { width:38px; height:3px; background:#161616; margin:12px auto 0; }
+  #intro-stage .i-mag-sub { font-size:14px; color:#5a6678; margin-top:10px; font-weight:600; }
+
+  /* 独立 dev-mock：与公共 notes-app 样式完全隔离，防止串台。默认无样式（纯 HTML 骨架），仅 .styled 修饰才生效 */
+  #intro-stage .dev-mock { width:300px; }
+  #intro-stage .dev-mock .d-hidden { display:none; }
+  #intro-stage .dev-mock.styled { background:#fff; border-radius:18px; padding:0 0 16px; box-shadow:0 12px 34px rgba(0,0,0,.13); position:relative; }
+  #intro-stage .dev-mock .d-header.styled { display:flex; justify-content:space-between; align-items:flex-end; padding:16px 16px 10px; margin:0; }
+  #intro-stage .dev-mock .d-header.styled .d-title { font-size:24px; font-weight:700; color:#1a1a1a; }
+  #intro-stage .dev-mock .d-header.styled .d-count { font-size:12px; color:#8a8a99; background:#f0f0f3; padding:3px 10px; border-radius:10px; }
+  #intro-stage .dev-mock .d-search.styled { width:calc(100% - 24px); margin:0 12px 12px; background:#f0f0f3; border:1.5px solid transparent; border-radius:10px; padding:8px 12px; color:#8a8a99; font-size:14px; font-family:inherit; outline:none; box-sizing:border-box; }
+  #intro-stage .dev-mock .d-list.styled { list-style:none; margin:0; padding:0 8px; }
+  #intro-stage .dev-mock .d-list.styled .d-row { padding:11px 10px; border-bottom:1px solid #f0f0f3; }
+  #intro-stage .dev-mock .d-list.styled .d-row:last-child { border-bottom:none; }
+  #intro-stage .dev-mock .d-list.styled .d-rt { font-size:16px; font-weight:600; color:#1a1a1a; }
+  #intro-stage .dev-mock .d-list.styled .d-rs { font-size:13px; color:#8a8a99; margin-top:2px; }
+  #intro-stage .dev-mock .d-fab.styled { position:absolute; right:16px; bottom:16px; width:46px; height:46px; border-radius:50%; background:#ffd60a; color:#1a1a1a; font-size:28px; font-weight:300; border:none; box-shadow:0 6px 16px rgba(255,214,10,.5); padding:0; cursor:pointer; }
+  #intro-stage .dev-mock .d-detail.styled { margin:12px; padding:14px; background:#fafafa; border-radius:12px; }
+  #intro-stage .dev-mock .d-detail.styled .d-dt { font-size:17px; font-weight:700; color:#1a1a1a; margin:0 0 6px; }
+  #intro-stage .dev-mock .d-detail.styled .d-dc { font-size:14px; color:#444; line-height:1.5; margin:0; }
+
+  /* JS 交互：组件晃动 + 接线标记 */
+  @keyframes devShake { 0%,100%{ transform:translateX(0) rotate(0); } 15%{ transform:translateX(-4px) rotate(-1.2deg); } 30%{ transform:translateX(4px) rotate(1.2deg); } 45%{ transform:translateX(-3px) rotate(-.8deg); } 60%{ transform:translateX(3px) rotate(.8deg); } 75%{ transform:translateX(-2px); } 90%{ transform:translateX(2px); } }
+  #intro-stage .dev-mock > .dev-shake { animation: devShake .55s ease-in-out; }
+  #intro-stage .dev-mock > .dev-wired { outline:2px dashed #21c46b; outline-offset:3px; border-radius:8px; }
+
+  /* 代码面板：流式输出滚动 */
+  #intro-stage .i-code .i-code-block { flex:1; overflow:auto; }
 </style>
 
 <style id="app-theme-css">
@@ -493,6 +528,13 @@
   </div>
   <div class="i-top">
     <div class="i-char">
+      <div class="i-magazine" id="i-magazine" style="display:none;">
+        <div class="i-mag-num">01</div>
+        <div class="i-mag-kicker">HTML</div>
+        <div class="i-mag-title">内容</div>
+        <div class="i-mag-rule"></div>
+        <div class="i-mag-sub">HTML 只负责内容</div>
+      </div>
       <div class="color-blobs" id="color-blobs"></div>
       <div class="color-hint" id="color-hint">选一个颜料，拖到设计稿上 -&gt;</div>
       <div class="pm-chip" id="pm-chip"><span class="pc-ico"></span><span class="pc-lbl"></span></div>
@@ -505,7 +547,7 @@
       </div>
       <div class="i-mock" id="i-mock" style="display:none;">
         <div class="i-panel i-code" id="i-code" style="display:none;">
-          <div class="i-panel-hd">前端代码</div>
+          <div class="i-panel-hd" id="i-code-hd">前端代码</div>
           <pre class="i-code-block" id="i-code-html">&lt;header&gt;备忘录&lt;/header&gt;
 &lt;input placeholder="搜索"&gt;
 &lt;ul&gt;&lt;li&gt;学习笔记&lt;/li&gt;&lt;/ul&gt;
@@ -534,6 +576,17 @@
             <div class="n-dc">今天学习了 Web 开发的基础知识，包括 HTML、CSS 和 JavaScript。</div>
           </div>
         </div>
+        <div class="dev-mock" id="dev-mock" style="display:none;">
+          <header class="d-header" id="d-header"><span class="d-title">备忘录</span> <span class="d-count">3</span></header>
+          <input class="d-search" id="d-search" placeholder="搜索" />
+          <ul class="d-list" id="d-list">
+            <li class="d-row"><div class="d-rt">学习笔记</div><div class="d-rs">今天学习了 Web 开发…</div></li>
+            <li class="d-row"><div class="d-rt">项目计划</div><div class="d-rs">完成需求文档和原型设计</div></li>
+            <li class="d-row"><div class="d-rt">会议纪要</div><div class="d-rs">周会讨论了进度和问题</div></li>
+          </ul>
+          <button class="d-fab" id="d-fab">+</button>
+          <article class="d-detail" id="d-detail"><h2 class="d-dt">学习笔记</h2><p class="d-dc">今天学习了 Web 开发的基础知识，包括 HTML、CSS 和 JavaScript。</p></article>
+        </div>
         <div class="i-panel i-backend" id="i-backend" style="display:none;">
           <div class="i-panel-hd">后端接口</div>
           <div class="i-api" id="i-api-save"><code>POST /api/save</code>保存笔记</div>
@@ -560,6 +613,7 @@
   </div>
   <div class="i-corner">
     <button class="i-btn" id="i-prev">← 上一步</button>
+    <button class="i-btn" id="i-replay" style="display:none;">↻ 重放</button>
     <button class="i-btn" id="i-skip">跳过</button>
     <span class="i-progress" id="i-progress"></span>
   </div>
@@ -1497,6 +1551,117 @@
   function resetCode(){ ['html','css','js'].forEach(function(n){ el('i-code-'+n).style.display='none'; }); }
   function resetApi(){ ['save','get','list','stat'].forEach(function(n){ el('i-api-'+n).style.display='none'; }); }
 
+  // ---------- 程序员阶段：杂志大标题 / HTML / CSS / JS（独立 dev-mock，与公共样式隔离） ----------
+  var autoTimer = null, autoPlaying = false;
+  function cancelAuto(){ if (autoTimer){ clearTimeout(autoTimer); autoTimer = null; } autoPlaying = false; }
+  function setMagazine(num, kicker, title, sub, color){
+    var m = el('i-magazine'); if (!m) return;
+    m.querySelector('.i-mag-num').textContent = num;
+    var k = m.querySelector('.i-mag-kicker'); k.textContent = kicker; k.style.color = color;
+    m.querySelector('.i-mag-title').textContent = title;
+    m.querySelector('.i-mag-sub').textContent = sub;
+    m.querySelector('.i-mag-rule').style.background = color;
+    m.style.display = '';
+  }
+  function hideMagazine(){ var m = el('i-magazine'); if (m) m.style.display = 'none'; }
+
+  var DEV_PARTS = ['d-header','d-search','d-list','d-fab','d-detail'];
+  function showDevMock(on){
+    var dm = el('dev-mock'), na = el('n-app');
+    if (dm) dm.style.display = on ? '' : 'none';
+    if (na) na.style.display = on ? 'none' : '';
+  }
+  function resetDevMock(hideParts){
+    var dm = el('dev-mock'); if (!dm) return;
+    dm.classList.remove('styled');
+    DEV_PARTS.forEach(function(id){
+      var e = el(id); if (!e) return;
+      e.classList.remove('styled','dev-shake','dev-wired');
+      if (hideParts) e.classList.add('d-hidden'); else e.classList.remove('d-hidden');
+    });
+  }
+  function styleAllDev(){
+    var dm = el('dev-mock'); if (dm) dm.classList.add('styled');
+    DEV_PARTS.forEach(function(id){ var e = el(id); if (e) e.classList.add('styled'); });
+  }
+  function clearDevMarks(){
+    DEV_PARTS.forEach(function(id){ var e = el(id); if (e) e.classList.remove('dev-wired','dev-shake'); });
+  }
+  function shakeComp(id){
+    var e = el(id); if (!e) return;
+    e.classList.remove('dev-shake'); void e.offsetWidth; e.classList.add('dev-shake');
+    e.classList.add('dev-wired');
+    setTimeout(function(){ e.classList.remove('dev-shake'); }, 600);
+  }
+  function showCodePanel(lang){
+    el('i-code').style.display = '';
+    el('i-backend').style.display = 'none';
+    ['html','css','js'].forEach(function(n){ el('i-code-'+n).style.display = (n === lang ? '' : 'none'); });
+    var hd = el('i-code-hd');
+    if (hd) hd.textContent = { html:'HTML · 结构', css:'CSS · 样式', js:'JS · 交互' }[lang];
+  }
+  function streamCode(panel, chunks, interval, onEach, onDone){
+    panel.textContent = '';
+    autoPlaying = true;
+    var i = 0;
+    function step(){
+      if (i >= chunks.length){ autoPlaying = false; autoTimer = null; if (onDone) onDone(); return; }
+      var ch = chunks[i];
+      panel.textContent += (i ? '\n' : '') + ch.code;
+      panel.scrollTop = panel.scrollHeight;
+      if (onEach) onEach(ch);
+      i++;
+      autoTimer = setTimeout(step, interval);
+    }
+    step();
+  }
+
+  var HTML_CHUNKS = [
+    { code:'<header>\n  备忘录 <span>3</span>\n</header>', target:'d-header' },
+    { code:'<input placeholder="搜索">',                   target:'d-search' },
+    { code:'<ul>\n  <li>学习笔记</li>\n  <li>项目计划</li>\n  <li>会议纪要</li>\n</ul>', target:'d-list' },
+    { code:'<button>+</button>',                          target:'d-fab' },
+    { code:'<article>\n  <h2>学习笔记</h2>\n  <p>今天学习了 Web…</p>\n</article>', target:'d-detail' }
+  ];
+  var CSS_CHUNKS = [
+    { code:'.notes-app {\n  background:#fff;\n  border-radius:18px;\n  box-shadow:0 12px 34px rgba(0,0,0,.13);\n}', target:'dev-mock' },
+    { code:'.header {\n  display:flex;\n  justify-content:space-between;\n}', target:'d-header' },
+    { code:'.search {\n  background:#f0f0f3;\n  border-radius:10px;\n  padding:8px 12px;\n}', target:'d-search' },
+    { code:'.list li {\n  padding:11px 10px;\n  border-bottom:1px solid #f0f0f3;\n}', target:'d-list' },
+    { code:'.fab {\n  position:absolute;\n  width:46px; height:46px;\n  border-radius:50%;\n  background:#ffd60a;\n}', target:'d-fab' },
+    { code:'.detail {\n  background:#fafafa;\n  border-radius:12px;\n  padding:14px;\n}', target:'d-detail' }
+  ];
+  var JS_CHUNKS = [
+    { code:"fab.addEventListener('click', () => {\n  // 新建笔记\n});",       target:'d-fab' },
+    { code:"search.addEventListener('input', () => {\n  // 实时搜索\n});",    target:'d-search' },
+    { code:"list.addEventListener('click', () => {\n  // 查看详情\n});",      target:'d-list' }
+  ];
+
+  function playHtmlStep(){
+    showRegion('i-mock'); showCodePanel('html');
+    setMagazine('01','HTML','内容','HTML 只负责内容','#21c46b');
+    showDevMock(true); resetDevMock(true);
+    streamCode(el('i-code-html'), HTML_CHUNKS, 1000, function(ch){
+      if (ch.target){ var e = el(ch.target); if (e) e.classList.remove('d-hidden'); }
+    });
+  }
+  function playCssStep(){
+    showRegion('i-mock'); showCodePanel('css');
+    setMagazine('02','CSS','样式','CSS 负责样式','#2f6fed');
+    showDevMock(true); resetDevMock(false);
+    streamCode(el('i-code-css'), CSS_CHUNKS, 1000, function(ch){
+      if (ch.target){ var e = el(ch.target); if (e) e.classList.add('styled'); }
+    });
+  }
+  function playJsStep(){
+    showRegion('i-mock'); showCodePanel('js');
+    setMagazine('03','JS','交互','JS 负责行为','#d19a66');
+    showDevMock(true); resetDevMock(false); styleAllDev();
+    streamCode(el('i-code-js'), JS_CHUNKS, 1000, function(ch){
+      if (ch.target) shakeComp(ch.target);
+    });
+  }
+
   var STEPS = [
     { char:'boss', cap:'我想做个像苹果备忘录那样的软件--简单、好用，能记事、能搜、还能统计', fn:function(){ showRegion('i-ref'); el('i-code').style.display='none'; el('i-backend').style.display='none'; } },
     { char:'boss', cap:'这事儿就交给老潘了，你先把原型理出来', fn:function(){ showRegion('i-ref'); } },
@@ -1509,9 +1674,9 @@
     { char:'ui', cap:'列表做成卡片，加阴影、拉间距，要有呼吸感', fn:function(){ showChip(8); } },
     { char:'ui', cap:'搜索框和按钮也统一一下样式，看着才舒服', fn:function(){ showChip(9); } },
     { char:'ui', cap:'详情区顺手美化一下--设计稿搞定，阿强该你了', fn:function(){ showChip(10); } },
-    { char:'dev', cap:'收到，我先把设计稿翻译成代码--先写页面结构', fn:function(){ el('i-code').style.display=''; el('i-backend').style.display='none'; resetCode(); el('i-code-html').style.display=''; } },
-    { char:'dev', cap:'再补上样式，让页面长得跟设计稿一样', fn:function(){ el('i-code-css').style.display=''; } },
-    { char:'dev', cap:'最后加上交互--点击、搜索、新建，都能动了', fn:function(){ el('i-code-js').style.display=''; } },
+    { char:'dev', cap:'先写 HTML，把页面结构搭出来——只有内容，还没有样式', fn: playHtmlStep },
+    { char:'dev', cap:'再写 CSS，一点点把样式加上，页面就好看了', fn: playCssStep },
+    { char:'dev', cap:'最后写 JS，给组件绑上事件——它们就能动了', fn: playJsStep },
     { char:'dev', cap:'后端我也同步写好了接口--这是保存笔记的', fn:function(){ el('i-code').style.display='none'; el('i-backend').style.display=''; resetApi(); el('i-api-save').style.display=''; } },
     { char:'dev', cap:'这个是查看详情的', fn:function(){ el('i-api-get').style.display=''; } },
     { char:'dev', cap:'搜索列表的', fn:function(){ el('i-api-list').style.display=''; } },
@@ -1768,6 +1933,12 @@
     if (i < 0 || i >= STEPS.length) return;
     idx = i;
     var s = STEPS[i];
+    cancelAuto();
+    hideMagazine();
+    showDevMock(false);
+    clearDevMarks();
+    var isDev = (i >= 11 && i <= 13);
+    el('i-replay').style.display = isDev ? '' : 'none';
     setChar(s.char);
     if (s.nobubble){
       bubble.style.display = 'none';
@@ -1789,6 +1960,7 @@
     el('i-prev').disabled = (i === 0);
   }
   function next(){
+    if (autoPlaying) return;
     if (DRAG_STEPS[idx]){
       var info = DRAG_STEPS[idx];
       var done = info.targets.every(function(t){ var e = el(t); return e && (info.type === 'reveal' ? !e.classList.contains('hidden') : !e.classList.contains('wf')); });
@@ -1816,6 +1988,7 @@
   function finish(){ el('intro-stage').style.display = 'none'; window.scrollTo(0,0); window.__themeColor = chosenThemeColor; applyAppTheme(chosenThemeColor); var sw = document.getElementById('ch-switcher'); if (sw) sw.style.display = ''; }
 
   el('i-prev').addEventListener('click', function(e){ e.stopPropagation(); prev(); });
+  el('i-replay').addEventListener('click', function(e){ e.stopPropagation(); cancelAuto(); var s = STEPS[idx]; if (s && s.fn) s.fn(); });
   el('i-skip').addEventListener('click', function(e){ e.stopPropagation(); finish(); });
   el('i-enter').addEventListener('click', function(e){ e.stopPropagation(); finish(); });
   el('cov-start').addEventListener('click', startIntro);
