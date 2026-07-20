@@ -330,7 +330,7 @@
 #intro-stage .i-bubble::before { content:''; position:absolute; left:-7px; top:26px; width:14px; height:14px; background:#fff; transform:rotate(45deg); border-radius:3px; }
 #intro-stage .i-bubble.narrate { left:50%; transform:translate(-50%,-50%); width:auto; max-width:600px; text-align:center; background:rgba(255,255,255,.92); }
 #intro-stage .i-bubble.narrate::before { display:none; }
-#intro-stage .i-corner { position:absolute; right:24px; bottom:22px; display:flex; align-items:center; gap:10px; z-index:7; }
+  #intro-stage .i-corner { position:absolute; right:24px; bottom:22px; display:flex; align-items:center; gap:10px; z-index:60; }
 #intro-stage .i-corner .i-btn { padding:8px 18px; border:1px solid #c5cdd9; background:rgba(255,255,255,.85); color:#5a6678; font-size:13px; border-radius:20px; cursor:pointer; font-family:inherit; transition:all .15s; }
 #intro-stage .i-corner .i-btn:hover { background:#fff; border-color:#2f6fed; color:#2f6fed; }
 #intro-stage .i-corner .i-btn:disabled { opacity:.4; cursor:not-allowed; }
@@ -644,23 +644,23 @@
       </div>
     </div>
     <div class="i-bubble" id="i-bubble"></div>
-    <div class="i-reveal" id="i-reveal">
-      <div class="i-reveal-bg"></div>
-      <div class="i-reveal-left"><img id="i-reveal-img" alt=""/></div>
-      <div class="i-reveal-right">
-        <div class="i-reveal-role" id="i-reveal-role"></div>
-        <div class="i-reveal-name" id="i-reveal-name"></div>
-        <div class="i-reveal-person" id="i-reveal-person"></div>
-        <div class="i-reveal-rule"></div>
-        <div class="i-reveal-desc" id="i-reveal-desc"></div>
-      </div>
-    </div>
   </div>
   <div class="i-corner">
     <button class="i-btn" id="i-prev">← 上一步</button>
     <button class="i-btn" id="i-replay" style="display:none;">↻ 重放</button>
     <button class="i-btn" id="i-skip">跳过</button>
     <span class="i-progress" id="i-progress"></span>
+  </div>
+  <div class="i-reveal" id="i-reveal">
+    <div class="i-reveal-bg"></div>
+    <div class="i-reveal-left"><img id="i-reveal-img" alt=""/></div>
+    <div class="i-reveal-right">
+      <div class="i-reveal-role" id="i-reveal-role"></div>
+      <div class="i-reveal-name" id="i-reveal-name"></div>
+      <div class="i-reveal-person" id="i-reveal-person"></div>
+      <div class="i-reveal-rule"></div>
+      <div class="i-reveal-desc" id="i-reveal-desc"></div>
+    </div>
   </div>
 </div>
 
