@@ -452,6 +452,7 @@
   @keyframes devShake { 0%,100%{ transform:translateX(0) rotate(0); } 15%{ transform:translateX(-4px) rotate(-1.2deg); } 30%{ transform:translateX(4px) rotate(1.2deg); } 45%{ transform:translateX(-3px) rotate(-.8deg); } 60%{ transform:translateX(3px) rotate(.8deg); } 75%{ transform:translateX(-2px); } 90%{ transform:translateX(2px); } }
   #intro-stage .dev-mock > .dev-shake { animation: devShake .55s ease-in-out; }
   #intro-stage .dev-mock > .dev-wired { outline:2px dashed #21c46b; outline-offset:3px; border-radius:8px; }
+  #intro-stage .notes-app > .dev-shake { animation: devShake .55s ease-in-out; }
 
   /* 代码面板：流式输出滚动 */
   #intro-stage .i-code .i-code-block { flex:1; overflow:auto; }
@@ -1661,6 +1662,42 @@
     var hd = el('i-code-hd');
     if (hd) hd.textContent = { html:'HTML · 结构', css:'CSS · 样式', js:'JS · 交互' }[lang];
   }
+  function typeCode(panel, chunks, onEach, onDone){
+    panel.textContent = '';
+    autoPlaying = true;
+    var chunkIdx = 0;
+    var charIdx = 0;
+    var currentText = '';
+    var fullTextForChunks = [];
+    for (var ci = 0; ci < chunks.length; ci++){
+      fullTextForChunks[ci] = (ci > 0 ? fullTextForChunks[ci-1] + '\n' : '') + chunks[ci].code;
+    }
+    function step(){
+      if (!autoPlaying) return;
+      if (chunkIdx >= chunks.length){
+        autoPlaying = false; autoTimer = null; if (onDone) onDone(); return;
+      }
+      var targetText = fullTextForChunks[chunkIdx];
+      if (charIdx < targetText.length){
+        var speed = 15;
+        var ch = targetText[charIdx];
+        if (ch === '\n') speed = 60;
+        else if (' \t,.;:{}[]()'.indexOf(ch) >= 0) speed = 30;
+        else if (Math.random() < 0.08) speed = 60 + Math.random() * 60;
+        currentText = targetText.slice(0, charIdx + 1);
+        panel.textContent = currentText;
+        panel.scrollTop = panel.scrollHeight;
+        charIdx++;
+        autoTimer = setTimeout(step, speed);
+      } else {
+        var ch = chunks[chunkIdx];
+        if (onEach) onEach(ch);
+        chunkIdx++;
+        autoTimer = setTimeout(step, 300);
+      }
+    }
+    step();
+  }
   function streamCode(panel, chunks, interval, onEach, onDone){
     panel.textContent = '';
     autoPlaying = true;
@@ -1678,48 +1715,53 @@
   }
 
   var HTML_CHUNKS = [
-    { code:'<header>\n  备忘录 <span>3</span>\n</header>', target:'d-header' },
-    { code:'<input placeholder="搜索">',                   target:'d-search' },
-    { code:'<ul>\n  <li>学习笔记</li>\n  <li>项目计划</li>\n  <li>会议纪要</li>\n</ul>', target:'d-list' },
-    { code:'<button>+</button>',                          target:'d-fab' },
-    { code:'<article>\n  <h2>学习笔记</h2>\n  <p>今天学习了 Web…</p>\n</article>', target:'d-detail' }
+    { code:'<header>\n  备忘录 <span>3</span>\n</header>', target:'n-header', dTarget:'d-header' },
+    { code:'<input placeholder="搜索">',                   target:'n-search', dTarget:'d-search' },
+    { code:'<ul>\n  <li>学习笔记</li>\n  <li>项目计划</li>\n  <li>会议纪要</li>\n</ul>', target:'n-list', dTarget:'d-list' },
+    { code:'<button>+</button>',                          target:'n-fab', dTarget:'d-fab' },
+    { code:'<article>\n  <h2>学习笔记</h2>\n  <p>今天学习了 Web…</p>\n</article>', target:'n-detail', dTarget:'d-detail' }
   ];
   var CSS_CHUNKS = [
-    { code:'.notes-app {\n  background:#fff;\n  border-radius:18px;\n  box-shadow:0 12px 34px rgba(0,0,0,.13);\n}', target:'dev-mock' },
-    { code:'.header {\n  display:flex;\n  justify-content:space-between;\n}', target:'d-header' },
-    { code:'.search {\n  background:#f0f0f3;\n  border-radius:10px;\n  padding:8px 12px;\n}', target:'d-search' },
-    { code:'.list li {\n  padding:11px 10px;\n  border-bottom:1px solid #f0f0f3;\n}', target:'d-list' },
-    { code:'.fab {\n  position:absolute;\n  width:46px; height:46px;\n  border-radius:50%;\n  background:#ffd60a;\n}', target:'d-fab' },
-    { code:'.detail {\n  background:#fafafa;\n  border-radius:12px;\n  padding:14px;\n}', target:'d-detail' }
+    { code:'.notes-app {\n  background:#fff;\n  border-radius:18px;\n  box-shadow:0 12px 34px rgba(0,0,0,.13);\n}', target:'n-app', dTarget:'dev-mock' },
+    { code:'.header {\n  display:flex;\n  justify-content:space-between;\n}', target:'n-header', dTarget:'d-header' },
+    { code:'.search {\n  background:#f0f0f3;\n  border-radius:10px;\n  padding:8px 12px;\n}', target:'n-search', dTarget:'d-search' },
+    { code:'.list li {\n  padding:11px 10px;\n  border-bottom:1px solid #f0f0f3;\n}', target:'n-list', dTarget:'d-list' },
+    { code:'.fab {\n  position:absolute;\n  width:46px; height:46px;\n  border-radius:50%;\n  background:#ffd60a;\n}', target:'n-fab', dTarget:'d-fab' },
+    { code:'.detail {\n  background:#fafafa;\n  border-radius:12px;\n  padding:14px;\n}', target:'n-detail', dTarget:'d-detail' }
   ];
   var JS_CHUNKS = [
-    { code:"fab.addEventListener('click', () => {\n  // 新建笔记\n});",       target:'d-fab' },
-    { code:"search.addEventListener('input', () => {\n  // 实时搜索\n});",    target:'d-search' },
-    { code:"list.addEventListener('click', () => {\n  // 查看详情\n});",      target:'d-list' }
+    { code:"fab.addEventListener('click', () => {\n  // 新建笔记\n});",       target:'n-fab', dTarget:'d-fab' },
+    { code:"search.addEventListener('input', () => {\n  // 实时搜索\n});",    target:'n-search', dTarget:'d-search' },
+    { code:"list.addEventListener('click', () => {\n  // 查看详情\n});",      target:'n-list', dTarget:'d-list' }
   ];
 
   function playHtmlStep(){
     showRegion('i-mock'); showCodePanel('html');
     setMagazine('01','HTML','内容','HTML 只负责内容','#21c46b');
-    showDevMock(true); resetDevMock(true);
-    streamCode(el('i-code-html'), HTML_CHUNKS, 1000, function(ch){
-      if (ch.target){ var e = el(ch.target); if (e) e.classList.remove('d-hidden'); }
+    showDevMock(false); resetMock();
+    typeCode(el('i-code-html'), HTML_CHUNKS, function(ch){
+      if (ch.target){ var e = el(ch.target); if (e) e.classList.remove('hidden','wf'); }
     });
   }
   function playCssStep(){
     showRegion('i-mock'); showCodePanel('css');
     setMagazine('02','CSS','样式','CSS 负责样式','#2f6fed');
-    showDevMock(true); resetDevMock(false);
-    streamCode(el('i-code-css'), CSS_CHUNKS, 1000, function(ch){
-      if (ch.target){ var e = el(ch.target); if (e) e.classList.add('styled'); }
+    showDevMock(false);
+    typeCode(el('i-code-css'), CSS_CHUNKS, function(ch){
+      if (ch.target){ var e = el(ch.target); if (e) e.classList.remove('wf'); }
     });
   }
   function playJsStep(){
     showRegion('i-mock'); showCodePanel('js');
     setMagazine('03','JS','交互','JS 负责行为','#d19a66');
-    showDevMock(true); resetDevMock(false); styleAllDev();
-    streamCode(el('i-code-js'), JS_CHUNKS, 1000, function(ch){
-      if (ch.target) shakeComp(ch.target);
+    showDevMock(false);
+    typeCode(el('i-code-js'), JS_CHUNKS, function(ch){
+      if (ch.target){
+        var e = el(ch.target); if (e){
+          e.classList.add('dev-shake');
+          setTimeout(function(){ if (e) e.classList.remove('dev-shake'); }, 600);
+        }
+      }
     });
   }
 
