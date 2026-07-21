@@ -1725,10 +1725,39 @@
 
   // ---------- 角色登场：特写 + 头脑风暴 ----------
   var REVEALS = {
-    pm: { color:'#2f6fed', role:'PRODUCT MANAGER', name:'产品经理', person:'老潘', desc:'把老板的构想，拆成可执行的原型', terms:['需求分析','用户故事','原型设计','MVP','PRD','竞品分析','迭代规划','优先级','流程图'] },
-    ui: { color:'#eb2f96', role:'UI DESIGNER', name:'UI 设计师', person:'小雅', desc:'给原型穿上好看的外衣', terms:['视觉规范','配色','栅格','留白','组件库','Figma','设计稿','交互细节','字体排版'] },
-    fe: { color:'#21c46b', role:'FRONTEND ENGINEER', name:'前端工程师', person:'阿强', desc:'把设计稿翻译成会动的页面', terms:['HTML','CSS','JavaScript','DOM','响应式','React','状态管理','浏览器渲染','打包构建'] },
-    be: { color:'#d46b08', role:'BACKEND ENGINEER', name:'后端工程师', person:'阿强', desc:'在看不见的地方处理数据', terms:['API','数据库','SQL','RESTful','并发','缓存','鉴权','索引优化','部署上线'] }
+    pm: {
+      color: '#2f6fed',
+      stripeColor: 'rgba(255,255,255,.08)',
+      role: 'PRODUCT MANAGER',
+      name: '产品经理',
+      person: '老潘',
+      desc: '通过逻辑建模与策略推演，实现业务体系的最优解与可持续迭代',
+      terms: ['博弈建模','权重迭代','路径寻优','阈值判定','维度拆解','收益熵减','策略收敛','资源博弈','拓扑梳理','概率推演']
+    },
+    ui: {
+      color: '#eb2f96',
+      role: 'UI DESIGNER',
+      name: 'UI 设计师',
+      person: '小雅',
+      desc: '基于视觉拓扑与感知算法，构建高适配的人机交互美学体系',
+      terms: ['视觉拓扑','色彩矩阵','层级算法','空间插值','组件范式','归一映射','感知拟合','多维融合','字体向量','光影卷积']
+    },
+    fe: {
+      color: '#21c46b',
+      role: 'FRONTEND ENGINEER',
+      name: '前端工程师',
+      person: '阿强',
+      desc: '基于渲染机制与状态算法，构建高性能、低损耗的交互渲染体系',
+      terms: ['虚拟DOM','差分更新','递归渲染','防抖节流','映射适配','组件解耦','状态收敛','工程编译','帧率优化','增量渲染']
+    },
+    be: {
+      color: '#d46b08',
+      role: 'BACKEND ENGINEER',
+      name: '后端工程师',
+      person: '阿强',
+      desc: '依托数据算法与分布式架构，实现系统高可用、高并发的稳态运行',
+      terms: ['接口幂等','事务回滚','哈希分片','异步解耦','熔断降级','缓存穿透','权限鉴权','负载均衡','索引优化','并发锁控']
+    }
   };
   function playReveal(key){
     var r = REVEALS[key]; if (!r) return;
