@@ -459,19 +459,23 @@
   /* ===== 角色登场特效 ===== */
   #intro-stage .i-reveal { position:absolute; inset:0; z-index:50; display:none; overflow:hidden; }
   #intro-stage .i-reveal.show { display:flex; align-items:center; }
-  #intro-stage .i-reveal-bg { position:absolute; inset:0; background:var(--reveal-color,#2f6fed); overflow:hidden; }
+  #intro-stage .i-reveal.transitioning { pointer-events:none; }
+  #intro-stage .i-reveal-bg { position:absolute; inset:0; background:var(--reveal-color,#2f6fed); overflow:hidden; transition:opacity .5s ease; }
   #intro-stage .i-reveal-bg::before { content:''; position:absolute; inset:-50%; background:repeating-linear-gradient(45deg, transparent 0 48px, rgba(255,255,255,.6) 48px 96px); animation: stripeSlide 1.6s linear infinite; will-change:transform; }
   @keyframes stripeSlide { from{ transform:translate(0,0); } to{ transform:translate(68px,-68px); } }
   #intro-stage .i-reveal-left { position:relative; z-index:2; flex:0 0 46%; height:100%; display:flex; align-items:center; justify-content:center; }
   #intro-stage .i-reveal-left img { max-height:78vh; max-width:100%; object-fit:contain; filter:drop-shadow(0 18px 36px rgba(0,0,0,.32)); animation: revealImg .7s cubic-bezier(.2,.85,.2,1); }
   @keyframes revealImg { from{ transform:translateX(-80px) scale(.92); opacity:0; } to{ transform:translateX(0) scale(1); opacity:1; } }
-  #intro-stage .i-reveal-right { position:relative; z-index:2; flex:1; padding:0 7% 0 3%; color:#fff; }
+  #intro-stage .i-reveal-right { position:relative; z-index:2; flex:1; padding:0 7% 0 3%; color:#fff; transition:opacity .3s ease; }
   #intro-stage .i-reveal-role { font-size:14px; font-weight:800; letter-spacing:9px; opacity:.82; animation: revealTxt .5s .2s both; }
   #intro-stage .i-reveal-name { font-size:clamp(44px,7vw,88px); font-weight:900; line-height:1; margin-top:12px; letter-spacing:-1px; animation: revealTxt .5s .3s both; }
   #intro-stage .i-reveal-person { font-size:30px; font-weight:700; opacity:.95; margin-top:14px; animation: revealTxt .5s .4s both; }
   #intro-stage .i-reveal-rule { width:64px; height:4px; background:#fff; margin:22px 0; animation: revealTxt .5s .5s both; }
   #intro-stage .i-reveal-desc { font-size:22px; font-weight:500; opacity:.92; max-width:440px; line-height:1.5; animation: revealTxt .5s .6s both; }
   @keyframes revealTxt { from{ transform:translateY(24px); opacity:0; } to{ transform:translateY(0); opacity:1; } }
+  /* 过渡时的克隆图片 */
+  #intro-stage .i-reveal-clone { position:fixed; z-index:51; pointer-events:none; object-fit:contain; filter:drop-shadow(0 18px 36px rgba(0,0,0,.32)); transition:all .55s cubic-bezier(.2,.85,.2,1); }
+  #intro-stage .i-reveal-clone.final { filter:drop-shadow(0 12px 24px rgba(0,0,0,.18)); }
 
   /* ===== 头脑风暴 ===== */
   #intro-stage .i-brainstorm { display:flex; flex-direction:column; align-items:center; gap:18px; }
@@ -1736,8 +1740,94 @@
     el('i-reveal-desc').textContent = r.desc;
     el('i-reveal').style.setProperty('--reveal-color', r.color);
     el('i-reveal').classList.add('show');
+    // 记录当前角色，用于后续过渡
+    window.__lastRevealChar = charKey;
   }
-  function hideReveal(){ el('i-reveal').classList.remove('show'); }
+  function hideReveal(withTransition, callback){
+    var reveal = el('i-reveal');
+    if (!reveal.classList.contains('show')) {
+      if (callback) callback();
+      return;
+    }
+    if (!withTransition){
+      reveal.classList.remove('show');
+      if (callback) callback();
+      return;
+    }
+    // 获取登场页面的图片元素
+    var revealImg = el('i-reveal-img');
+    var revealLeft = reveal.querySelector('.i-reveal-left');
+    var revealRight = reveal.querySelector('.i-reveal-right');
+    var revealBg = reveal.querySelector('.i-reveal-bg');
+    if (!revealImg || !revealImg.offsetParent) {
+      reveal.classList.remove('show');
+      if (callback) callback();
+      return;
+    }
+    // 预先设置好角色图片，让它在过渡后显示
+    if (window.__lastRevealChar){
+      charImg.src = I_IMG[window.__lastRevealChar];
+      charName.textContent = NAMES[window.__lastRevealChar] || '';
+    }
+    // 获取图片在屏幕上的位置
+    var rect = revealImg.getBoundingClientRect();
+    var charParent = charImg.parentElement;
+    // 确保左侧角色区域可见，但图片透明
+    charParent.style.display = '';
+    charImg.style.opacity = 0;
+    // 创建克隆图片
+    var clone = document.createElement('img');
+    clone.src = revealImg.src;
+    clone.className = 'i-reveal-clone';
+    clone.style.left = rect.left + 'px';
+    clone.style.top = rect.top + 'px';
+    clone.style.width = rect.width + 'px';
+    clone.style.height = rect.height + 'px';
+    // 添加到舞台
+    el('intro-stage').appendChild(clone);
+    // 开始过渡：先淡出背景和右侧文字
+    reveal.classList.add('transitioning');
+    revealBg.style.opacity = 0;
+    revealRight.style.opacity = 0;
+    // 强制重排
+    void clone.offsetWidth;
+    // 计算目标位置：让克隆图片移动到左侧角色区域中心
+    // 先让左侧角色区域布局完成
+    var targetRect = charParent.getBoundingClientRect();
+    // 计算目标尺寸和位置 - 保持图片居中显示在左侧区域
+    var targetWidth = Math.min(targetRect.width * 0.9, rect.width);
+    var targetHeight = Math.min(targetRect.height * 0.7, rect.height);
+    // 保持原始宽高比
+    var scale = Math.min(targetWidth / rect.width, targetHeight / rect.height);
+    var finalWidth = rect.width * scale;
+    var finalHeight = rect.height * scale;
+    var finalLeft = targetRect.left + (targetRect.width - finalWidth) / 2;
+    var finalTop = targetRect.top + (targetRect.height - finalHeight) * 0.45;
+    // 应用过渡样式
+    clone.style.left = finalLeft + 'px';
+    clone.style.top = finalTop + 'px';
+    clone.style.width = finalWidth + 'px';
+    clone.style.height = finalHeight + 'px';
+    clone.classList.add('final');
+    // 隐藏原登场页面的图片
+    revealLeft.style.opacity = 0;
+    // 过渡完成后清理
+    setTimeout(function(){
+      // 显示真实的左侧图片
+      charImg.style.opacity = 1;
+      isRevealTransitioning = false;
+      // 移除克隆元素和清理
+      setTimeout(function(){
+        if (clone.parentNode) clone.parentNode.removeChild(clone);
+        reveal.classList.remove('show', 'transitioning');
+        revealBg.style.opacity = '';
+        revealRight.style.opacity = '';
+        revealLeft.style.opacity = '';
+        // 调用回调，继续页面切换
+        if (callback) callback();
+      }, 50);
+    }, 550);
+  }
   function spawnBsTerm(text, color){
     var box = el('i-bs-terms'); if (!box) return;
     var s = document.createElement('span');
@@ -2078,7 +2168,28 @@
   }
 
   var idx = -1;
+  // 标记是否正在进行登场过渡
+  var isRevealTransitioning = false;
   function go(i){
+    if (i < 0 || i >= STEPS.length) return;
+    // 检查是否是从登场页面往后走
+    var fromReveal = idx >= 0 && STEPS[idx] && STEPS[idx].nobubble && STEPS[idx].cap && STEPS[idx].cap.indexOf('登场') >= 0;
+    var isForward = i > idx;
+    // 如果是从登场页面往后走，先进行过渡动画，完成后再切换页面
+    if (fromReveal && isForward){
+      isRevealTransitioning = true;
+      // 先只启动过渡动画，不切换其他内容
+      hideReveal(true, function(){
+        // 动画完成后再执行完整的页面切换
+        isRevealTransitioning = false;
+        completeGo(i);
+      });
+      return;
+    }
+    // 正常的页面切换
+    completeGo(i);
+  }
+  function completeGo(i){
     if (i < 0 || i >= STEPS.length) return;
     idx = i;
     var s = STEPS[i];
