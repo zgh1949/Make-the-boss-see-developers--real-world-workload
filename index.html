@@ -1772,61 +1772,59 @@
     // 获取图片在屏幕上的位置
     var rect = revealImg.getBoundingClientRect();
     var charParent = charImg.parentElement;
-    // 确保左侧角色区域可见，但图片透明
+    // 确保左侧角色区域可见，同时隐藏登场页面
     charParent.style.display = '';
     charImg.style.opacity = 0;
-    // 创建克隆图片
-    var clone = document.createElement('img');
-    clone.src = revealImg.src;
-    clone.className = 'i-reveal-clone';
-    clone.style.left = rect.left + 'px';
-    clone.style.top = rect.top + 'px';
-    clone.style.width = rect.width + 'px';
-    clone.style.height = rect.height + 'px';
-    // 添加到舞台
-    el('intro-stage').appendChild(clone);
-    // 开始过渡：先淡出背景和右侧文字
+    // 先隐藏登场页面的内容，但保持占位
     reveal.classList.add('transitioning');
     revealBg.style.opacity = 0;
     revealRight.style.opacity = 0;
-    // 强制重排
-    void clone.offsetWidth;
-    // 计算目标位置：让克隆图片移动到左侧角色区域中心
-    // 先让左侧角色区域布局完成
-    var targetRect = charParent.getBoundingClientRect();
-    // 计算目标尺寸和位置 - 保持图片居中显示在左侧区域
-    var targetWidth = Math.min(targetRect.width * 0.9, rect.width);
-    var targetHeight = Math.min(targetRect.height * 0.7, rect.height);
-    // 保持原始宽高比
-    var scale = Math.min(targetWidth / rect.width, targetHeight / rect.height);
-    var finalWidth = rect.width * scale;
-    var finalHeight = rect.height * scale;
-    var finalLeft = targetRect.left + (targetRect.width - finalWidth) / 2;
-    var finalTop = targetRect.top + (targetRect.height - finalHeight) * 0.45;
-    // 应用过渡样式
-    clone.style.left = finalLeft + 'px';
-    clone.style.top = finalTop + 'px';
-    clone.style.width = finalWidth + 'px';
-    clone.style.height = finalHeight + 'px';
-    clone.classList.add('final');
-    // 隐藏原登场页面的图片
     revealLeft.style.opacity = 0;
-    // 过渡完成后清理
-    setTimeout(function(){
-      // 显示真实的左侧图片
-      charImg.style.opacity = 1;
-      isRevealTransitioning = false;
-      // 移除克隆元素和清理
+    // 等待一帧，让左侧布局完成
+    requestAnimationFrame(function(){
+      // 获取左侧角色图片在正常布局中的位置
+      // 临时显示一下图片来获取准确位置
+      charImg.style.opacity = 0;
+      charImg.style.visibility = 'hidden';
+      charImg.style.display = '';
+      var targetRect = charImg.getBoundingClientRect();
+      charImg.style.visibility = '';
+      charImg.style.opacity = 0;
+      // 创建克隆图片
+      var clone = document.createElement('img');
+      clone.src = revealImg.src;
+      clone.className = 'i-reveal-clone';
+      clone.style.left = rect.left + 'px';
+      clone.style.top = rect.top + 'px';
+      clone.style.width = rect.width + 'px';
+      clone.style.height = rect.height + 'px';
+      // 添加到舞台
+      el('intro-stage').appendChild(clone);
+      // 强制重排
+      void clone.offsetWidth;
+      // 直接飞到目标位置（就是左侧图片应该在的位置）
+      clone.style.left = targetRect.left + 'px';
+      clone.style.top = targetRect.top + 'px';
+      clone.style.width = targetRect.width + 'px';
+      clone.style.height = targetRect.height + 'px';
+      clone.classList.add('final');
+      // 过渡完成后清理
       setTimeout(function(){
-        if (clone.parentNode) clone.parentNode.removeChild(clone);
-        reveal.classList.remove('show', 'transitioning');
-        revealBg.style.opacity = '';
-        revealRight.style.opacity = '';
-        revealLeft.style.opacity = '';
-        // 调用回调，继续页面切换
-        if (callback) callback();
-      }, 50);
-    }, 550);
+        // 显示真实的左侧图片
+        charImg.style.opacity = 1;
+        isRevealTransitioning = false;
+        // 移除克隆元素和清理
+        setTimeout(function(){
+          if (clone.parentNode) clone.parentNode.removeChild(clone);
+          reveal.classList.remove('show', 'transitioning');
+          revealBg.style.opacity = '';
+          revealRight.style.opacity = '';
+          revealLeft.style.opacity = '';
+          // 调用回调，继续页面切换
+          if (callback) callback();
+        }, 50);
+      }, 550);
+    });
   }
   function spawnBsTerm(text, color){
     var box = el('i-bs-terms'); if (!box) return;
