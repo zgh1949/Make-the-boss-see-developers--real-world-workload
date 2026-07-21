@@ -459,9 +459,9 @@
   /* ===== 角色登场特效 ===== */
   #intro-stage .i-reveal { position:absolute; inset:0; z-index:50; display:none; overflow:hidden; }
   #intro-stage .i-reveal.show { display:flex; align-items:center; }
-  #intro-stage .i-reveal-bg { position:absolute; inset:0; background:var(--reveal-color,#2f6fed); }
-  #intro-stage .i-reveal-bg::before { content:''; position:absolute; inset:-50%; background:repeating-linear-gradient(45deg, transparent 0 30px, rgba(255,255,255,.09) 30px 60px); animation: stripePan 5s linear infinite; }
-  @keyframes stripePan { from{ transform:translate(0,0); } to{ transform:translate(60px,60px); } }
+  #intro-stage .i-reveal-bg { position:absolute; inset:0; background:var(--reveal-color,#2f6fed); overflow:hidden; }
+  #intro-stage .i-reveal-bg::before { content:''; position:absolute; inset:-50%; background:repeating-linear-gradient(45deg, transparent 0 48px, rgba(255,255,255,.6) 48px 96px); animation: stripeSlide 1.6s linear infinite; will-change:transform; }
+  @keyframes stripeSlide { from{ transform:translate(0,0); } to{ transform:translate(68px,-68px); } }
   #intro-stage .i-reveal-left { position:relative; z-index:2; flex:0 0 46%; height:100%; display:flex; align-items:center; justify-content:center; }
   #intro-stage .i-reveal-left img { max-height:78vh; max-width:100%; object-fit:contain; filter:drop-shadow(0 18px 36px rgba(0,0,0,.32)); animation: revealImg .7s cubic-bezier(.2,.85,.2,1); }
   @keyframes revealImg { from{ transform:translateX(-80px) scale(.92); opacity:0; } to{ transform:translateX(0) scale(1); opacity:1; } }
