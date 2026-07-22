@@ -1739,17 +1739,20 @@
   function playHtmlStep(){
     showRegion('i-mock'); showCodePanel('html');
     setMagazine('01','HTML','内容','HTML 只负责内容','#21c46b');
-    showDevMock(false); resetMock();
+    showDevMock(true); resetDevMock(true);
     typeCode(el('i-code-html'), HTML_CHUNKS, function(ch){
-      if (ch.target){ var e = el(ch.target); if (e) e.classList.remove('hidden','wf'); }
+      if (ch.dTarget){ var e = el(ch.dTarget); if (e) e.classList.remove('d-hidden'); }
     });
   }
   function playCssStep(){
     showRegion('i-mock'); showCodePanel('css');
     setMagazine('02','CSS','样式','CSS 负责样式','#2f6fed');
-    showDevMock(false);
+    showDevMock(true); resetDevMock(false);
     typeCode(el('i-code-css'), CSS_CHUNKS, function(ch){
-      if (ch.target){ var e = el(ch.target); if (e) e.classList.remove('wf'); }
+      if (ch.dTarget){
+        var e = (ch.dTarget === 'dev-mock') ? el('dev-mock') : el(ch.dTarget);
+        if (e) e.classList.add('styled');
+      }
     });
   }
   function playJsStep(){
