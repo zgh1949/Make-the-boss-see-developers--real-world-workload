@@ -272,7 +272,7 @@
 
 /* 备忘录组件 */
 #intro-stage .i-mock { display:flex; align-items:center; justify-content:center; gap:22px; }
-#intro-stage .notes-app { width:300px; background:#fff; border-radius:18px; box-shadow:0 12px 34px rgba(0,0,0,.13); overflow:hidden; position:relative; padding-bottom:16px; border:2px solid transparent; transition:all .45s ease; }
+#intro-stage .notes-app { width:300px; background:#fff; border-radius:18px; box-shadow:0 12px 34px rgba(0,0,0,.13); overflow:visible; position:relative; padding-bottom:16px; border:2px solid transparent; transition:all .45s ease; margin:4px; }
 #intro-stage .notes-app > * { transition:opacity .4s ease, transform .4s ease, color .45s, background .45s, border-color .45s, box-shadow .45s; }
 #intro-stage .n-header { display:flex; align-items:flex-end; justify-content:space-between; padding:16px 16px 10px; }
 #intro-stage .n-title { font-size:24px; font-weight:700; color:#1a1a1a; }
@@ -2015,7 +2015,7 @@
     { char:'dev', cap:'前端搞定！HTML 搭结构、CSS 上样式、JS 加交互', fn:function(){ playShowcase('fe'); } },
     { char:'dev', nobubble:true, cap:'后端工程师登场', fn:function(){ playReveal('be'); } },
     { char:'dev', cap:'后端接口我来梳理一下……', fn:function(){ playBrainstorm('be'); } },
-    { char:'dev', cap:'后端我也同步写好了接口--这是保存笔记的', fn:function(){ showRegion('i-mock'); el('i-code').style.display='none'; el('i-backend').style.display=''; resetApi(); el('i-api-save').style.display=''; } },
+    { char:'dev', cap:'后端我也同步写好了接口--这是保存笔记的', fn:function(){ showRegion('i-mock'); el('i-code').style.display='none'; el('i-backend').style.display=''; resetApi(); el('i-api-save').style.display=''; ['n-header','n-search','n-list','n-fab','n-detail'].forEach(function(id){ var e = el(id); if (e){ e.classList.remove('dev-wired'); e.style.outline = ''; } }); } },
     { char:'dev', cap:'这个是查看详情的', fn:function(){ el('i-api-get').style.display=''; } },
     { char:'dev', cap:'搜索列表的', fn:function(){ el('i-api-list').style.display=''; } },
     { char:'dev', cap:'还有统计总数的', fn:function(){ el('i-api-stat').style.display=''; } },
