@@ -447,6 +447,10 @@
   #intro-stage .dev-mock .d-detail.styled { margin:12px; padding:14px; background:#fafafa; border-radius:12px; }
   #intro-stage .dev-mock .d-detail.styled .d-dt { font-size:17px; font-weight:700; color:#1a1a1a; margin:0 0 6px; }
   #intro-stage .dev-mock .d-detail.styled .d-dc { font-size:14px; color:#444; line-height:1.5; margin:0; }
+  /* dev-mock 主题色支持，复制 notes-app 的主题色 */
+  #intro-stage .dev-mock.themed .d-fab.styled { background: var(--d-accent); box-shadow: 0 6px 18px var(--d-accent-glow); }
+  #intro-stage .dev-mock.themed .d-count.styled { background: var(--d-accent); color: #fff; }
+  #intro-stage .dev-mock.themed .d-search.styled { border-color: var(--d-accent); }
 
   /* JS 交互：组件晃动 + 接线标记 */
   @keyframes devShake { 0%,100%{ transform:translateX(0) rotate(0); } 15%{ transform:translateX(-4px) rotate(-1.2deg); } 30%{ transform:translateX(4px) rotate(1.2deg); } 45%{ transform:translateX(-3px) rotate(-.8deg); } 60%{ transform:translateX(3px) rotate(.8deg); } 75%{ transform:translateX(-2px); } 90%{ transform:translateX(2px); } }
@@ -1740,6 +1744,13 @@
     showRegion('i-mock'); showCodePanel('html');
     setMagazine('01','HTML','内容','HTML 只负责内容','#21c46b');
     showDevMock(true); resetDevMock(true);
+    // 如果有选择的主题色，复制到 dev-mock
+    var devMock = el('dev-mock');
+    if (devMock && chosenThemeColor){
+      devMock.style.setProperty('--d-accent', chosenThemeColor.color);
+      devMock.style.setProperty('--d-accent-glow', chosenThemeColor.glow);
+      devMock.classList.add('themed');
+    }
     typeCode(el('i-code-html'), HTML_CHUNKS, function(ch){
       if (ch.dTarget){ var e = el(ch.dTarget); if (e) e.classList.remove('d-hidden'); }
     });
@@ -1748,6 +1759,13 @@
     showRegion('i-mock'); showCodePanel('css');
     setMagazine('02','CSS','样式','CSS 负责样式','#2f6fed');
     showDevMock(true); resetDevMock(false);
+    // 如果有选择的主题色，复制到 dev-mock
+    var devMock = el('dev-mock');
+    if (devMock && chosenThemeColor){
+      devMock.style.setProperty('--d-accent', chosenThemeColor.color);
+      devMock.style.setProperty('--d-accent-glow', chosenThemeColor.glow);
+      devMock.classList.add('themed');
+    }
     typeCode(el('i-code-css'), CSS_CHUNKS, function(ch){
       if (ch.dTarget){
         var e = (ch.dTarget === 'dev-mock') ? el('dev-mock') : el(ch.dTarget);
