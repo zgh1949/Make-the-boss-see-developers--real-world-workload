@@ -308,13 +308,76 @@
 #intro-stage .i-code-block { margin:0; padding:12px 14px; white-space:pre; color:#98c379; }
 #intro-stage .i-code-block.c-css { color:#9cdcfe; }
 #intro-stage .i-code-block.c-js { color:#d19a66; }
-#intro-stage .i-backend { width:340px; }
-#intro-stage .i-api { padding:8px 14px; border-bottom:1px solid #2c3a4d; color:#d4d4d4; }
+#intro-stage .i-backend { width:340px; overflow:visible; }
+#intro-stage .i-api { padding:8px 14px; border-bottom:1px solid #2c3a4d; color:#d4d4d4; position:relative; min-height:36px; }
 #intro-stage .i-api code { color:#56b6c2; background:#2b3a4f; padding:2px 7px; border-radius:4px; margin-right:8px; font-size:12px; }
 #intro-stage .i-db { margin:10px 14px 12px; background:#0f1827; border-radius:8px; padding:8px; }
-#intro-stage .i-db-hd { color:#d19a66; font-size:12px; margin-bottom:6px; }
+#intro-stage .i-db-hd { color:#d19a66; font-size:14px; margin-bottom:8px; font-weight:700; }
 #intro-stage .i-db table { width:100%; border-collapse:collapse; font-size:11px; color:#9cdcfe; }
-#intro-stage .i-db th, #intro-stage .i-db td { border:1px solid #2c3a4d; padding:3px 5px; text-align:left; white-space:nowrap; }
+#intro-stage .i-db th, #intro-stage .i-db td { border:1px solid #2c3a4d; padding:5px 8px; text-align:left; white-space:nowrap; }
+/* ER图样式 */
+#intro-stage .i-er { padding:16px 14px; text-align:center; }
+#intro-stage .i-er-title { color:#98c379; font-size:15px; font-weight:700; margin-bottom:16px; }
+#intro-stage .i-er-diagram { display:flex; flex-direction:column; justify-content:flex-start; align-items:center; min-height:240px; position:relative; padding-top:10px; overflow:visible; }
+/* 实体：矩形框 */
+#intro-stage .i-er-entity-box { background:#1e2a3a; border:3px solid #56b6c2; border-radius:6px; padding:12px 24px; opacity:0; transform:scale(0.5); transition:all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow:0 4px 15px rgba(86,182,194,0.25); }
+#intro-stage .i-er.show .i-er-entity-box { opacity:1; transform:scale(1); }
+#intro-stage .i-er-entity-name { color:#56b6c2; font-weight:800; font-size:16px; letter-spacing:2px; }
+/* 属性容器 */
+#intro-stage .i-er-attrs { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-top:30px; position:relative; z-index:2; }
+/* 属性：椭圆框 */
+#intro-stage .i-er-attr { background:#1e2a3a; border:2px solid #98c379; border-radius:50px; padding:8px 20px; opacity:0; transform:scale(0.5); transition:all 0.5s ease; }
+#intro-stage .i-er.show .i-er-attr { opacity:1; transform:scale(1); }
+#intro-stage .i-er.show .i-er-attr:nth-child(1){ transition-delay:0.1s; }
+#intro-stage .i-er.show .i-er-attr:nth-child(2){ transition-delay:0.2s; }
+#intro-stage .i-er.show .i-er-attr:nth-child(3){ transition-delay:0.3s; }
+#intro-stage .i-er.show .i-er-attr:nth-child(4){ transition-delay:0.4s; }
+#intro-stage .i-er-attr-name { color:#98c379; font-weight:600; font-size:14px; }
+/* 主键：下划线 */
+#intro-stage .i-er-attr-pk { border-color:#e5c07b; }
+#intro-stage .i-er-attr-pk .i-er-attr-name { color:#e5c07b; text-decoration:underline; text-decoration-thickness:2px; text-underline-offset:3px; }
+#intro-stage .i-er-attr-pk::before { content:'🔑 '; font-size:12px; margin-right:2px; }
+/* ER线条 */
+#intro-stage .i-er-lines { position:absolute; left:0; top:0; pointer-events:none; z-index:1; opacity:0; transition:opacity 0.3s ease 0.15s; }
+#intro-stage .i-er.show .i-er-lines { opacity:1; }
+#intro-stage .i-er-note { color:#98c379; font-size:12px; margin-top:20px; opacity:0.85; line-height:1.6; }
+/* 魔法特效 */
+#intro-stage .i-magic-wrap { position:absolute; inset:0; pointer-events:none; display:none; overflow:visible !important; }
+#intro-stage .i-magic-spark { position:absolute; width:12px; height:12px; background:#56b6c2; border-radius:50%; opacity:0; box-shadow:0 0 20px #56b6c2, 0 0 40px #56b6c2, 0 0 60px #56b6c2; }
+@keyframes sparkle {
+  0%{opacity:0;transform:translate(-50%, -50%) scale(0);}
+  20%{opacity:1;transform:translate(-50%, -50%) scale(2);}
+  100%{opacity:0;transform:translate(-50%, -50%) scale(0.5) translateX(var(--tx, 0px)) translateY(var(--ty, 0px));}
+}
+@keyframes magicPulse {
+  0%{transform:scale(1);box-shadow:0 0 0 0 rgba(86,182,194,0.7);}
+  50%{box-shadow:0 0 0 60px rgba(86,182,194,0), 0 0 0 30px rgba(86,182,194,0.3);}
+  100%{transform:scale(1.15);box-shadow:0 0 0 0 rgba(86,182,194,0);}
+}
+/* 闪光爆炸效果 */
+@keyframes flashExpand {
+  0%{opacity:1;transform:translate(-50%, -50%) scale(0);}
+  60%{opacity:0.9;transform:translate(-50%, -50%) scale(10);}
+  100%{opacity:0;transform:translate(-50%, -50%) scale(18);}
+}
+/* 星星闪烁 */
+@keyframes starTwinkle {
+  0%{opacity:0;transform:scale(0) rotate(0deg);}
+  40%{opacity:1;transform:scale(1.5) rotate(180deg);}
+  100%{opacity:0;transform:scale(0) rotate(360deg);}
+}
+#intro-stage .i-magic-star { opacity:0; }
+/* 粒子闪光特效 */
+@keyframes particleGlow {
+  0%,100%{filter:brightness(1) drop-shadow(0 0 5px currentColor);}
+  50%{filter:brightness(1.8) drop-shadow(0 0 15px currentColor);}
+}
+
+/* 接口标注线 */
+#intro-stage .i-annotation { position:absolute; pointer-events:none; z-index:5; }
+#intro-stage .i-annotation-line { stroke:#d19a66; stroke-width:3; stroke-dasharray:8,4; fill:none; filter:drop-shadow(0 0 4px rgba(209,154,102,0.5)); }
+#intro-stage .i-annotation-label { background:linear-gradient(135deg,#d19a66,#c67d2d); color:#fff; padding:5px 12px; border-radius:6px; font-size:11px; font-weight:700; white-space:nowrap; box-shadow:0 4px 12px rgba(209,154,102,0.4); }
+#intro-stage .i-annotation-dot { width:12px; height:12px; background:#d19a66; border-radius:50%; position:absolute; box-shadow:0 0 0 4px rgba(209,154,102,0.3), 0 0 12px rgba(209,154,102,0.6); }
 
 /* 概览 */
 #intro-stage .i-overview { display:flex; flex-direction:column; align-items:center; gap:22px; }
@@ -633,14 +696,51 @@
           <article class="d-detail" id="d-detail"><h2 class="d-dt">学习笔记</h2><p class="d-dc">今天学习了 Web 开发的基础知识，包括 HTML、CSS 和 JavaScript。</p></article>
         </div>
         <div class="i-panel i-backend" id="i-backend" style="display:none;">
-          <div class="i-panel-hd">后端接口</div>
-          <div class="i-api" id="i-api-save"><code>POST /api/save</code>保存笔记</div>
-          <div class="i-api" id="i-api-get" style="display:none;"><code>GET /api/get</code>查看详情</div>
-          <div class="i-api" id="i-api-list" style="display:none;"><code>GET /api/list</code>搜索列表</div>
-          <div class="i-api" id="i-api-stat" style="display:none;"><code>GET /api/statistic</code>数量统计</div>
-          <div class="i-db">
-            <div class="i-db-hd">notes 表</div>
+          <div class="i-panel-hd" id="i-backend-hd">后端设计</div>
+          <!-- ER图区域 -->
+          <div class="i-er" id="i-er" style="display:none;">
+            <div class="i-er-title">📊 ER 图设计</div>
+            <div class="i-er-diagram">
+              <!-- 实体：Note -->
+              <div class="i-er-box i-er-entity-box" id="i-er-entity">
+                <div class="i-er-entity-name">笔记 (Note)</div>
+              </div>
+              <!-- 属性 -->
+              <div class="i-er-attrs">
+                <div class="i-er-attr i-er-attr-pk">
+                  <span class="i-er-attr-name">id</span>
+                </div>
+                <div class="i-er-attr">
+                  <span class="i-er-attr-name">title</span>
+                </div>
+                <div class="i-er-attr">
+                  <span class="i-er-attr-name">content</span>
+                </div>
+                <div class="i-er-attr">
+                  <span class="i-er-attr-name">created_at</span>
+                </div>
+              </div>
+              <!-- 连接线 -->
+              <svg class="i-er-lines" width="100%" height="100%">
+                <line x1="50%" y1="85" x2="50%" y2="115" stroke="#56b6c2" stroke-width="2"/>
+                <line x1="50%" y1="85" x2="25%" y2="130" stroke="#56b6c2" stroke-width="2"/>
+                <line x1="50%" y1="85" x2="75%" y2="130" stroke="#56b6c2" stroke-width="2"/>
+                <line x1="50%" y1="85" x2="50%" y2="175" stroke="#56b6c2" stroke-width="2"/>
+              </svg>
+              <div class="i-er-note">矩形表示实体，椭圆表示属性<br>下划线表示主键</div>
+            </div>
+          </div>
+          <!-- 数据库表区域 -->
+          <div class="i-db" id="i-db" style="display:none;">
+            <div class="i-db-hd">🗄️ notes 表</div>
             <table><thead><tr><th>id</th><th>title</th><th>content</th></tr></thead><tbody><tr><td>1</td><td>学习笔记</td><td>…</td></tr><tr><td>2</td><td>项目计划</td><td>…</td></tr><tr><td>3</td><td>会议纪要</td><td>…</td></tr></tbody></table>
+          </div>
+          <!-- 接口列表区域 -->
+          <div class="i-apis" id="i-apis" style="display:none;">
+            <div class="i-api" id="i-api-save"><code>POST /api/save</code>保存笔记</div>
+            <div class="i-api" id="i-api-get" style="display:none;"><code>GET /api/get</code>查看详情</div>
+            <div class="i-api" id="i-api-list" style="display:none;"><code>GET /api/list</code>搜索列表</div>
+            <div class="i-api" id="i-api-stat" style="display:none;"><code>GET /api/statistic</code>数量统计</div>
           </div>
         </div>
       </div>
@@ -2007,6 +2107,168 @@
     el('i-showcase').classList.add('show');
   }
   function hideShowcase(){ el('i-showcase').classList.remove('show'); }
+  function resetApi(){
+    el('i-er').style.display = 'none';
+    el('i-db').style.display = 'none';
+    el('i-apis').style.display = 'none';
+    ['i-api-save','i-api-get','i-api-list','i-api-stat'].forEach(function(id){
+      el(id).style.display = 'none';
+    });
+    clearAnnotations();
+  }
+  function showErDiagram(){
+    el('i-backend-hd').textContent = '数据库设计';
+    el('i-er').style.display = '';
+    el('i-db').style.display = 'none';
+    el('i-apis').style.display = 'none';
+    el('i-er').classList.add('show');
+  }
+  function magicErToTable(){
+    var er = el('i-er');
+    var db = el('i-db');
+    var diagram = er.querySelector('.i-er-diagram');
+    er.classList.remove('show');
+    // 添加魔法特效容器 - 放在diagram内部
+    var wrap = document.createElement('div');
+    wrap.className = 'i-magic-wrap';
+    wrap.style.display = 'block';
+    wrap.style.position = 'absolute';
+    wrap.style.left = '0';
+    wrap.style.top = '0';
+    wrap.style.width = '100%';
+    wrap.style.height = '100%';
+    wrap.style.pointerEvents = 'none';
+    wrap.style.overflow = 'visible';
+    wrap.style.zIndex = '10';
+    var entity = er.querySelector('.i-er-entity-box');
+    // 中心位置 - 直接使用diagram的中心
+    var centerX = 170;
+    var centerY = 50;
+    // 中心闪光爆炸效果
+    var flash = document.createElement('div');
+    flash.className = 'i-magic-flash';
+    flash.style.position = 'absolute';
+    flash.style.left = centerX + 'px';
+    flash.style.top = centerY + 'px';
+    flash.style.width = '20px';
+    flash.style.height = '20px';
+    flash.style.transform = 'translate(-50%, -50%)';
+    flash.style.background = 'radial-gradient(circle,#fff,#56b6c2)';
+    flash.style.borderRadius = '50%';
+    flash.style.animation = 'flashExpand 0.6s ease forwards';
+    wrap.appendChild(flash);
+    // 闪光粒子向外飞散
+    for(var i=0;i<60;i++){
+      var spark = document.createElement('div');
+      spark.className = 'i-magic-spark';
+      var angle = (i/60)*Math.PI*2 + Math.random()*0.3;
+      var dist = 50 + Math.random()*120;
+      var flyX = Math.cos(angle)*dist;
+      var flyY = Math.sin(angle)*dist;
+      // 从中心开始
+      spark.style.left = centerX + 'px';
+      spark.style.top = centerY + 'px';
+      spark.style.setProperty('--tx', flyX + 'px');
+      spark.style.setProperty('--ty', flyY + 'px');
+      spark.style.animation = 'sparkle 0.7s ease ' + (i*0.015) + 's forwards';
+      spark.style.transform = 'translate(-50%, -50%)';
+      // 随机颜色
+      var colors = ['#56b6c2','#98c379','#e5c07b','#d19a66','#61afef','#c678dd','#f48fb1'];
+      spark.style.background = colors[Math.floor(Math.random()*colors.length)];
+      spark.style.boxShadow = '0 0 15px '+spark.style.background+', 0 0 30px '+spark.style.background+', 0 0 50px '+spark.style.background;
+      spark.style.width = (8 + Math.random()*18) + 'px';
+      spark.style.height = spark.style.width;
+      wrap.appendChild(spark);
+    }
+    // 添加小星星闪烁
+    for(var i=0;i<25;i++){
+      var star = document.createElement('div');
+      star.className = 'i-magic-star';
+      star.style.position = 'absolute';
+      star.style.left = (20 + Math.random()*280) + 'px';
+      star.style.top = (10 + Math.random()*180) + 'px';
+      star.style.fontSize = (10 + Math.random()*18) + 'px';
+      star.style.animation = 'starTwinkle 0.6s ease ' + (0.15 + i*0.04) + 's forwards';
+      var stars = ['✨','⭐','🌟','💫','✦','✧'];
+      star.textContent = stars[Math.floor(Math.random()*stars.length)];
+      wrap.appendChild(star);
+    }
+    diagram.appendChild(wrap);
+    entity.style.animation = 'magicPulse 0.6s ease';
+    // 添加中心发光效果
+    entity.style.boxShadow = '0 0 60px #56b6c2, 0 0 120px #56b6c2, 0 0 180px #56b6c2';
+    setTimeout(function(){
+      er.style.display = 'none';
+      db.style.display = '';
+      if(wrap.parentNode) wrap.parentNode.removeChild(wrap);
+      entity.style.boxShadow = '';
+      entity.style.animation = '';
+    }, 850);
+  }
+  function addAnnotation(targetId, labelText, position){
+    var target = el(targetId);
+    var backend = el('i-backend');
+    var container = el('i-top');
+    if(!target || !backend || !container) return;
+    var containerRect = container.getBoundingClientRect();
+    var targetRect = target.getBoundingClientRect();
+    var backendRect = backend.getBoundingClientRect();
+    // SVG要添加到i-top里面，用absolute定位
+    var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'i-annotation');
+    svg.style.position = 'absolute';
+    svg.style.left = '0';
+    svg.style.top = '0';
+    svg.style.width = '100%';
+    svg.style.height = '100%';
+    svg.style.zIndex = '20';
+    svg.style.pointerEvents = 'none';
+    svg.style.overflow = 'visible';
+    // 计算相对于container的坐标
+    var startX = targetRect.left - containerRect.left + targetRect.width;
+    var startY = targetRect.top - containerRect.top + targetRect.height/2;
+    var endX = backendRect.left - containerRect.left;
+    var endY = backendRect.top - containerRect.top + 56 + (position*44);
+    var midX = (startX + endX)/2;
+    var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    var d = 'M ' + startX + ' ' + startY + ' C ' + (midX + 80) + ' ' + startY + ', ' + (midX - 80) + ' ' + endY + ', ' + endX + ' ' + endY;
+    path.setAttribute('d', d);
+    path.setAttribute('class', 'i-annotation-line');
+    svg.appendChild(path);
+    // 添加箭头
+    var arrow = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    var arrowSize = 12;
+    var points = (endX - arrowSize) + ',' + (endY - arrowSize/2) + ' ' + endX + ',' + endY + ' ' + (endX - arrowSize) + ',' + (endY + arrowSize/2);
+    arrow.setAttribute('points', points);
+    arrow.setAttribute('fill', '#d19a66');
+    arrow.setAttribute('filter', 'drop-shadow(0 0 6px rgba(209,154,102,0.6))');
+    svg.appendChild(arrow);
+    container.appendChild(svg);
+    var label = document.createElement('div');
+    label.className = 'i-annotation-label';
+    label.textContent = labelText;
+    label.style.position = 'absolute';
+    label.style.left = (endX - 12) + 'px';
+    label.style.top = (endY - 18) + 'px';
+    label.style.zIndex = '21';
+    label.style.transform = 'translateX(-100%)';
+    container.appendChild(label);
+    var dot = document.createElement('div');
+    dot.className = 'i-annotation-dot';
+    dot.style.position = 'absolute';
+    dot.style.left = (startX - 6) + 'px';
+    dot.style.top = (startY - 6) + 'px';
+    dot.style.zIndex = '21';
+    container.appendChild(dot);
+    return {svg:svg, label:label, dot:dot};
+  }
+  function clearAnnotations(){
+    var container = el('i-top');
+    if(!container) return;
+    container.querySelectorAll('.i-annotation, .i-annotation-label, .i-annotation-dot').forEach(function(el){
+      if(el.parentNode) el.parentNode.removeChild(el);
+    });
+  }
 
   var STEPS = [
     { char:'boss', cap:'我想做个像苹果备忘录那样的软件--简单、好用，能记事、能搜、还能统计', fn:function(){ showRegion('i-ref'); el('i-code').style.display='none'; el('i-backend').style.display='none'; } },
@@ -2033,12 +2295,14 @@
     { char:'dev', cap:'最后写 JS，给组件绑上事件--它们就能动了', fn: playJsStep },
     { char:'dev', cap:'前端搞定！HTML 搭结构、CSS 上样式、JS 加交互', fn:function(){ playShowcase('fe'); } },
     { char:'dev', nobubble:true, cap:'后端工程师登场', fn:function(){ playReveal('be'); } },
-    { char:'dev', cap:'后端接口我来梳理一下……', fn:function(){ playBrainstorm('be'); } },
-    { char:'dev', cap:'后端我也同步写好了接口--这是保存笔记的', fn:function(){ showRegion('i-mock'); el('i-code').style.display='none'; el('i-backend').style.display=''; resetApi(); el('i-api-save').style.display=''; ['n-header','n-search','n-list','n-fab','n-detail'].forEach(function(id){ var e = el(id); if (e){ e.classList.remove('dev-wired'); e.style.outline = ''; e.style.boxShadow = ''; } }); } },
-    { char:'dev', cap:'这个是查看详情的', fn:function(){ el('i-api-get').style.display=''; } },
-    { char:'dev', cap:'搜索列表的', fn:function(){ el('i-api-list').style.display=''; } },
-    { char:'dev', cap:'还有统计总数的', fn:function(){ el('i-api-stat').style.display=''; } },
-    { char:'dev', cap:'后端就绪！保存、查看、搜索、统计，接口都写好了', fn:function(){ playShowcase('be'); } },
+    { char:'dev', cap:'让我先根据页面设计一下数据模型……', fn:function(){ playBrainstorm('be'); } },
+    { char:'dev', cap:'先从页面提取实体，画出 ER 图', fn:function(){ showRegion('i-mock'); el('i-code').style.display='none'; el('i-backend').style.display=''; resetApi(); resetMock(); ['n-header','n-search','n-list','n-fab','n-detail'].forEach(function(id){ var e = el(id); if(e) e.classList.remove('wf','hidden'); }); showErDiagram(); } },
+    { char:'dev', cap:'把 ER 图变成实际的数据库表！', fn:function(){ magicErToTable(); } },
+    { char:'dev', cap:'接下来设计接口——保存笔记的接口对应新建按钮', fn:function(){ el('i-backend-hd').textContent = '🔗 后端接口'; el('i-er').style.display='none'; el('i-db').style.display='none'; el('i-apis').style.display=''; el('i-api-save').style.display=''; setTimeout(function(){ addAnnotation('n-fab', 'POST /api/save', 0); }, 50); } },
+    { char:'dev', cap:'点击列表项查看详情，对应这个接口', fn:function(){ el('i-api-get').style.display=''; addAnnotation('n-list', 'GET /api/get', 1); } },
+    { char:'dev', cap:'搜索功能调用这个列表接口', fn:function(){ el('i-api-list').style.display=''; addAnnotation('n-search', 'GET /api/list', 2); } },
+    { char:'dev', cap:'右上角的数字统计调用这个接口', fn:function(){ el('i-api-stat').style.display=''; addAnnotation('n-header', 'GET /api/statistic', 3); } },
+    { char:'dev', cap:'后端就绪！从 ER 图到表再到接口，完美对应页面', fn:function(){ playShowcase('be'); } },
     { char:'dev', cap:'前后端都就绪了，我带你看看一个请求是怎么跑通的', fn:function(){ showRegion('i-overview'); el('i-overview').classList.add('i-flow-on'); } },
     { char:null, nobubble:true, cap:'点击下方按钮，进入 Web 请求全链路演示', fn:function(){ el('i-enter').style.display=''; } }
   ];
@@ -2318,6 +2582,7 @@
     hideShowcase();
     showDevMock(false);
     clearDevMarks();
+    clearAnnotations();
     var isDev = (i >= 19 && i <= 21);
     el('i-replay').style.display = isDev ? '' : 'none';
     setChar(s.char);
