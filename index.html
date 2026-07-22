@@ -453,6 +453,7 @@
   #intro-stage .dev-mock > .dev-shake { animation: devShake .55s ease-in-out; }
   #intro-stage .dev-mock > .dev-wired { outline:2px dashed #21c46b; outline-offset:3px; border-radius:8px; }
   #intro-stage .notes-app > .dev-shake { animation: devShake .55s ease-in-out; }
+  #intro-stage .notes-app > .dev-wired { outline:2px dashed var(--dev-wire-color,#d19a66); outline-offset:3px; border-radius:8px; }
 
   /* 代码面板：流式输出滚动 */
   #intro-stage .i-code .i-code-block { flex:1; overflow:auto; }
@@ -1755,9 +1756,18 @@
     showRegion('i-mock'); showCodePanel('js');
     setMagazine('03','JS','交互','JS 负责行为','#d19a66');
     showDevMock(false);
+    // 先清除之前的虚线标记
+    ['n-header','n-search','n-list','n-fab','n-detail'].forEach(function(id){
+      var e = el(id); if (e){
+        e.classList.remove('dev-wired');
+        e.style.outline = '';
+      }
+    });
     typeCode(el('i-code-js'), JS_CHUNKS, function(ch){
       if (ch.target){
         var e = el(ch.target); if (e){
+          e.style.outline = '2px dashed #21c46b';
+          e.style.outlineOffset = '3px';
           e.classList.add('dev-shake');
           setTimeout(function(){ if (e) e.classList.remove('dev-shake'); }, 600);
         }
