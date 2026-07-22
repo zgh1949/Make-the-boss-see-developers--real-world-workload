@@ -400,8 +400,10 @@
 #intro-stage .i-progress { font-size:12px; color:#8a94a6; margin-left:6px; }
 #intro-stage .i-hero { text-align:center; padding:14px 20px 2px; flex-shrink:0; }
 #intro-stage .i-map { display:flex; align-items:flex-start; justify-content:center; padding:12px 20px 8px; flex-shrink:0; }
-#intro-stage .i-map-node { display:flex; flex-direction:column; align-items:center; width:128px; position:relative; z-index:1; }
-#intro-stage .i-map-node:not(:last-child)::after { content:''; position:absolute; top:15px; left:calc(50% + 18px); width:calc(100% - 36px); height:3px; background:#e1e6ed; }
+#intro-stage .i-map-node { display:flex; flex-direction:column; align-items:center; width:128px; position:relative; z-index:1; cursor:pointer; transition:all .2s; }
+#intro-stage .i-map-node:hover .i-node-dot { box-shadow:0 0 0 4px rgba(47,111,237,.18); transform:scale(1.08); }
+#intro-stage .i-map-node:hover .i-node-label { color:#2f6fed; }
+#intro-stage .i-map-node:not(:last-child)::after { content:''; position:absolute; top:15px; left:calc(50% + 18px); width:calc(100% - 36px); height:3px; background:#e1e6ed; pointer-events:none; }
 #intro-stage .i-map-node.done:not(:last-child)::after { background:#2f6fed; }
 #intro-stage .i-node-dot { width:36px; height:36px; border-radius:50%; background:#fff; border:2px solid #c5cdd9; color:#8a94a6; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:700; transition:all .3s; }
 #intro-stage .i-node-label { font-size:12px; color:#8a94a6; margin-top:6px; transition:all .3s; white-space:nowrap; }
@@ -770,7 +772,6 @@
   <div class="i-corner">
     <button class="i-btn" id="i-prev">← 上一步</button>
     <button class="i-btn" id="i-replay" style="display:none;">↻ 重放</button>
-    <button class="i-btn" id="i-skip">跳过</button>
     <span class="i-progress" id="i-progress"></span>
   </div>
   <div class="i-reveal" id="i-reveal">
@@ -2633,14 +2634,97 @@
   }
   function finish(){ el('intro-stage').style.display = 'none'; window.scrollTo(0,0); window.__themeColor = chosenThemeColor; applyAppTheme(chosenThemeColor); var sw = document.getElementById('ch-switcher'); if (sw) sw.style.display = ''; }
 
+  // 每个阶段对应的起始步骤
+  var STAGE_START_STEPS = { 0:0, 1:2, 2:10, 3:17, 4:34 };
+
+  // 确保有默认颜色
+  function ensureDefaultTheme(){
+    if (!chosenThemeColor){
+      chosenThemeColor = {
+        color: '#2f6fed',
+        glow: 'rgba(47,111,237,.55)',
+        tint: 'rgba(47,111,237,.18)'
+      };
+      var app = el('n-app');
+      if (app){
+        app.style.setProperty('--n-accent', chosenThemeColor.color);
+        app.style.setProperty('--n-accent-glow', chosenThemeColor.glow);
+        app.classList.add('themed');
+      }
+    }
+  }
+
   el('i-prev').addEventListener('click', function(e){ e.stopPropagation(); prev(); });
   el('i-replay').addEventListener('click', function(e){ e.stopPropagation(); cancelAuto(); var s = STEPS[idx]; if (s && s.fn) s.fn(); });
-  el('i-skip').addEventListener('click', function(e){ e.stopPropagation(); finish(); });
   el('i-enter').addEventListener('click', function(e){ e.stopPropagation(); finish(); });
   el('cov-start').addEventListener('click', startIntro);
   attachChipDrag();
+
+  // 点击阶段节点跳转到对应阶段
+  document.querySelectorAll('#intro-stage .i-map-node').forEach(function(node, stageIdx){
+    node.style.cursor = 'pointer';
+    node.addEventListener('click', function(e){
+      e.stopPropagation();
+      // 确保有默认颜色
+      ensureDefaultTheme();
+      var targetStep = STAGE_START_STEPS[stageIdx];
+      if (targetStep !== undefined && targetStep >= 0 && targetStep < STEPS.length){
+        // 先初始化前面阶段的状态
+        initStateForStage(stageIdx);
+        go(targetStep);
+      }
+    });
+  });
+
+  // 根据目标阶段初始化前面的状态
+  function initStateForStage(stageIdx){
+    // 显示i-mock区域
+    showRegion('i-mock');
+    el('i-code').style.display = 'none';
+    el('i-backend').style.display = 'none';
+
+    // 重置mock
+    resetMock();
+
+    if (stageIdx === 0){
+      // 老板阶段 - 显示参考图
+      showRegion('i-ref');
+    } else if (stageIdx === 1){
+      // 产品阶段 - 显示线框原型
+      resetMock();
+      el('n-app').classList.add('wf');
+      ['n-header','n-search','n-list','n-fab','n-detail'].forEach(function(id){
+        var e = el(id);
+        if (e){
+          e.classList.remove('hidden');
+          e.classList.add('wf');
+        }
+      });
+    } else if (stageIdx === 2){
+      // UI阶段 - 显示完整设计
+      ['n-header','n-search','n-list','n-fab','n-detail'].forEach(function(id){
+        var e = el(id);
+        if (e){
+          e.classList.remove('hidden','wf');
+        }
+      });
+      el('n-app').classList.remove('wf');
+      el('n-app').classList.add('themed');
+    } else if (stageIdx >= 3){
+      // 程序员阶段 - 显示完整原型
+      ['n-header','n-search','n-list','n-fab','n-detail'].forEach(function(id){
+        var e = el(id);
+        if (e){
+          e.classList.remove('hidden','wf');
+        }
+      });
+      el('n-app').classList.remove('wf');
+      el('n-app').classList.add('themed');
+    }
+  }
+
   el('intro-stage').addEventListener('click', function(e){
-    if (e.target.closest('.i-corner') || e.target.closest('#i-enter') || e.target.closest('.color-blob') || e.target.closest('.pm-chip')) return;
+    if (e.target.closest('.i-corner') || e.target.closest('#i-enter') || e.target.closest('.color-blob') || e.target.closest('.pm-chip') || e.target.closest('.i-map-node')) return;
     next();
   });
   document.addEventListener('keydown', function(e){
