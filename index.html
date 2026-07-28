@@ -652,6 +652,24 @@
   @keyframes scPlaque { from{ transform:translateX(-50%) translateY(-18px); opacity:0; } to{ transform:translateX(-50%) translateY(0); opacity:1; } }
   #intro-stage .i-sc-stamp { position:absolute; right:12%; top:40%; transform:rotate(-14deg); border:3px solid #21c46b; color:#21c46b; font-size:22px; font-weight:900; padding:6px 18px; border-radius:8px; letter-spacing:2px; background:rgba(255,255,255,.72); animation: scStamp .5s .15s both cubic-bezier(.2,1.5,.4,1); }
   @keyframes scStamp { 0%{ transform:rotate(-14deg) scale(2.6); opacity:0; } 60%{ opacity:1; } 100%{ transform:rotate(-14deg) scale(1); opacity:.88; } }
+
+  /* ===== 测试酒吧 ===== */
+  #intro-stage .i-bar-wrapper { display:flex; flex-direction:column; gap:16px; width:100%; max-width:680px; }
+  #intro-stage .i-bar-title { font-size:22px; font-weight:900; color:#1a1a1a; text-align:center; }
+  #intro-stage .i-bar-scene { background:linear-gradient(180deg,#6e4c30 0%,#4a3321 100%); border-radius:18px; padding:24px; min-height:260px; display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow:inset 0 2px 14px rgba(0,0,0,.3); position:relative; overflow:hidden; }
+  #intro-stage .i-bar-scene::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 50% 0%,rgba(255,200,120,.25) 0%,transparent 60%); pointer-events:none; }
+  #intro-stage .i-bar-content { position:relative; z-index:1; display:flex; flex-direction:column; gap:12px; align-items:center; max-width:520px; }
+  #intro-stage .i-bar-tester { font-size:46px; animation: testerWalk .8s ease-in-out infinite alternate; }
+  @keyframes testerWalk { from{ transform:translateX(-6px); } to{ transform:translateX(6px); } }
+  #intro-stage .i-bar-dialog { background:#fff; border-radius:16px; padding:14px 20px; font-size:18px; font-weight:700; color:#1a1a1a; box-shadow:0 8px 26px rgba(0,0,0,.25); max-width:460px; text-align:center; }
+  #intro-stage .i-bar-dialog.error { background:#ff4d4f; color:#fff; animation: shake .4s ease-in-out; }
+  @keyframes shake { 0%,100%{ transform:translateX(0); } 20%,60%{ transform:translateX(-8px); } 40%,80%{ transform:translateX(8px); } }
+  #intro-stage .i-bar-dialog.result { background:#52c41a; color:#fff; }
+  #intro-stage .i-bar-expl { margin-top:8px; font-size:13px; color:rgba(255,255,255,.85); text-align:center; line-height:1.6; }
+  #intro-stage .i-bar-controls { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  #intro-stage .i-bar-btn { background:#fff; border:2px solid #e1e6ed; padding:10px 16px; border-radius:14px; font-weight:800; color:#5a6678; cursor:pointer; transition:all .2s; font-family:inherit; font-size:13px; }
+  #intro-stage .i-bar-btn:hover { background:#f5f8ff; border-color:#2f6fed; color:#2f6fed; transform:translateY(-2px); }
+  #intro-stage .i-bar-btn:active { transform:translateY(0); }
 </style>
 
 <style id="app-theme-css">
@@ -663,7 +681,7 @@
   .app.themed-app .note-item.selected { background: var(--app-accent-tint); }
   .app.themed-app .ed-save { background: var(--app-accent); }
 </style>
-
+
 </head>
 <body>
 
@@ -785,6 +803,18 @@
           <div class="i-bs-progress"><div class="i-bs-bar" id="i-bs-bar"></div></div>
         </div>
         <div class="i-bs-terms" id="i-bs-terms"></div>
+      </div>
+      <div class="i-region" id="i-bar" style="display:none;">
+        <div class="i-bar-wrapper">
+          <div class="i-bar-title">🍺 测试酒吧</div>
+          <div class="i-bar-scene" id="i-bar-scene"></div>
+          <div class="i-bar-controls">
+            <button class="i-btn i-bar-btn" data-scene="normal">正常点单</button>
+            <button class="i-btn i-bar-btn" data-scene="edge">边界测试</button>
+            <button class="i-btn i-bar-btn" data-scene="crazy">异常测试</button>
+            <button class="i-btn i-bar-btn" data-scene="end">结局</button>
+          </div>
+        </div>
       </div>
     </div>
     <div class="i-bubble" id="i-bubble"></div>
@@ -1708,7 +1738,7 @@
     img.src = I_IMG[k]; img.alt = NAMES[k]; img.title = NAMES[k];
     covChars.appendChild(img);
   });
-  function stageOf(i){ if(i<2)return 0; if(i<9)return 1; if(i<16)return 2; if(i<22)return 3; if(i<27)return 4; if(i<30)return 5; return 6; }
+  function stageOf(i){ if(i<2)return 0; if(i<10)return 1; if(i<17)return 2; if(i<23)return 3; if(i<28)return 4; if(i<30)return 5; return 6; }
   function updateMap(stage){
     var nodes = document.querySelectorAll('#intro-stage .i-map-node');
     for (var k=0;k<nodes.length;k++){
@@ -1724,7 +1754,7 @@
   }
 
   function showRegion(name){
-    ['i-ref','i-mock','i-overview','i-brainstorm'].forEach(function(id){ el(id).style.display = (id === name ? '' : 'none'); });
+    ['i-ref','i-mock','i-overview','i-brainstorm','i-bar'].forEach(function(id){ el(id).style.display = (id === name ? '' : 'none'); });
   }
   function setChar(name){
     var col = charImg.parentElement;
@@ -2142,6 +2172,65 @@
       autoTimer = setTimeout(step, 850);
     }
     step();
+  }
+
+  // ---------- 测试酒吧 ----------
+  var barScenes = {
+    normal: [
+      { tester:'👷', dialog:'一杯啤酒！', expl:'✅ 正常功能测试：验证主要流程' },
+      { tester:'👷', dialog:'一杯咖啡！', expl:'✅ 正常功能测试：覆盖不同选项' }
+    ],
+    edge: [
+      { tester:'👷', dialog:'0.7 杯啤酒！', expl:'⚠️ 边界测试：小数、非整数' },
+      { tester:'👷', dialog:'-1 杯啤酒！', expl:'⚠️ 边界测试：负数、非法输入' },
+      { tester:'👷', dialog:'4294967296 杯啤酒！', expl:'⚠️ 边界测试：整数溢出' }
+    ],
+    crazy: [
+      { tester:'👷', dialog:'一杯洗脚水！', expl:'❌ 异常测试：无效选项' },
+      { tester:'👷', dialog:'一杯蜥蜴！', expl:'❌ 异常测试：完全无关输入' },
+      { tester:'👷', dialog:'一份 asdfQwer@24dg!&*(@', expl:'❌ 异常测试：随机垃圾数据' },
+      { tester:'👷', dialog:'', expl:'❌ 异常测试：空输入' },
+      { tester:'👷', dialog:'一杯「烫烫烫的锟斤拷」！', expl:'❌ 异常测试：编码问题' },
+      { tester:'👷', dialog:'NaN 杯 Null！', expl:'❌ 异常测试：类型错误' },
+      { tester:'💣', dialog:'1000000000000 杯！', expl:'🔥 性能测试：海量数据' }
+    ],
+    end: [
+      { tester:'😈', dialog:'一杯啤酒\'; DROP TABLE 酒吧;', expl:'💀 安全测试：SQL注入' },
+      { tester:'✅', dialog:'测试全部通过！完美！', expl:'🎉 测试的价值：发现并修复了一堆 bug' },
+      { tester:'🎉', dialog:'酒吧开张！', expl:'🚀 产品发布' },
+      { tester:'🧑', dialog:'一份炒饭，谢谢', expl:'😰 真实用户登场' },
+      { tester:'💥', dialog:'轰——', expl:'💢 悲剧：还是有漏网之鱼……' }
+    ]
+  };
+  var currentBarScene = 'normal';
+  var currentBarIndex = 0;
+  function showBarScene(type){
+    hideReveal();
+    showRegion('i-bar');
+    currentBarScene = type;
+    currentBarIndex = 0;
+    renderBar();
+  }
+  function renderBar(){
+    var scene = barScenes[currentBarScene];
+    if (!scene || currentBarIndex >= scene.length) return;
+    var data = scene[currentBarIndex];
+    var sceneEl = el('i-bar-scene');
+    if (!sceneEl) return;
+    sceneEl.innerHTML = '<div class="i-bar-content">' +
+      '<div class="i-bar-tester">' + data.tester + '</div>' +
+      '<div class="i-bar-dialog">' + (data.dialog || '(什么也没说)') + '</div>' +
+      (data.expl ? '<div class="i-bar-expl">' + data.expl + '</div>' : '') +
+      '</div>';
+  }
+  function nextBar(){
+    var scene = barScenes[currentBarScene];
+    if (!scene) return;
+    currentBarIndex++;
+    if (currentBarIndex >= scene.length) {
+      currentBarIndex = 0;
+    }
+    renderBar();
   }
 
   // ---------- 作品展示帧 ----------
@@ -2852,7 +2941,11 @@
     { char:null, nobubble:true, cap:'点击下方按钮，进入 Web 请求全链路演示', fn:function(){ el('i-enter').style.display=''; } },
     { char:'test', nobubble:true, cap:'测试工程师登场', fn:function(){ playReveal('test'); } },
     { char:'test', cap:'让我想想都要测哪些方面……', fn:function(){ playBrainstorm('test'); } },
-    { char:'test', cap:'功能测完了，一切正常！这个备忘录应用可以发布啦', fn:function(){ } }
+    { char:'test', cap:'来玩个测试酒吧小游戏！看看测试都在做什么', fn:function(){ showBarScene('normal'); } },
+    { char:'test', cap:'点击上面的按钮看不同的测试场景：正常 → 边界 → 异常 → 结局', fn:function(){ } },
+    { char:'test', cap:'测试的价值：发现了一堆潜在 bug！不过……', fn:function(){ } },
+    { char:'boss', cap:'太好了！测试全过了！这就发布！', fn:function(){ } },
+    { char:null, nobubble:true, cap:'一个真实用户：「一份炒饭，谢谢」', fn:function(){ } }
   ];
 
   // ---------- UI 设计阶段：漂浮颜色拖拽 ----------
@@ -3192,7 +3285,7 @@
   function finish(){ el('intro-stage').classList.add('intro-finished'); window.scrollTo(0,0); window.__themeColor = chosenThemeColor; applyAppTheme(chosenThemeColor); }
 
   // 每个阶段对应的起始步骤
-  var STAGE_START_STEPS = { 0:0, 1:2, 2:10, 3:17, 4:23, 5:29, 6:32 };
+  var STAGE_START_STEPS = { 0:0, 1:2, 2:10, 3:17, 4:23, 5:29, 6:30 };
 
   // 确保有默认颜色
   function ensureDefaultTheme(){
@@ -3215,6 +3308,25 @@
   el('i-enter').addEventListener('click', function(e){ e.stopPropagation(); finish(); });
   el('cov-start').addEventListener('click', startIntro);
   attachChipDrag();
+
+  // 绑定测试酒吧按钮事件（延迟执行确保DOM存在）
+  setTimeout(function(){
+    document.querySelectorAll('.i-bar-btn').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        showBarScene(btn.dataset.scene);
+      });
+    });
+
+    // 点击酒吧区域翻页
+    var barScene = document.getElementById('i-bar-scene');
+    if (barScene) {
+      barScene.addEventListener('click', function(e){
+        e.stopPropagation();
+        nextBar();
+      });
+    }
+  }, 100);
 
   // 点击阶段节点跳转到对应阶段
   document.querySelectorAll('#intro-stage .i-map-node').forEach(function(node, stageIdx){
@@ -3287,12 +3399,13 @@
       el('n-app').classList.add('themed');
       el('i-backend').style.display = '';
     } else if (stageIdx === 5){
-      // 全链路演示 - 直接显示overview
+      // 全链路演示 - 直接显示overview和进入按钮
       showRegion('i-overview');
       el('i-overview').classList.add('i-flow-on');
+      el('i-enter').style.display='';
     } else if (stageIdx === 6){
-      // 测试阶段 - 显示人物登场页面
-      // 先设置好基础状态
+      // 测试阶段 - 显示酒吧
+      // 设置好基础状态
       showRegion('i-mock');
       ['n-header','n-search','n-list','n-fab','n-detail'].forEach(function(id){
         var e = el(id);
@@ -3302,8 +3415,6 @@
       });
       el('n-app').classList.remove('wf');
       el('n-app').classList.add('themed');
-      // 直接调用登场
-      setTimeout(function(){ playReveal('test'); }, 50);
     }
   }
 
