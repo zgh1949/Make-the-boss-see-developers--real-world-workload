@@ -870,8 +870,8 @@
           </div>
         </div>
         <div class="deploy-cards" style="display:flex;gap:16px;justify-content:center;margin-top:12px;">
-          <div class="deploy-card" id="deploy-card-front" draggable="true"><div class="card-icon">◉</div><div class="card-title">前端代码包</div><div class="card-desc">HTML/CSS/JS</div></div>
-          <div class="deploy-card" id="deploy-card-back" draggable="true"><div class="card-icon">⬡</div><div class="card-title">后端代码包</div><div class="card-desc">Java/Python</div></div>
+          <div class="deploy-card" id="deploy-card-front"><div class="card-icon">◉</div><div class="card-title">前端代码包</div><div class="card-desc">HTML/CSS/JS</div></div>
+          <div class="deploy-card" id="deploy-card-back"><div class="card-icon">⬡</div><div class="card-title">后端代码包</div><div class="card-desc">Java/Python</div></div>
         </div>
         <div class="deploy-hint">把代码包拖拽到对应的服务器目录中</div>
       </div>
@@ -2306,52 +2306,77 @@
   function showDeployScene(){
     hideReveal();
     showRegion('i-deploy');
-    setupDeployDrag();
-    el('i-bar').style.display = 'none';
+    _deployDone = false;
+    document.querySelectorAll('.deploy-card').forEach(function(c){ c.classList.remove('placed'); c.style.opacity = ''; });
+    document.querySelectorAll('.zone-box').forEach(function(z){ z.classList.remove('filled'); });
+    var overlay = document.querySelector('.deploy-success');
+    if (overlay) overlay.remove();
     el('server-led').className = 'server-led';
   }
-  var _deployDone = false;
+  var _deployDone = false, _deployDragSetup = false;
   function setupDeployDrag(){
-    if (_deployDone) return;
+    if (_deployDone || _deployDragSetup) return;
+    _deployDragSetup = true;
     var cards = document.querySelectorAll('.deploy-card');
-    var zones = {
-      'deploy-card-front': 'deploy-zone-front',
-      'deploy-card-back': 'deploy-zone-back'
-    };
     cards.forEach(function(card){
-      card.addEventListener('dragstart', function(e){
-        e.dataTransfer.setData('text/plain', card.id);
-        card.classList.add('dragging');
-      });
-      card.addEventListener('dragend', function(e){
-        card.classList.remove('dragging');
-      });
-    });
-    Object.keys(zones).forEach(function(cardId){
-      var zoneId = zones[cardId];
-      var zone = el(zoneId);
-      if (!zone) return;
-      zone.addEventListener('dragover', function(e){
+      card.addEventListener('pointerdown', function(e){
         e.preventDefault();
-        zone.classList.add('drag-over');
-      });
-      zone.addEventListener('dragleave', function(e){
-        zone.classList.remove('drag-over');
-      });
-      zone.addEventListener('drop', function(e){
-        e.preventDefault();
-        zone.classList.remove('drag-over');
-        var draggedId = e.dataTransfer.getData('text/plain');
-        if (draggedId === cardId){
-          zone.classList.add('filled');
-          var card = el(draggedId);
-          card.classList.add('placed');
-          var dot = el('server-led');
-          if (dot && !dot.classList.contains('green')) dot.classList.add('green');
-          checkDeployDone();
+        e.stopPropagation();
+        if (card.classList.contains('placed')) return;
+        var shiftX = e.clientX - card.getBoundingClientRect().left;
+        var shiftY = e.clientY - card.getBoundingClientRect().top;
+        var clone = card.cloneNode(true);
+        clone.id = card.id + '-clone';
+        clone.style.position = 'fixed';
+        clone.style.left = (e.clientX - shiftX) + 'px';
+        clone.style.top = (e.clientY - shiftY) + 'px';
+        clone.style.pointerEvents = 'none';
+        clone.style.zIndex = 100;
+        clone.classList.add('dragging');
+        document.body.appendChild(clone);
+        card.style.opacity = '0.3';
+
+        function move(ev){
+          clone.style.left = (ev.clientX - shiftX) + 'px';
+          clone.style.top = (ev.clientY - shiftY) + 'px';
+          var zone = getZoneUnderPoint(ev.clientX, ev.clientY);
+          document.querySelectorAll('.zone-box').forEach(function(z){ z.classList.remove('drag-over'); });
+          if (zone) zone.classList.add('drag-over');
         }
+
+        function up(ev){
+          clone.remove();
+          card.style.opacity = '';
+          document.querySelectorAll('.zone-box').forEach(function(z){ z.classList.remove('drag-over'); });
+          document.removeEventListener('pointermove', move);
+          document.removeEventListener('pointerup', up);
+          document.removeEventListener('pointercancel', up);
+          var zone = getZoneUnderPoint(ev.clientX, ev.clientY);
+          if (zone && zone.id === cardToZone(card.id)){
+            zone.classList.add('filled');
+            card.classList.add('placed');
+            var dot = el('server-led');
+            if (dot && !dot.classList.contains('green')) dot.classList.add('green');
+            checkDeployDone();
+          }
+        }
+
+        document.addEventListener('pointermove', move);
+        document.addEventListener('pointerup', up);
+        document.addEventListener('pointercancel', up);
       });
     });
+  }
+  function getZoneUnderPoint(x, y){
+    var zones = document.querySelectorAll('.zone-box');
+    for (var i = 0; i < zones.length; i++){
+      var r = zones[i].getBoundingClientRect();
+      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return zones[i];
+    }
+    return null;
+  }
+  function cardToZone(cardId){
+    return { 'deploy-card-front':'deploy-zone-front', 'deploy-card-back':'deploy-zone-back' }[cardId];
   }
   function checkDeployDone(){
     var front = el('deploy-zone-front');
@@ -3447,6 +3472,7 @@
   el('i-enter').addEventListener('click', function(e){ e.stopPropagation(); finish(); });
   el('cov-start').addEventListener('click', startIntro);
   attachChipDrag();
+  setupDeployDrag();
 
   // 绑定测试酒吧按钮事件（延迟执行确保DOM存在）
   setTimeout(function(){
