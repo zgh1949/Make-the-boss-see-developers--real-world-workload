@@ -3423,7 +3423,9 @@
     { char:'ops', cap:'让我看看部署环境……', fn:function(){ playBrainstorm('ops'); } },
     { char:'ops', cap:'来，把前端和后端的代码分别打包，然后部署到服务器上', fn:function(){ showDeployScene(); } },
     { char:'ops', cap:'部署完成！用终端把代码包部署到服务器目录，再启动服务', fn:function(){ showTerminalScene(); } },
-    { char:null, nobubble:true, cap:'在终端试试：mkdir、cp、tree、run', fn:function(){ } }
+    { char:null, nobubble:true, cap:'在终端试试：mkdir、cp、tree、run', fn:function(){ } },
+    { char:'ops', cap:'服务起来了，但真实跑起来要扛多少流量、压多少资源，光靠感觉说不清。我做了个可视化仿真，让老板亲眼看见每个请求背后的真实工作量', fn:function(){ if (window.showWorkloadScene) showWorkloadScene(); } },
+    { char:'boss', nobubble:true, cap:'拖拽部署数据库 / 后端 / 缓存 / 网关，点击节点看负载，理解每个请求背后系统的真实压力（右上角 ✕ 返回教程）', fn:function(){ } }
   ];
 
   // ---------- UI 设计阶段：漂浮颜色拖拽 ----------
@@ -3919,10 +3921,995 @@
       return;
     }
     if (el('intro-stage').style.display === 'none') return;
+    if (el('wl-root') && el('wl-root').style.display !== 'none') return;
     if (e.target && e.target.closest && e.target.closest('#i-terminal')) return;
     if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
     else if (e.key === 'ArrowLeft') { prev(); }
   });
+})();
+</script>
+
+<style>
+  /* ===== 工作量仿真场景（第九章 · 让老板看见真实工作量） ===== */
+  #wl-root { position:fixed; inset:0; z-index:30000; background:#0b1220; color:#e2e8f0; font-family:"Microsoft YaHei","PingFang SC",sans-serif; display:none; overflow:hidden; }
+  #wl-root .wl-topbar { position:absolute; top:0; left:0; right:0; height:58px; display:flex; align-items:center; padding:0 14px; gap:14px; background:rgba(15,23,42,.94); border-bottom:1px solid #1e293b; z-index:30; }
+  #wl-root .wl-brand { font-size:16px; font-weight:700; white-space:nowrap; }
+  #wl-root .wl-brand small { font-size:11px; font-weight:400; color:#64748b; margin-left:8px; }
+  #wl-root .wl-gold { font-size:13px; color:#fbbf24; font-weight:700; }
+  #wl-root .wl-gold .wl-gold-rate { font-size:11px; color:#64748b; font-weight:400; }
+  #wl-root .wl-gold b { font-size:16px; }
+  #wl-root .wl-cards { margin-left:auto; display:flex; gap:10px; padding-right:46px; }
+  #wl-root .wl-card { width:96px; border-radius:10px; padding:7px 8px; cursor:grab; border:1px solid #334155; background:#16213a; display:flex; flex-direction:column; align-items:center; gap:4px; position:relative; user-select:none; }
+  #wl-root .wl-card .wl-swatch { width:20px; height:20px; border-radius:5px; }
+  #wl-root .wl-card .wl-cname { font-size:12px; font-weight:600; }
+  #wl-root .wl-card .wl-cost { font-size:11px; color:#94a3b8; }
+  #wl-root .wl-card.locked { opacity:.4; cursor:not-allowed; }
+  #wl-root .wl-card.locked::after { content:'锁定'; position:absolute; inset:0; background:rgba(11,18,32,.5); border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:11px; color:#94a3b8; }
+  #wl-root .wl-card.insufficient .wl-cost { color:#f87171; }
+  #wl-root .wl-ghost { position:fixed; z-index:40000; pointer-events:none; opacity:.92; transform:scale(1.06); }
+  #wl-root .wl-metrics { position:absolute; top:66px; right:12px; width:210px; background:rgba(15,23,42,.88); border:1px solid #1e293b; border-radius:12px; padding:12px 14px; z-index:30; }
+  #wl-root .wl-metrics .wm-title { font-size:12px; color:#64748b; margin-bottom:8px; }
+  #wl-root .wl-metric { display:flex; justify-content:space-between; align-items:baseline; padding:3px 0; font-size:13px; color:#94a3b8; }
+  #wl-root .wl-metric b { font-size:16px; color:#e2e8f0; }
+  #wl-root .wl-metric.qps b { color:#22d3ee; }
+  #wl-root .wl-metric.real b { color:#a78bfa; }
+  #wl-root .wl-metric.users b { color:#34d399; }
+  #wl-root #wl-canvas { position:absolute; top:58px; left:0; right:0; bottom:176px; }
+  #wl-root #wl-canvas canvas { display:block; }
+  #wl-root .wl-controls { position:absolute; bottom:0; left:0; right:0; height:176px; background:rgba(15,23,42,.95); border-top:1px solid #1e293b; padding:12px 18px; z-index:30; display:flex; flex-direction:column; gap:8px; }
+  #wl-root .wl-row { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  #wl-root .wl-row .wl-label { font-size:12px; color:#64748b; min-width:80px; }
+  #wl-root .wl-row .wl-val { font-size:13px; font-weight:700; color:#e2e8f0; min-width:52px; }
+  #wl-root input[type=range] { accent-color:#22d3ee; }
+  #wl-root .wl-toggle { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:#94a3b8; cursor:pointer; padding:5px 10px; border:1px solid #334155; border-radius:8px; background:#16213a; }
+  #wl-root .wl-toggle.on { color:#e2e8f0; border-color:#22d3ee; }
+  #wl-root .wl-toggle .wl-dot { width:8px; height:8px; border-radius:50%; }
+  #wl-root .wl-toggle input { display:none; }
+  #wl-root .wl-hitrow { transition:opacity .3s; }
+  #wl-root .wl-controls.lock .wl-hitrow { opacity:.4; pointer-events:none; }
+  #wl-root .wl-hint { font-size:12px; color:#64748b; min-height:16px; }
+  #wl-root .wl-btn { padding:6px 16px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#cbd5e1; cursor:pointer; font-size:12px; font-family:inherit; }
+  #wl-root .wl-btn:hover { background:#273549; }
+  #wl-root .wl-btn:disabled { opacity:.4; cursor:not-allowed; }
+  #wl-root .wl-btn.on { background:#22d3ee; border-color:#22d3ee; color:#0b1220; font-weight:700; }
+  #wl-root .wl-close { position:absolute; top:12px; right:12px; z-index:40; width:34px; height:34px; border-radius:50%; border:1px solid #334155; background:#1e293b; color:#94a3b8; font-size:15px; cursor:pointer; line-height:1; }
+  #wl-root .wl-close:hover { background:#273549; color:#e2e8f0; }
+  #wl-root .wl-modal-bg { position:absolute; inset:58px 0 176px 0; background:rgba(2,6,15,.55); z-index:35; display:none; }
+  #wl-root .wl-modal { position:absolute; top:50%; left:50%; transform:translate(-50%,-52%); width:560px; max-height:70vh; overflow:auto; background:#111a2e; border:1px solid #2b3b5c; border-radius:16px; z-index:36; display:none; padding:18px 20px; }
+  #wl-root .wl-modal .wm-hd { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+  #wl-root .wl-modal .wm-hd h3 { font-size:16px; }
+  #wl-root .wl-modal .wm-x { cursor:pointer; color:#64748b; font-size:14px; }
+  #wl-root .wl-charts { display:flex; gap:10px; margin-bottom:12px; }
+  #wl-root .wl-chart { flex:1; background:#0b1220; border:1px solid #1e293b; border-radius:10px; padding:8px; }
+  #wl-root .wl-chart .wc-lbl { font-size:11px; color:#94a3b8; margin-bottom:6px; }
+  #wl-root .wl-chart canvas { width:100%; height:64px; display:block; }
+  #wl-root .wl-attrs { display:grid; grid-template-columns:1fr 1fr; gap:6px 18px; font-size:13px; color:#94a3b8; margin-bottom:14px; }
+  #wl-root .wl-attrs b { color:#e2e8f0; }
+  #wl-root .wl-up { width:100%; padding:10px; border-radius:10px; border:1px solid #22d3ee; background:rgba(34,211,238,.12); color:#22d3ee; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
+  #wl-root .wl-up:disabled { opacity:.4; cursor:not-allowed; }
+  #wl-root .wl-lb { display:flex; flex-direction:column; gap:8px; margin-bottom:10px; }
+  #wl-root .wl-lb-item { display:flex; align-items:center; gap:8px; font-size:13px; color:#cbd5e1; cursor:pointer; }
+  #wl-root .wl-lb-item input { accent-color:#22d3ee; }
+  #wl-root .wl-be-list { display:flex; flex-direction:column; gap:6px; margin-bottom:8px; }
+  #wl-root .wl-be-row { display:flex; align-items:center; justify-content:space-between; font-size:13px; color:#cbd5e1; padding:7px 10px; background:#0b1220; border-radius:8px; }
+  #wl-root .wl-be-row.failed .wl-be-name { color:#f87171; text-decoration:line-through; }
+  #wl-root .wl-fail-btn { font-size:11px; padding:3px 10px; border-radius:6px; border:1px solid #475569; background:#1e293b; color:#94a3b8; cursor:pointer; }
+  #wl-root .wl-fail-btn:hover { background:#273549; }
+  #wl-root .wl-lock-note { font-size:12px; color:#64748b; min-height:16px; margin-bottom:10px; }
+  #wl-root .wl-note { font-size:12px; color:#64748b; margin-top:8px; line-height:1.6; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/pixi.js@7.4.2/dist/pixi.min.js"></script>
+<div id="wl-root">
+  <div class="wl-topbar">
+    <div class="wl-brand">让老板看见真实工作量 <small>请求链路 · 负载仿真</small></div>
+    <div class="wl-gold">金币 <b id="wl-gold">600</b> <span class="wl-gold-rate" id="wl-gold-rate"></span></div>
+    <div class="wl-cards" id="wl-cards">
+      <div class="wl-card" data-type="db"><span class="wl-swatch" style="background:#6366f1"></span><span class="wl-cname">数据库</span><span class="wl-cost">300 金币</span></div>
+      <div class="wl-card" data-type="cache"><span class="wl-swatch" style="background:#3b82f6"></span><span class="wl-cname">缓存服务器</span><span class="wl-cost">250 金币</span></div>
+      <div class="wl-card" data-type="backend"><span class="wl-swatch" style="background:#22c55e"></span><span class="wl-cname">后端服务器</span><span class="wl-cost">200 金币</span></div>
+      <div class="wl-card" data-type="gateway"><span class="wl-swatch" style="background:#f59e0b"></span><span class="wl-cname">网关</span><span class="wl-cost">100 金币</span></div>
+    </div>
+  </div>
+  <button class="wl-close" id="wl-close" title="返回教程">✕</button>
+  <div class="wl-metrics">
+    <div class="wm-title">核心指标（每秒刷新）</div>
+    <div class="wl-metric qps">理论 QPS <b id="wl-qps-theory">0</b></div>
+    <div class="wl-metric real">真实 QPS <b id="wl-qps-real">0</b></div>
+    <div class="wl-metric users">在线用户 <b id="wl-users">0</b></div>
+  </div>
+  <div id="wl-canvas"></div>
+  <div class="wl-modal-bg" id="wl-modal-bg"></div>
+  <div class="wl-modal" id="wl-detail">
+    <div class="wm-hd"><h3 id="wl-detail-title">节点详情</h3><span class="wm-x" data-close="wl-detail">关闭</span></div>
+    <div class="wl-charts">
+      <div class="wl-chart"><div class="wc-lbl">CPU 占用率</div><canvas id="wl-cpu-chart" width="240" height="64"></canvas></div>
+      <div class="wl-chart"><div class="wc-lbl">内存占用率</div><canvas id="wl-mem-chart" width="240" height="64"></canvas></div>
+    </div>
+    <div class="wl-attrs">
+      <div>CPU 核心数 <b id="wl-a-cores">-</b></div>
+      <div>CPU 并发线程 <b id="wl-a-threads">-</b></div>
+      <div>内存总容量 <b id="wl-a-mem">-</b></div>
+      <div>内存占用 <b id="wl-a-memuse">-</b></div>
+      <div>当前吞吐量 <b id="wl-a-thr">-</b></div>
+      <div>累计处理请求 <b id="wl-a-req">-</b></div>
+    </div>
+    <button class="wl-up" id="wl-up">升级</button>
+    <div class="wl-note">CPU 负载率 = 并发处理线程数 ÷ 上限。4 核 × 每核 10 线程 = 40 线程；CPU 90% 即 36 个线程同时在处理请求，约等于 3.6 核满载。</div>
+    <div class="wl-note">内存占用含 download 类大对象缓冲（256MB/次）。任一指标 ≥80% 节点亮红色柔光，≥95% 呼吸闪烁；CPU 满载后新请求排队，内存耗尽后部分请求失败。</div>
+  </div>
+  <div class="wl-modal" id="wl-gwmodal">
+    <div class="wm-hd"><h3>网关 · 负载均衡配置</h3><span class="wm-x" data-close="wl-gwmodal">关闭</span></div>
+    <div class="wl-lb" id="wl-lb">
+      <label class="wl-lb-item"><input type="radio" name="wl-lb" value="single">单点模式（所有请求发往一台后端）</label>
+      <label class="wl-lb-item"><input type="radio" name="wl-lb" value="round">轮询模式（按顺序均匀分发）</label>
+      <label class="wl-lb-item"><input type="radio" name="wl-lb" value="weighted">加权轮询（按 CPU 性能权重分发）</label>
+      <label class="wl-lb-item"><input type="radio" name="wl-lb" value="random">随机模式（随机分发）</label>
+    </div>
+    <div class="wl-lock-note" id="wl-lb-note"></div>
+    <div class="wm-hd"><h3 style="font-size:14px">故障模拟（指定后端宕机）</h3></div>
+    <div class="wl-be-list" id="wl-be-list"></div>
+    <div class="wl-note">标记宕机后，网关自动把流量切到其余节点；全部宕机则请求失败。单点 / 轮询 / 加权 / 随机分发策略可随时切换。</div>
+  </div>
+  <div class="wl-controls" id="wl-controls">
+    <div class="wl-row">
+      <span class="wl-label">用户量级</span>
+      <input type="range" id="wl-scale" min="10" max="600" value="60">
+      <span class="wl-val" id="wl-scale-val">60 人/秒</span>
+      <span class="wl-label">请求类型</span>
+      <label class="wl-toggle on" data-req="get"><input type="checkbox" checked><span class="wl-dot" style="background:#21c46b"></span>get</label>
+      <label class="wl-toggle on" data-req="list"><input type="checkbox" checked><span class="wl-dot" style="background:#2f9bed"></span>list</label>
+      <label class="wl-toggle on" data-req="save"><input type="checkbox" checked><span class="wl-dot" style="background:#f5a623"></span>save</label>
+      <label class="wl-toggle on" data-req="calculate"><input type="checkbox" checked><span class="wl-dot" style="background:#9254de"></span>calculate</label>
+      <label class="wl-toggle on" data-req="download"><input type="checkbox" checked><span class="wl-dot" style="background:#f43f5e"></span>download</label>
+    </div>
+    <div class="wl-row wl-hitrow">
+      <span class="wl-label">缓存命中率</span>
+      <input type="range" id="wl-hit" min="0" max="100" value="50" disabled>
+      <span class="wl-val" id="wl-hit-val">50%</span>
+      <span class="wl-label">高级压力</span>
+      <button class="wl-btn" id="wl-burst" disabled>突发流量</button>
+      <button class="wl-btn" id="wl-reset">重置架构</button>
+    </div>
+    <div class="wl-hint" id="wl-hint"></div>
+  </div>
+</div>
+<script id="wl-js">
+(function(){
+  if (!document.getElementById('wl-root')) return;
+  var $ = function(id){ return document.getElementById(id); };
+  var FG = '"Microsoft YaHei","PingFang SC",sans-serif';
+  var CONFIG = {
+    W: 1920, H: 740,
+    threadsPerCore: 10,
+    nodeTypes: {
+      db:      { label:'数据库',     short:'数据库', color:0x6366f1, cost:300, cores:8,  mem:4096, upgradeCost:200, perLevel:{cores:4, mem:2048}, slots:3, w:92,  h:88,  upgradeable:true },
+      cache:   { label:'缓存服务器', short:'缓存',   color:0x3b82f6, cost:250, cores:2,  mem:1024, upgradeCost:150, perLevel:{cores:2, mem:512},  slots:3, w:92,  h:82,  upgradeable:true },
+      backend: { label:'后端服务器', short:'后端',   color:0x22c55e, cost:200, cores:4,  mem:2048, upgradeCost:150, perLevel:{cores:2, mem:1024}, slots:5, w:104, h:92,  upgradeable:true },
+      gateway: { label:'网关',       short:'网关',   color:0xf59e0b, cost:100, cores:2,  mem:1024, upgradeCost:0,   perLevel:{cores:0, mem:0},   slots:1, w:100, h:86,  upgradeable:false }
+    },
+    reqTypes: {
+      get:       { label:'get',       color:0x21c46b, cacheable:true,  cpu:1, mem:8,  backendMs:40,  dbMs:60,  cacheMs:10, rev:1 },
+      list:      { label:'list',      color:0x2f9bed, cacheable:true,  cpu:2, mem:16, backendMs:80,  dbMs:120, cacheMs:15, rev:2 },
+      save:      { label:'save',      color:0xf5a623, cacheable:false, cpu:2, mem:24, backendMs:150, dbMs:180, cacheMs:0,  rev:3 },
+      calculate: { label:'calculate', color:0x9254de, cacheable:false, cpu:4, mem:48, backendMs:240, dbMs:300, cacheMs:0,  rev:4 },
+      download:  { label:'download',  color:0xf43f5e, cacheable:false, cpu:2, mem:256, backendMs:300, dbMs:320, cacheMs:0,  rev:5 }
+    },
+    regions: {
+      db:      { x:40,   y:200, w:300, h:480, label:'数据库部署区', sub:'数据持久化层' },
+      backend: { x:500,  y:360, w:600, h:320, label:'后端服务器部署区', sub:'业务逻辑核心层' },
+      cache:   { x:500,  y:50,  w:600, h:235, label:'缓存部署区', sub:'旁路加速 · 纵向对齐后端上方' },
+      gateway: { x:1240, y:330, w:250, h:370, label:'网关部署区', sub:'流量统一入口' },
+      user:    { x:1600, y:80,  w:290, h:600, label:'用户生成区', sub:'随机生成 · 持续请求' }
+    }
+  };
+  var app = null, container = null, layers = null, ready = false, failedLoad = false;
+  var nodes = [], slots = [], users = [], rays = [], floats = [], completions = [];
+  var gold = 600, userScale = 60, hitRate = 0.5, burst = false, burstTimer = 0;
+  var reqEnabled = { get:true, list:true, save:true, calculate:true, download:true };
+  var lbStrategy = 'round', roundRobin = 0;
+  var spawnAcc = 0, detailNode = null, dragActive = null;
+
+  function show(){
+    if (!ready){
+      if (!window.PIXI){ failedLoad = true; ready = true; }
+      else init();
+    }
+    $('wl-root').style.display = 'block';
+    if (ready && failedLoad){
+      $('wl-canvas').innerHTML = '<div style="padding:48px 20px;font-size:14px;color:#94a3b8;line-height:1.9;text-align:center">PixiJS 加载失败（当前环境无法访问 CDN）。<br>请联网后刷新页面重试，或将 pixi.min.js 下载到本地并替换脚本引入地址。</div>';
+    }
+    if (ready && !failedLoad && app) app.start();
+  }
+  function close(){
+    $('wl-root').style.display = 'none';
+    if (ready && app) app.stop();
+  }
+  window.showWorkloadScene = show;
+  window.closeWorkloadScene = close;
+
+  function init(){
+    container = $('wl-canvas');
+    var el2 = document.getElementById('wl-close');
+    el2.addEventListener('click', function(){ close(); });
+    app = new PIXI.Application({ width:CONFIG.W, height:CONFIG.H, backgroundColor:0x0b1220, antialias:true, autoDensity:true, resolution:Math.max(1, window.devicePixelRatio || 1) });
+    app.view.style.width = '100%';
+    app.view.style.height = '100%';
+    container.appendChild(app.view);
+    layers = { bg:new PIXI.Container(), region:new PIXI.Container(), node:new PIXI.Container(), panel:new PIXI.Container(), fx:new PIXI.Container() };
+    layers.bg.name = 'bg'; layers.region.name = 'region'; layers.node.name = 'node'; layers.panel.name = 'panel'; layers.fx.name = 'fx';
+    app.stage.addChild(layers.bg, layers.region, layers.node, layers.panel, layers.fx);
+    buildBackground();
+    buildRegions();
+    buildSlots();
+    bindUI();
+    $('wl-modal-bg').addEventListener('click', function(){ hideModals(); });
+    document.querySelectorAll('.wl-modal .wm-x').forEach(function(x){
+      x.addEventListener('click', function(){ hideModals(); });
+    });
+    app.ticker.add(function(){
+      var now = performance.now();
+      var dt = Math.min(80, now - (app.ticker.lastTime || now));
+      updateSpawning(now, dt);
+      drainQueues(now);
+      updateRays(now);
+      updateFloats(now, dt);
+      updateUsers(now, dt);
+      updateJitters(now, dt);
+      updateGlows(now, dt);
+      if (burst && burstTimer && now > burstTimer){ burst = false; burstTimer = 0; $('wl-burst').classList.remove('on'); }
+    });
+    setInterval(updateSimUI, 250);
+    updateUnlocks();
+    updateGoldUI();
+    ready = true;
+  }
+
+  function buildBackground(){
+    var g = new PIXI.Graphics();
+    g.beginFill(0x0b1220, 1).drawRect(0, 0, CONFIG.W, CONFIG.H).endFill();
+    g.lineStyle(1, 0x1e293b, 0.35);
+    for (var x = 64; x < CONFIG.W; x += 64){ g.moveTo(x, 0); g.lineTo(x, CONFIG.H); }
+    for (var y = 64; y < CONFIG.H; y += 64){ g.moveTo(0, y); g.lineTo(CONFIG.W, y); }
+    g.lineStyle(2, 0x2b3b5c, 0.5).moveTo(340, 520).lineTo(1240, 520);
+    g.lineStyle(2, 0x2b3b5c, 0.35).moveTo(800, 285).lineTo(800, 360);
+    g.beginFill(0x2b3b5c, 0.6);
+    for (var ax = 430; ax < 1240; ax += 120){ g.moveTo(ax + 8, 520); g.lineTo(ax, 520); g.lineTo(ax + 4, 514); g.lineTo(ax + 8, 520); g.lineTo(ax + 4, 526); }
+    g.endFill();
+    layers.bg.addChild(g);
+  }
+
+  function buildRegions(){
+    var keys = ['db', 'cache', 'backend', 'gateway', 'user'];
+    keys.forEach(function(k){
+      var r = CONFIG.regions[k];
+      var g = new PIXI.Graphics();
+      g.beginFill(0x141e33, 0.6).lineStyle(1, 0x2b3b5c, 0.6).drawRoundedRect(r.x, r.y, r.w, r.h, 12).endFill();
+      var title = new PIXI.Text(r.label, { fontFamily:FG, fontSize:15, fill:0x8ea3c4, fontWeight:'700' });
+      title.position.set(r.x + 14, r.y + 10);
+      var sub = new PIXI.Text(r.sub, { fontFamily:FG, fontSize:11, fill:0x4a5a78 });
+      sub.position.set(r.x + 14, r.y + 32);
+      layers.region.addChild(g, title, sub);
+    });
+  }
+
+  function buildSlots(){
+    var db = CONFIG.regions.db, be = CONFIG.regions.backend, ca = CONFIG.regions.cache, gw = CONFIG.regions.gateway;
+    var plans = [];
+    for (var i = 0; i < 3; i++){
+      var sy = db.y + 18 + i * ((db.h - 36 - 2 * 16) / 3 + 16);
+      plans.push({ type:'db', index:i, x:db.x + 18, y:sy, w:db.w - 36, h:(db.h - 36 - 2 * 16) / 3 });
+    }
+    for (i = 0; i < 5; i++){
+      plans.push({ type:'backend', index:i, x:be.x + 16 + i * ((be.w - 32 - 4 * 12) / 5 + 12), y:be.y + 16, w:(be.w - 32 - 4 * 12) / 5, h:be.h - 32 });
+    }
+    for (i = 0; i < 3; i++){
+      plans.push({ type:'cache', index:i, x:ca.x + 16 + i * ((ca.w - 32 - 2 * 12) / 3 + 12), y:ca.y + 16, w:(ca.w - 32 - 2 * 12) / 3, h:ca.h - 32 });
+    }
+    plans.push({ type:'gateway', index:0, x:gw.x + 15, y:gw.y + 15, w:gw.w - 30, h:gw.h - 30 });
+    plans.forEach(function(p){
+      var g = new PIXI.Graphics();
+      g.beginFill(0x0a1426, 0.8).lineStyle(2, 0x2b3b5c, 0.7).drawRoundedRect(p.x, p.y, p.w, p.h, 10).endFill();
+      var plus = new PIXI.Text('+', { fontFamily:FG, fontSize:22, fill:0x3b4a66 });
+      plus.anchor.set(0.5);
+      plus.position.set(p.x + p.w / 2, p.y + p.h / 2);
+      layers.region.addChild(g, plus);
+      slots.push({ type:p.type, index:p.index, x:p.x, y:p.y, w:p.w, h:p.h, occupied:false, plus:plus });
+    });
+  }
+
+  function buildNodeSprite(n){
+    var c = new PIXI.Container();
+    c.position.set(n.x, n.y);
+    var glow = new PIXI.Graphics();
+    c.addChildAt(glow, 0);
+    var body = new PIXI.Graphics();
+    c.addChild(body);
+    var lbl = new PIXI.Text('', { fontFamily:FG, fontSize:13, fill:0xf1f5f9, fontWeight:'700' });
+    lbl.anchor.set(0, 0.5);
+    lbl.position.set(-n.w / 2 + 32, -8);
+    c.addChild(lbl);
+    var st = new PIXI.Text('', { fontFamily:FG, fontSize:11, fill:0x94a3b8 });
+    st.anchor.set(0.5, 0.5);
+    st.position.set(0, n.h / 2 - 24);
+    c.addChild(st);
+    var st2 = new PIXI.Text('', { fontFamily:FG, fontSize:11, fill:0x94a3b8 });
+    st2.anchor.set(0.5, 0.5);
+    st2.position.set(0, n.h / 2 - 8);
+    c.addChild(st2);
+    var badge = new PIXI.Text('宕机', { fontFamily:FG, fontSize:13, fill:0xf87171, fontWeight:'700' });
+    badge.anchor.set(0.5);
+    badge.position.set(0, -6);
+    badge.visible = false;
+    c.addChild(badge);
+    c.interactive = true;
+    c.cursor = 'pointer';
+    c.hitArea = new PIXI.Rectangle(-n.w / 2, -n.h / 2, n.w, n.h);
+    c.on('pointerdown', function(e){
+      if (dragActive) return;
+      e.stopPropagation();
+      if (n.type === 'gateway') openGateway();
+      else openDetail(n);
+    });
+    layers.node.addChild(c);
+    n.container = c;
+    n.glow = glow;
+    n.body = body;
+    n.labelText = lbl;
+    n.statusText = st;
+    n.statusText2 = st2;
+    n.failedBadge = badge;
+    redrawNodeBody(n);
+  }
+
+  function redrawNodeBody(n){
+    var cfg = CONFIG.nodeTypes[n.type];
+    var g = n.body;
+    g.clear();
+    g.beginFill(0x1c2942, 1).lineStyle(2, cfg.color, 0.85).drawRoundedRect(-n.w / 2, -n.h / 2, n.w, n.h, 12).endFill();
+    g.beginFill(cfg.color, 1).drawRoundedRect(-n.w / 2 + 7, -n.h / 2 + 7, 16, n.h - 14, 5).endFill();
+    n.labelText.text = cfg.short + ' L' + n.level;
+    if (n.failed){
+      n.container.alpha = 0.5;
+      n.failedBadge.visible = true;
+    } else {
+      n.container.alpha = 1;
+      n.failedBadge.visible = false;
+    }
+  }
+
+  function slotCenter(s){ return { x:s.x + s.w / 2, y:s.y + s.h / 2 }; }
+
+  function tryDeploy(type, slot){
+    var cfg = CONFIG.nodeTypes[type];
+    if (gold < cfg.cost) return false;
+    gold -= cfg.cost;
+    updateGoldUI();
+    var c = slotCenter(slot);
+    var node = {
+      type: type, slotIndex: slot.index, level: 1,
+      cores: cfg.cores, memMax: cfg.mem, maxThreads: cfg.cores * CONFIG.threadsPerCore,
+      threadsUsed: 0, memUsed: 0, active: [], queue: [], completed: 0, tps: 0,
+      stamps: [], hist: [], cpu: 0, mem: 0,
+      x: c.x, y: c.y, w: cfg.w, h: cfg.h,
+      baseX: c.x, baseY: c.y, failed: false, glowAlpha: 0, jitter: null, jitterEnd: 0
+    };
+    slot.occupied = true;
+    nodes.push(node);
+    buildNodeSprite(node);
+    updateUnlocks();
+    return true;
+  }
+
+  function isLocked(type){
+    var beCount = countNode('backend'), dbCount = countNode('db');
+    if (type === 'db' && beCount < 1) return true;
+    if (type === 'cache' && dbCount < 1) return true;
+    return false;
+  }
+
+  function countNode(type){ return nodes.filter(function(n){ return n.type === type; }).length; }
+
+  function updateUnlocks(){
+    var beCount = countNode('backend'), dbCount = countNode('db'), cacheCount = countNode('cache'), gwCount = countNode('gateway');
+    document.querySelectorAll('#wl-cards .wl-card').forEach(function(card){
+      card.classList.toggle('locked', isLocked(card.getAttribute('data-type')));
+    });
+    var hit = $('wl-hit');
+    hit.disabled = cacheCount < 1;
+    $('wl-controls').classList.toggle('lock', cacheCount < 1);
+    var allLv2 = nodes.length > 0 && nodes.every(function(n){ return n.level >= 2; });
+    $('wl-burst').disabled = !allLv2;
+    $('wl-lb-note').textContent = beCount >= 2 ? '负载均衡策略已解锁' : '解锁条件：部署 2 台以上后端服务器';
+    document.querySelectorAll('#wl-lb input').forEach(function(r){ r.disabled = beCount < 2; });
+    var hint = '';
+    if (gwCount < 1 || beCount < 1) hint = '起始资金 600 金币：先部署网关（100）、一台后端（200）、一台数据库（300），流量跑通后每完成一个请求赚取金币。';
+    else if (dbCount < 1) hint = '还差数据库（300 金币）。所有请求都要落库，部署后流量跑通、金币开始正向增长。';
+    else if (cacheCount < 1) hint = '再部署缓存服务器（250 金币，后端正上方旁路区），读请求命中缓存后走蓝色垂直短线，不再压数据库。';
+    else if (beCount < 2) hint = '缓存已就位。赚够金币再部署一台后端（200 金币），可解锁网关的负载均衡与故障模拟。';
+    else hint = '完整链路已就绪。请求持续赚取金币用于扩容升级；拉高用户量级观察负载：CPU 满载请求排队、内存耗尽（download）请求失败，真实 QPS 在瓶颈节点触顶。';
+    $('wl-hint').textContent = hint;
+  }
+
+  function updateGoldUI(){
+    $('wl-gold').textContent = gold;
+    document.querySelectorAll('#wl-cards .wl-card').forEach(function(card){
+      var type = card.getAttribute('data-type');
+      var cost = CONFIG.nodeTypes[type].cost;
+      card.classList.toggle('insufficient', gold < cost);
+    });
+  }
+
+  function bindUI(){
+    var scale = $('wl-scale'), hit = $('wl-hit');
+    scale.addEventListener('input', function(){
+      userScale = parseInt(scale.value, 10);
+      $('wl-scale-val').textContent = userScale + ' 人/秒';
+    });
+    hit.addEventListener('input', function(){
+      hitRate = parseInt(hit.value, 10) / 100;
+      $('wl-hit-val').textContent = hit.value + '%';
+    });
+    document.querySelectorAll('.wl-toggle').forEach(function(t){
+      var cb = t.querySelector('input');
+      cb.addEventListener('change', function(){
+        reqEnabled[t.getAttribute('data-req')] = cb.checked;
+        t.classList.toggle('on', cb.checked);
+      });
+    });
+    $('wl-burst').addEventListener('click', function(){
+      burst = !burst;
+      burstTimer = performance.now() + 10000;
+      this.classList.toggle('on', burst);
+    });
+    $('wl-reset').addEventListener('click', resetAll);
+    document.querySelectorAll('#wl-lb input[name=wl-lb]').forEach(function(r){
+      r.addEventListener('change', function(){ lbStrategy = this.value; roundRobin = 0; });
+    });
+    $('wl-up').addEventListener('click', function(){
+      if (!detailNode) return;
+      var n = detailNode;
+      var cfg = CONFIG.nodeTypes[n.type];
+      if (!cfg.upgradeable) return;
+      var cost = cfg.upgradeCost * n.level;
+      if (gold < cost) return;
+      gold -= cost;
+      updateGoldUI();
+      n.level++;
+      n.cores += cfg.perLevel.cores;
+      n.memMax += cfg.perLevel.mem;
+      n.maxThreads = n.cores * CONFIG.threadsPerCore;
+      redrawNodeBody(n);
+      updateDetailUI();
+      updateUnlocks();
+    });
+    initCards();
+  }
+
+  function resetAll(){
+    nodes.forEach(function(n){ if (n.container){ n.container.destroy({ children: true }); } });
+    nodes = [];
+    slots.forEach(function(s){ s.occupied = false; });
+    users.forEach(function(u){ u.body.destroy(); });
+    users = [];
+    rays.forEach(function(r){ r.g.destroy(); });
+    rays = [];
+    floats = [];
+    completions = [];
+    gold = 600;
+    detailNode = null;
+    lbStrategy = 'round';
+    roundRobin = 0;
+    hideModals();
+    updateGoldUI();
+    updateUnlocks();
+  }
+
+  function hideModals(){
+    $('wl-detail').style.display = 'none';
+    $('wl-gwmodal').style.display = 'none';
+    $('wl-modal-bg').style.display = 'none';
+    detailNode = null;
+  }
+
+  function openDetail(n){
+    detailNode = n;
+    $('wl-detail-title').textContent = CONFIG.nodeTypes[n.type].label + ' L' + n.level + ' · 节点详情';
+    $('wl-detail').style.display = 'block';
+    $('wl-modal-bg').style.display = 'block';
+    updateDetailUI();
+  }
+
+  function updateDetailUI(){
+    if (!detailNode) return;
+    var n = detailNode;
+    $('wl-a-cores').textContent = n.cores;
+    $('wl-a-threads').textContent = Math.min(n.maxThreads, Math.round(n.threadsUsed)) + ' / ' + n.maxThreads;
+    $('wl-a-mem').textContent = n.memMax + ' MB';
+    $('wl-a-memuse').textContent = Math.round(n.memUsed) + ' / ' + n.memMax + ' MB';
+    $('wl-a-thr').textContent = n.tps + ' req/s';
+    $('wl-a-req').textContent = n.completed;
+    drawChart($('wl-cpu-chart'), n.hist.map(function(h){ return h.cpu; }), '#eb2f96');
+    drawChart($('wl-mem-chart'), n.hist.map(function(h){ return h.mem; }), '#2f9bed');
+    var cfg = CONFIG.nodeTypes[n.type];
+    if (cfg.upgradeable){
+      var cost = cfg.upgradeCost * n.level;
+      $('wl-up').disabled = gold < cost;
+      $('wl-up').textContent = '升级 ( ' + cost + ' 金币 · CPU +' + cfg.perLevel.cores + ' 核 / 内存 +' + cfg.perLevel.mem + ' MB )';
+    } else {
+      $('wl-up').disabled = true;
+      $('wl-up').textContent = '网关不可升级';
+    }
+  }
+
+  function drawChart(cv, arr, color){
+    var ctx = cv.getContext('2d');
+    var W = cv.width, H = cv.height;
+    ctx.clearRect(0, 0, W, H);
+    ctx.strokeStyle = 'rgba(148,163,184,.12)';
+    ctx.lineWidth = 1;
+    for (var gy = 0; gy < 3; gy++){
+      var yy = H / 3 * gy;
+      ctx.beginPath(); ctx.moveTo(0, yy); ctx.lineTo(W, yy); ctx.stroke();
+    }
+    if (arr.length < 2) return;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (var i = 0; i < arr.length; i++){
+      var x = i / (arr.length - 1) * W;
+      var y = H - 3 - Math.min(100, arr[i]) / 100 * (H - 6);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(W, H - 3 - Math.min(100, arr[arr.length - 1]) / 100 * (H - 6), 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function openGateway(){
+    renderLBList();
+    document.querySelectorAll('#wl-lb input[name=wl-lb]').forEach(function(r){ r.checked = r.value === lbStrategy; });
+    $('wl-gwmodal').style.display = 'block';
+    $('wl-modal-bg').style.display = 'block';
+  }
+
+  function renderLBList(){
+    var list = $('wl-be-list');
+    list.innerHTML = '';
+    nodes.filter(function(n){ return n.type === 'backend'; }).forEach(function(n, idx){
+      var row = document.createElement('div');
+      row.className = 'wl-be-row' + (n.failed ? ' failed' : '');
+      row.innerHTML = '<span class="wl-be-name">后端 ' + (idx + 1) + ' · Lv' + n.level + '</span><button class="wl-fail-btn">' + (n.failed ? '恢复' : '宕机') + '</button>';
+      row.querySelector('.wl-fail-btn').addEventListener('click', function(){
+        n.failed = !n.failed;
+        redrawNodeBody(n);
+        renderLBList();
+      });
+      list.appendChild(row);
+    });
+  }
+
+  function initCards(){
+    document.querySelectorAll('#wl-cards .wl-card').forEach(function(card){
+      card.addEventListener('pointerdown', function(e){
+        if (card.classList.contains('locked')) return;
+        startDrag(e, card);
+      });
+    });
+  }
+
+  function startDrag(e, card){
+    if (!app) return;
+    e.preventDefault();
+    var type = card.getAttribute('data-type');
+    var rect = card.getBoundingClientRect();
+    var offX = e.clientX - rect.left, offY = e.clientY - rect.top;
+    var ghost = card.cloneNode(true);
+    ghost.classList.add('wl-ghost');
+    ghost.style.width = rect.width + 'px';
+    document.body.appendChild(ghost);
+    dragActive = { type: type, valid: null };
+    var mask = new PIXI.Graphics();
+    layers.panel.addChild(mask);
+    var moved = false;
+
+    function move(ev){
+      moved = true;
+      ghost.style.left = (ev.clientX - offX) + 'px';
+      ghost.style.top = (ev.clientY - offY) + 'px';
+      updateMask(ev, mask, type);
+    }
+    function up(){
+      document.removeEventListener('pointermove', move);
+      document.removeEventListener('pointerup', up);
+      if (dragActive.valid) tryDeploy(type, dragActive.valid);
+      if (ghost.parentNode) ghost.parentNode.removeChild(ghost);
+      mask.clear();
+      layers.panel.removeChild(mask);
+      dragActive = null;
+    }
+    document.addEventListener('pointermove', move);
+    document.addEventListener('pointerup', up);
+  }
+
+  function updateMask(ev, mask, type){
+    var r = container.getBoundingClientRect();
+    var lx = (ev.clientX - r.left) / r.width * CONFIG.W;
+    var ly = (ev.clientY - r.top) / r.height * CONFIG.H;
+    var valid = null;
+    mask.clear();
+    mask.beginFill(0x050a14, 0.55).drawRect(0, 0, CONFIG.W, CONFIG.H).endFill();
+    slots.forEach(function(s){
+      if (s.type !== type || s.occupied || isLocked(type)) return;
+      if (lx >= s.x && lx <= s.x + s.w && ly >= s.y && ly <= s.y + s.h) valid = s;
+    });
+    slots.forEach(function(s){
+      if (s.type !== type || s.occupied || isLocked(type)) return;
+      mask.beginFill(0x22d3ee, s === valid ? 0.22 : 0.1).lineStyle(2, 0x22d3ee, 0.95).drawRoundedRect(s.x, s.y, s.w, s.h, 10).endFill();
+    });
+    dragActive.valid = valid;
+  }
+
+  function enabledTypes(){
+    return Object.keys(reqEnabled).filter(function(k){ return reqEnabled[k]; });
+  }
+
+  function pickType(){
+    var list = enabledTypes();
+    if (!list.length) return CONFIG.reqTypes.get;
+    return CONFIG.reqTypes[list[Math.floor(Math.random() * list.length)]];
+  }
+
+  function gwNode(){ return nodes.find(function(n){ return n.type === 'gateway' && !n.failed; }); }
+  function dbNode(){ return pickNode('db'); }
+  function cacheNode(){ return pickNode('cache'); }
+  function nodeLoad(n){ return (n.maxThreads ? n.threadsUsed / n.maxThreads : 0) + (n.memMax ? n.memUsed / n.memMax : 0); }
+  var pickRR = { db: 0, cache: 0 };
+  function pickNode(type){
+    var list = nodes.filter(function(n){ return n.type === type && !n.failed; });
+    if (!list.length) return null;
+    var minLoad = nodeLoad(list[0]);
+    for (var i = 1; i < list.length; i++){
+      var l = nodeLoad(list[i]);
+      if (l < minLoad) minLoad = l;
+    }
+    var cands = list.filter(function(n){ return nodeLoad(n) <= minLoad + 0.001; });
+    var idx = pickRR[type] % cands.length;
+    pickRR[type]++;
+    return cands[idx];
+  }
+  function backendsAlive(){ return nodes.filter(function(n){ return n.type === 'backend' && !n.failed; }); }
+
+  function pickBackend(){
+    var list = backendsAlive();
+    if (!list.length) return null;
+    var pick = null;
+    if (lbStrategy === 'single') pick = list[0];
+    else if (lbStrategy === 'round') pick = list[roundRobin++ % list.length];
+    else if (lbStrategy === 'random') pick = list[Math.floor(Math.random() * list.length)];
+    else {
+      var tot = 0;
+      list.forEach(function(n){ tot += n.maxThreads; });
+      var r = Math.random() * tot, acc = 0;
+      pick = list.find(function(n){ acc += n.maxThreads; return acc > r; }) || list[0];
+    }
+    return pick;
+  }
+
+  function updateSpawning(now, dt){
+    if (!gwNode() || !backendsAlive().length) return;
+    var rate = userScale * (burst ? 2.5 : 1);
+    if (users.length >= 400) return;
+    spawnAcc += dt;
+    var interval = 1000 / rate;
+    while (spawnAcc >= interval){
+      spawnAcc -= interval;
+      spawnUser();
+    }
+  }
+
+  function spawnUser(){
+    var reg = CONFIG.regions.user;
+    var x = reg.x + 40 + Math.random() * (reg.w - 80);
+    var y = reg.y + 40 + Math.random() * (reg.h - 80);
+    var g = new PIXI.Graphics();
+    g.beginFill(0x94a3b8, 0.9).drawCircle(0, 0, 9).endFill();
+    g.lineStyle(1, 0x64748b, 0.35).drawCircle(0, 0, 14);
+    g.position.set(x, y);
+    layers.fx.addChild(g);
+    var u = { x: x, y: y, body: g, req: null, state: 'waiting', fadeStart: 0, seed: Math.random() * 100 };
+    users.push(u);
+    var be = pickBackend();
+    if (!be){ u.state = 'giveup'; u.fadeStart = performance.now(); return; }
+    var type = pickType();
+    var req = { user: u, type: type, be: be, state: 'queued', hit: false, total: 0, ray: null, dbMs: 0, cacheMs: 0 };
+    be.queue.push(req);
+    u.req = req;
+  }
+
+  function canHold(n, t){ return n.threadsUsed + t.cpu <= n.maxThreads && n.memUsed + t.mem <= n.memMax; }
+
+  function drainQueues(now){
+    nodes.forEach(function(n){
+      if (n.type !== 'backend' || n.failed) return;
+      while (n.queue.length){
+        var r = n.queue[0];
+        if (n.threadsUsed + r.type.cpu > n.maxThreads) break;
+        if (n.memUsed + r.type.mem > n.memMax){
+          n.queue.shift();
+          failReq(r, 'OOM 内存溢出');
+          continue;
+        }
+        n.queue.shift();
+        startRequest(r, now);
+      }
+    });
+  }
+
+  function startRequest(r, now){
+    var t = r.type, be = r.be;
+    var c = cacheNode();
+    var hit = t.cacheable && !!c && Math.random() < hitRate && canHold(c, t);
+    r.hit = hit;
+    var beMs = hit ? t.backendMs * 0.2 : t.backendMs;
+    var dbMs = hit ? 0 : t.dbMs;
+    var cacheMs = hit ? t.cacheMs : 0;
+    r.dbMs = dbMs;
+    r.cacheMs = cacheMs;
+    var d = dbMs ? dbNode() : null;
+    if (dbMs && (!d || d.failed || !canHold(d, t))){ failReq(r, '数据库不可用'); return; }
+    if (cacheMs && !canHold(c, t)){ failReq(r, '缓存不可用'); return; }
+    r.db = d;
+    r.cache = c;
+    r.total = 6 + beMs + dbMs + cacheMs;
+    be.threadsUsed += t.cpu;
+    be.memUsed += t.mem;
+    if (dbMs){ d.threadsUsed += t.cpu; d.memUsed += t.mem; }
+    if (cacheMs){ c.threadsUsed += t.cpu; c.memUsed += t.mem; }
+    be.active.push(r);
+    r.state = 'processing';
+    r.end = now + r.total;
+    r.user.state = 'processing';
+    makeRay(r);
+    floatText(r.user, t, r.ray.dur);
+  }
+
+  function failReq(r, label){
+    r.user.state = 'giveup';
+    r.user.fadeStart = performance.now();
+    var red = new PIXI.Text(label, { fontFamily:FG, fontSize:15, fill:0xf87171, fontWeight:'700' });
+    red.anchor.set(0.5);
+    red.position.set(r.be.x, r.be.y - r.be.h / 2 - 16);
+    layers.fx.addChild(red);
+    floats.push({ t: red, x: r.be.x, y: r.be.y - r.be.h / 2 - 16, start: performance.now(), dur: 900 });
+  }
+
+  function makeRay(r){
+    var u = r.user;
+    var gw = gwNode();
+    var pts = [[u.x, u.y], [gw.x, gw.y], [r.be.x, r.be.y]];
+    var cols = [0x22d3ee, 0xfbbf24];
+    if (r.hit){ pts.push([r.cache.x, r.cache.y]); cols.push(0x3b82f6); }
+    else { pts.push([r.db.x, r.db.y]); cols.push(0xa855f7); }
+    var lens = [], total = 0;
+    for (var i = 0; i < pts.length - 1; i++){
+      var dx = pts[i + 1][0] - pts[i][0], dy = pts[i + 1][1] - pts[i][1];
+      var L = Math.sqrt(dx * dx + dy * dy);
+      lens.push(L);
+      total += L;
+    }
+    var g = new PIXI.Graphics();
+    g.blendMode = PIXI.BLEND_MODES.ADD;
+    layers.fx.addChild(g);
+    r.ray = { req: r, pts: pts, cols: cols, lens: lens, total: total, dur: Math.max(300, r.total * 4), start: performance.now(), g: g, done: false, fired: [0, 0, 0, 0] };
+    rays.push(r.ray);
+  }
+
+  function fireWaypoint(ray, idx){
+    if (idx === 1){ var gw = gwNode(); if (gw) jitterNode(gw); }
+    else if (idx === 2){ if (ray.req) jitterNode(ray.req.be); }
+    else if (idx === 3){
+      if (ray.req){ var n = ray.req.hit ? ray.req.cache : ray.req.db; if (n) jitterNode(n); }
+    }
+  }
+
+  function updateRays(now){
+    for (var i = rays.length - 1; i >= 0; i--){
+      var r = rays[i];
+      var e = (now - r.start) / r.dur;
+      if (e >= 1){
+        r.g.destroy();
+        rays.splice(i, 1);
+        continue;
+      }
+      var g = r.g;
+      g.clear();
+      var remain = e * r.total;
+      var cx = r.pts[0][0], cy = r.pts[0][1];
+      var lastCol = r.cols[0];
+      for (var k = 0; k < r.lens.length; k++){
+        if (remain <= 0) break;
+        var L = r.lens[k];
+        var frac = remain >= L ? 1 : remain / L;
+        var x2 = r.pts[k + 1][0], y2 = r.pts[k + 1][1];
+        var ex = cx + (x2 - cx) * frac, ey = cy + (y2 - cy) * frac;
+        lastCol = r.cols[k];
+        g.lineStyle(6, lastCol, 0.28).moveTo(cx, cy).lineTo(ex, ey);
+        g.lineStyle(2, lastCol, 0.95).moveTo(cx, cy).lineTo(ex, ey);
+        if (remain >= L && !r.fired[k + 1]){ r.fired[k + 1] = 1; fireWaypoint(r, k + 1); }
+        cx = ex; cy = ey;
+        remain -= L;
+      }
+      g.beginFill(lastCol, 1).drawCircle(cx, cy, 4).endFill();
+    }
+  }
+
+  function floatText(u, t, dur){
+    var txt = new PIXI.Text(t.label, { fontFamily:FG, fontSize:16, fill:t.color, fontWeight:'700' });
+    txt.anchor.set(0.5);
+    txt.position.set(u.x, u.y - 20);
+    layers.fx.addChild(txt);
+    floats.push({ t: txt, x: u.x, y: u.y - 20, start: performance.now(), dur: dur });
+  }
+
+  function updateFloats(now, dt){
+    for (var i = floats.length - 1; i >= 0; i--){
+      var f = floats[i];
+      var e = (now - f.start) / f.dur;
+      if (e >= 1){
+        f.t.destroy();
+        floats.splice(i, 1);
+        continue;
+      }
+      f.t.position.y = f.y - e * 34;
+      f.t.alpha = e > 0.7 ? Math.max(0, 1 - (e - 0.7) / 0.3) : 1;
+    }
+  }
+
+  function updateUsers(now, dt){
+    for (var i = users.length - 1; i >= 0; i--){
+      var u = users[i];
+      if (u.state === 'waiting'){
+        u.body.scale.set(1 + 0.04 * Math.sin(now / 180 + u.seed));
+        continue;
+      }
+      var e = (now - u.fadeStart) / 500;
+      if (u.state === 'giveup' || u.state === 'done'){
+        if (e >= 1){ u.body.destroy(); users.splice(i, 1); continue; }
+        u.body.alpha = Math.max(0, 1 - e);
+        u.body.position.y = u.y - e * 8;
+      }
+    }
+  }
+
+  function jitterNode(n){
+    if (!n || n.failed) return;
+    if (now2() < (n.jitterEnd || 0)) return;
+    n.jitterEnd = now2() + 150;
+    n.jitter = { dx: (Math.random() * 2 - 1) * 2, dy: (Math.random() * 2 - 1) * 2, start: now2() };
+  }
+  var now2 = performance.now.bind(performance);
+
+  function updateJitters(now, dt){
+    nodes.forEach(function(n){
+      if (n.failed){ n.container.position.set(n.baseX, n.baseY); return; }
+      if (n.jitter){
+        var e = (now - n.jitter.start) / 150;
+        if (e >= 1){
+          n.container.position.set(n.baseX, n.baseY);
+          n.jitter = null;
+        } else {
+          var k = Math.pow(1 - e, 2);
+          n.container.position.set(n.baseX + n.jitter.dx * k, n.baseY + n.jitter.dy * k);
+        }
+      }
+    });
+  }
+
+  function updateGlows(now, dt){
+    nodes.forEach(function(n){
+      var m = Math.max(n.cpu, n.mem);
+      var target = 0;
+      if (m >= 95) target = 0.5 + 0.25 * Math.sin(now / 180);
+      else if (m >= 80) target = 0.38;
+      else if (m < 75) target = 0;
+      if (m >= 75 && m < 80) target = n.glowAlpha;
+      n.glowAlpha += (target - n.glowAlpha) * Math.min(1, dt * 0.012);
+      if (m < 75 && n.glowAlpha > 0){ n.glowAlpha = Math.max(0, n.glowAlpha - dt / 300); }
+      n.glow.clear();
+      if (n.glowAlpha > 0.01){
+        n.glow.beginFill(0xff3340, 0.12 * n.glowAlpha).lineStyle(6, 0xff3340, n.glowAlpha).drawRoundedRect(-n.w / 2 - 7, -n.h / 2 - 7, n.w + 14, n.h + 14, 16).endFill();
+      }
+    });
+  }
+
+  function updateSimUI(){
+    var now = performance.now();
+    while (completions.length && now - completions[0].t > 1000) completions.shift();
+    nodes.forEach(function(n){
+      n.cpu = n.maxThreads ? n.threadsUsed / n.maxThreads * 100 : 0;
+      n.mem = n.memMax ? n.memUsed / n.memMax * 100 : 0;
+      n.hist.push({ cpu: n.cpu, mem: n.mem });
+      if (n.hist.length > 60) n.hist.shift();
+      n.tps = 0;
+      for (var i = n.stamps.length - 1; i >= 0; i--){ if (now - n.stamps[i] < 1000) n.tps++; else break; }
+      if (n.statusText) n.statusText.text = 'CPU ' + Math.round(n.cpu) + '% · ' + Math.min(n.maxThreads, Math.round(n.threadsUsed)) + '/' + n.maxThreads;
+      if (n.statusText2) n.statusText2.text = 'MEM ' + Math.round(n.mem) + '%';
+    });
+    $('wl-qps-real').textContent = completions.length;
+    $('wl-users').textContent = users.length;
+    $('wl-qps-theory').textContent = Math.round(theoryQps());
+    var gRate = 0;
+    completions.forEach(function(c){ gRate += c.rev; });
+    $('wl-gold').textContent = Math.round(gold);
+    $('wl-gold-rate').textContent = gRate > 0 ? '+' + gRate + ' /秒' : '';
+    updateGoldUI();
+    updateDetailUI();
+  }
+
+  function theoryQps(){
+    var backendSum = 0, dbSum = 0, cacheSum = 0, hasAny = false;
+    nodes.forEach(function(n){
+      if (n.failed) return;
+      if (n.type === 'backend'){ backendSum += nodeTheory(n); hasAny = true; }
+      else if (n.type === 'db'){ dbSum += nodeTheory(n); hasAny = true; }
+      else if (n.type === 'cache'){ cacheSum += nodeTheory(n); hasAny = true; }
+    });
+    if (!hasAny) return 0;
+    var vals = [];
+    if (backendSum > 0) vals.push(backendSum);
+    if (dbSum > 0) vals.push(dbSum);
+    if (cacheSum > 0) vals.push(cacheSum);
+    if (!vals.length) return 0;
+    return Math.min.apply(null, vals);
+  }
+
+  function nodeTheory(n){
+    var types = enabledTypes();
+    if (!types.length) return 1000;
+    var hitShare = countNode('cache') > 0 ? hitRate : 0;
+    var sum = 0;
+    if (n.type === 'backend'){
+      types.forEach(function(k){ var t = CONFIG.reqTypes[k]; sum += t.backendMs * ((1 - hitShare) + hitShare * 0.2); });
+    } else if (n.type === 'db'){
+      types.forEach(function(k){ var t = CONFIG.reqTypes[k]; sum += t.dbMs * (t.cacheable ? (1 - hitShare) : 1); });
+    } else if (n.type === 'cache'){
+      types.forEach(function(k){ var t = CONFIG.reqTypes[k]; sum += t.cacheable ? t.cacheMs * hitShare : 0; });
+    } else {
+      return 1000;
+    }
+    var avg = sum / types.length;
+    return avg > 0 ? n.maxThreads / (avg / 1000) : 0;
+  }
+
+  function completeRequest(r, now){
+    var be = r.be;
+    be.threadsUsed -= r.type.cpu;
+    be.memUsed -= r.type.mem;
+    be.active = be.active.filter(function(x){ return x !== r; });
+    be.completed++;
+    be.stamps.push(now);
+    if (r.db){ r.db.threadsUsed -= r.type.cpu; r.db.memUsed -= r.type.mem; r.db.completed++; r.db.stamps.push(now); }
+    if (r.cache){ r.cache.threadsUsed -= r.type.cpu; r.cache.memUsed -= r.type.mem; r.cache.completed++; r.cache.stamps.push(now); }
+    gold += r.type.rev;
+    completions.push({ t: now, rev: r.type.rev });
+    if (r.user){ r.user.state = 'done'; r.user.fadeStart = now; }
+  }
+
+  (function completionLoop(){
+    setInterval(function(){
+      var now = performance.now();
+      nodes.forEach(function(n){
+        if (n.type !== 'backend') return;
+        for (var i = n.active.length - 1; i >= 0; i--){
+          if (now >= n.active[i].end) completeRequest(n.active[i], now);
+        }
+      });
+    }, 20);
+  })();
+
+  window.__wlReady = function(){ return ready; };
 })();
 </script>
 </body>
