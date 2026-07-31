@@ -723,13 +723,17 @@
   #intro-stage .text-error { color:#ff4444; }
   #intro-stage .dir-name { color:#4dabff; }
   #intro-stage .file-name { color:#e0e0e0; }
-  #intro-stage .term-tasks { display:none; position:absolute; top:3%; left:50%; transform:translateX(-50%); width:220px; background:rgba(255,255,255,.55); border:1px solid rgba(90,110,140,.28); border-radius:8px; padding:14px 12px; box-shadow:0 4px 16px rgba(0,0,0,.06); z-index:5; }
-  #intro-stage .term-tasks-hd { font-size:14px; font-weight:700; color:#5a6678; letter-spacing:1px; margin-bottom:10px; text-align:center; padding-bottom:6px; border-bottom:1px dashed rgba(90,110,140,.4); }
+  #intro-stage .term-tasks { display:none; position:absolute; top:2%; left:50%; transform:translateX(-50%); width:220px; height:260px; background:rgba(255,255,255,.55); border:1px solid rgba(90,110,140,.28); border-radius:8px; padding:10px 12px; box-shadow:0 4px 16px rgba(0,0,0,.06); z-index:5; }
+  #intro-stage .i-char.with-tasks .term-tasks { display:flex; flex-direction:column; }
+  #intro-stage .term-tasks-hd { font-size:14px; font-weight:700; color:#5a6678; letter-spacing:1px; margin-bottom:8px; text-align:center; padding-bottom:6px; border-bottom:1px dashed rgba(90,110,140,.4); flex-shrink:0; }
+  #intro-stage .term-tasks-list { flex:1; min-height:0; overflow-y:auto; padding-right:2px; }
+  #intro-stage .term-tasks-list::-webkit-scrollbar { width:6px; }
+  #intro-stage .term-tasks-list::-webkit-scrollbar-track { background:transparent; }
+  #intro-stage .term-tasks-list::-webkit-scrollbar-thumb { background:rgba(90,110,140,.35); border-radius:3px; }
   #intro-stage .term-task { font-size:13px; line-height:1.5; color:#4a5568; padding:5px 2px; margin-bottom:4px; display:flex; align-items:flex-start; gap:6px; }
   #intro-stage .term-task::before { content:'☐'; flex-shrink:0; color:#9aa3b0; margin-top:1px; }
   #intro-stage .term-task.done { color:#7cb342; text-decoration:line-through; text-decoration-color:rgba(124,179,66,.8); }
   #intro-stage .term-task.done::before { content:'✓'; color:#52c41a; }
-  #intro-stage .i-char.with-tasks .term-tasks { display:block; }
 </style>
 
 <style id="app-theme-css">
@@ -782,12 +786,21 @@
       <div class="pm-chip" id="pm-chip"><span class="pc-ico"></span><span class="pc-lbl"></span></div>
       <div class="term-tasks">
         <div class="term-tasks-hd">部署任务清单</div>
-        <div class="term-task" data-task="mkdir-front">创建前端目录 mkdir frontEnd</div>
-        <div class="term-task" data-task="cp-front">部署前端代码 cp note.* frontEnd</div>
-        <div class="term-task" data-task="mkdir-back">创建后端目录 mkdir backEnd</div>
-        <div class="term-task" data-task="cp-back">部署后端代码 cp note.py backEnd</div>
-        <div class="term-task" data-task="tree">查看目录结构 tree</div>
-        <div class="term-task" data-task="run">启动服务 run</div>
+        <div class="term-tasks-list">
+          <div class="term-task" data-task="ls">ls 查看当前目录</div>
+          <div class="term-task" data-task="mkdir-front">mkdir frontEnd 创建前端目录</div>
+          <div class="term-task" data-task="cd-front">cd frontEnd 进入前端目录</div>
+          <div class="term-task" data-task="cp-html">cp note.html . 部署页面文件</div>
+          <div class="term-task" data-task="cp-css">cp note.css . 部署样式文件</div>
+          <div class="term-task" data-task="cp-js">cp note.js . 部署脚本文件</div>
+          <div class="term-task" data-task="cd-up-1">cd .. 返回根目录</div>
+          <div class="term-task" data-task="mkdir-back">mkdir backEnd 创建后端目录</div>
+          <div class="term-task" data-task="cd-back">cd backEnd 进入后端目录</div>
+          <div class="term-task" data-task="cp-py">cp note.py . 部署后端服务</div>
+          <div class="term-task" data-task="cd-up-2">cd .. 返回根目录</div>
+          <div class="term-task" data-task="tree">tree 查看目录结构</div>
+          <div class="term-task" data-task="run">run 启动服务</div>
+        </div>
       </div>
       <img id="i-char-img" alt="" /><div class="i-char-name" id="i-char-name"></div>
     </div>
@@ -2512,6 +2525,7 @@
       }
       termPath = '/' + absParts.join('/');
       if (termPath === '/') termPath = '/';
+      termCdFlags();
       return;
     }
     target = target.replace(/\/+$/, '');
@@ -2521,15 +2535,21 @@
         parts.pop();
         termPath = '/' + parts.join('/');
         if (termPath === '/') termPath = '/';
+        _termTasks.cdUp++;
       }
       return;
     }
     var dir = termDir();
     if (dir.children[target] && dir.children[target].type === 'dir'){
       termPath = termPath === '/' ? '/' + target : termPath + '/' + target;
+      termCdFlags();
     } else {
       termPrint('bash: cd: ' + target + ': No such file or directory', 'text-error');
     }
+  }
+  function termCdFlags(){
+    if (termPath === '/frontEnd') _termTasks.cdFront = true;
+    if (termPath === '/backEnd') _termTasks.cdBack = true;
   }
   function termCp(args){
     if (args.length < 2){ termPrint('cp: missing file operand', 'text-error'); return; }
@@ -2574,21 +2594,46 @@
     if (!hasBack) termPrint('  - backEnd files not found (need note.py)', 'text-error');
     return false;
   }
-  var _termTasks = { tree:false, run:false };
+  var _termTasks = { ls:false, cdFront:false, cdBack:false, cdUp:0, tree:false, run:false };
   function termUpdateTasks(){
     var root = termFs['/'];
     var front = root.children['frontEnd'];
     var back = root.children['backEnd'];
-    var setTask = function(key, on){
-      var t = document.querySelector('.term-tasks [data-task="' + key + '"]');
-      if (t) t.classList.toggle('done', !!on);
-    };
-    setTask('mkdir-front', !!front);
-    setTask('cp-front', !!(front && front.children['note.html'] && front.children['note.css'] && front.children['note.js']));
-    setTask('mkdir-back', !!back);
-    setTask('cp-back', !!(back && back.children['note.py']));
-    setTask('tree', _termTasks.tree);
-    setTask('run', _termTasks.run);
+    var done = {};
+    done['ls'] = _termTasks.ls;
+    done['mkdir-front'] = !!front;
+    done['cd-front'] = _termTasks.cdFront;
+    done['cp-html'] = !!(front && front.children['note.html']);
+    done['cp-css'] = !!(front && front.children['note.css']);
+    done['cp-js'] = !!(front && front.children['note.js']);
+    done['cd-up-1'] = _termTasks.cdUp >= 1;
+    done['mkdir-back'] = !!back;
+    done['cd-back'] = _termTasks.cdBack;
+    done['cp-py'] = !!(back && back.children['note.py']);
+    done['cd-up-2'] = _termTasks.cdUp >= 2;
+    done['tree'] = _termTasks.tree;
+    done['run'] = _termTasks.run;
+    var wrap = document.querySelector('.term-tasks-list');
+    if (wrap){
+      var tasks = wrap.querySelectorAll('.term-task');
+      for (var i = 0; i < tasks.length; i++){
+        tasks[i].classList.toggle('done', !!done[tasks[i].getAttribute('data-task')]);
+      }
+    }
+    termScrollTasks();
+  }
+  function termScrollTasks(){
+    var wrap = document.querySelector('.term-tasks-list');
+    if (!wrap) return;
+    var nextTask = wrap.querySelector('.term-task:not(.done)');
+    if (!nextTask) return;
+    var wr = wrap.getBoundingClientRect();
+    var tr = nextTask.getBoundingClientRect();
+    if (tr.top < wr.top){
+      wrap.scrollTop -= (wr.top - tr.top);
+    } else if (tr.bottom > wr.bottom){
+      wrap.scrollTop += (tr.bottom - wr.bottom);
+    }
   }
   function termExec(input){
     var trimmed = input.trim();
@@ -2598,7 +2643,7 @@
     var cmd = parts[0].toLowerCase();
     var args = parts.slice(1);
     switch (cmd){
-      case 'ls': termLs(); break;
+      case 'ls': termLs(); _termTasks.ls = true; break;
       case 'mkdir': termMkdir(args); break;
       case 'cd': termCd(args); break;
       case 'cp': termCp(args); break;
@@ -3684,7 +3729,10 @@
     if (s.fn) s.fn();
     var charCol = document.querySelector('.i-char');
     var termOn = el('i-terminal') && el('i-terminal').style.display !== 'none';
-    if (charCol) charCol.classList.toggle('with-tasks', !!termOn);
+    if (charCol){
+      charCol.classList.toggle('with-tasks', !!termOn);
+      if (termOn) charCol.style.display = '';
+    }
     if (!DRAG_STEPS[i]) hideChip();
     updateMap(stageOf(i));
     toggleColorBlobs(i === 12);
@@ -3857,7 +3905,7 @@
   }
 
   el('intro-stage').addEventListener('click', function(e){
-    if (e.target.closest('.i-corner') || e.target.closest('#i-enter') || e.target.closest('.color-blob') || e.target.closest('.pm-chip') || e.target.closest('.i-map-node') || e.target.closest('.deploy-card') || e.target.closest('.zone-box') || e.target.closest('.deploy-success') || e.target.closest('#i-terminal')) return;
+    if (e.target.closest('.i-corner') || e.target.closest('#i-enter') || e.target.closest('.color-blob') || e.target.closest('.pm-chip') || e.target.closest('.i-map-node') || e.target.closest('.deploy-card') || e.target.closest('.zone-box') || e.target.closest('.deploy-success') || e.target.closest('#i-terminal') || e.target.closest('.term-tasks')) return;
     if (_backendDbPending && !e.target.closest('#i-er-main-canvas')){
       _backendDbPending = false;
       magicErToTable();
