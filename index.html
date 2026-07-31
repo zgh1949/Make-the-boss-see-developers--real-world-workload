@@ -723,6 +723,13 @@
   #intro-stage .text-error { color:#ff4444; }
   #intro-stage .dir-name { color:#4dabff; }
   #intro-stage .file-name { color:#e0e0e0; }
+  #intro-stage .term-tasks { display:none; position:absolute; top:3%; left:50%; transform:translateX(-50%); width:220px; background:rgba(255,255,255,.55); border:1px solid rgba(90,110,140,.28); border-radius:8px; padding:14px 12px; box-shadow:0 4px 16px rgba(0,0,0,.06); z-index:5; }
+  #intro-stage .term-tasks-hd { font-size:14px; font-weight:700; color:#5a6678; letter-spacing:1px; margin-bottom:10px; text-align:center; padding-bottom:6px; border-bottom:1px dashed rgba(90,110,140,.4); }
+  #intro-stage .term-task { font-size:13px; line-height:1.5; color:#4a5568; padding:5px 2px; margin-bottom:4px; display:flex; align-items:flex-start; gap:6px; }
+  #intro-stage .term-task::before { content:'☐'; flex-shrink:0; color:#9aa3b0; margin-top:1px; }
+  #intro-stage .term-task.done { color:#7cb342; text-decoration:line-through; text-decoration-color:rgba(124,179,66,.8); }
+  #intro-stage .term-task.done::before { content:'✓'; color:#52c41a; }
+  #intro-stage .i-char.with-tasks .term-tasks { display:block; }
 </style>
 
 <style id="app-theme-css">
@@ -773,6 +780,15 @@
       <div class="color-blobs" id="color-blobs"></div>
       <div class="color-hint" id="color-hint">选一个颜料，拖到设计稿上 -&gt;</div>
       <div class="pm-chip" id="pm-chip"><span class="pc-ico"></span><span class="pc-lbl"></span></div>
+      <div class="term-tasks">
+        <div class="term-tasks-hd">部署任务清单</div>
+        <div class="term-task" data-task="mkdir-front">创建前端目录 mkdir frontEnd</div>
+        <div class="term-task" data-task="cp-front">部署前端代码 cp note.* frontEnd</div>
+        <div class="term-task" data-task="mkdir-back">创建后端目录 mkdir backEnd</div>
+        <div class="term-task" data-task="cp-back">部署后端代码 cp note.py backEnd</div>
+        <div class="term-task" data-task="tree">查看目录结构 tree</div>
+        <div class="term-task" data-task="run">启动服务 run</div>
+      </div>
       <img id="i-char-img" alt="" /><div class="i-char-name" id="i-char-name"></div>
     </div>
     <div class="i-stage-area">
@@ -2551,11 +2567,28 @@
     var hasBack = root.children['backEnd'] && root.children['backEnd'].children['note.py'];
     if (hasFront && hasBack){
       termPrint('<span class="text-success">Note app is active!</span>');
-    } else {
-      termPrint('Error: Missing required files to run Note app', 'text-error');
-      if (!hasFront) termPrint('  - frontEnd files not found (need note.html, note.css, note.js)', 'text-error');
-      if (!hasBack) termPrint('  - backEnd files not found (need note.py)', 'text-error');
+      return true;
     }
+    termPrint('Error: Missing required files to run Note app', 'text-error');
+    if (!hasFront) termPrint('  - frontEnd files not found (need note.html, note.css, note.js)', 'text-error');
+    if (!hasBack) termPrint('  - backEnd files not found (need note.py)', 'text-error');
+    return false;
+  }
+  var _termTasks = { tree:false, run:false };
+  function termUpdateTasks(){
+    var root = termFs['/'];
+    var front = root.children['frontEnd'];
+    var back = root.children['backEnd'];
+    var setTask = function(key, on){
+      var t = document.querySelector('.term-tasks [data-task="' + key + '"]');
+      if (t) t.classList.toggle('done', !!on);
+    };
+    setTask('mkdir-front', !!front);
+    setTask('cp-front', !!(front && front.children['note.html'] && front.children['note.css'] && front.children['note.js']));
+    setTask('mkdir-back', !!back);
+    setTask('cp-back', !!(back && back.children['note.py']));
+    setTask('tree', _termTasks.tree);
+    setTask('run', _termTasks.run);
   }
   function termExec(input){
     var trimmed = input.trim();
@@ -2569,10 +2602,11 @@
       case 'mkdir': termMkdir(args); break;
       case 'cd': termCd(args); break;
       case 'cp': termCp(args); break;
-      case 'tree': termTree(); break;
-      case 'run': termRun(); break;
+      case 'tree': termTree(); _termTasks.tree = true; break;
+      case 'run': _termTasks.run = termRun(); break;
       default: termPrint('bash: ' + cmd + ': command not found', 'text-error');
     }
+    termUpdateTasks();
     termPromptText();
     termBody.scrollTop = termBody.scrollHeight;
   }
@@ -2623,6 +2657,7 @@
   function showTerminalScene(){
     showRegion('i-terminal');
     termPromptText();
+    termUpdateTasks();
     termInput.focus();
   }
 
@@ -3647,6 +3682,9 @@
       bubble.classList.toggle('narrate', !s.char);
     }
     if (s.fn) s.fn();
+    var charCol = document.querySelector('.i-char');
+    var termOn = el('i-terminal') && el('i-terminal').style.display !== 'none';
+    if (charCol) charCol.classList.toggle('with-tasks', !!termOn);
     if (!DRAG_STEPS[i]) hideChip();
     updateMap(stageOf(i));
     toggleColorBlobs(i === 12);
