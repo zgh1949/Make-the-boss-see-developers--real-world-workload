@@ -704,21 +704,21 @@
   #intro-stage .i-bar-btn { background:#fff; border:2px solid #e1e6ed; padding:10px 16px; border-radius:14px; font-weight:800; color:#5a6678; cursor:pointer; transition:all .2s; font-family:inherit; font-size:13px; }
   #intro-stage .i-bar-btn:hover { background:#f5f8ff; border-color:#2f6fed; color:#2f6fed; transform:translateY(-2px); }
   #intro-stage .i-bar-btn:active { transform:translateY(0); }
-  #intro-stage .terminal-window { width:480px; max-width:92vw; background:#0d0d0d; border:4px solid #333; box-shadow:0 0 0 2px #000, 0 0 0 4px #555, 8px 8px 0 rgba(0,0,0,.5); image-rendering:pixelated; }
+  #intro-stage .terminal-window { width:640px; height:480px; display:flex; flex-direction:column; background:#0d0d0d; border:4px solid #333; box-shadow:0 0 0 2px #000, 0 0 0 4px #555, 8px 8px 0 rgba(0,0,0,.5); image-rendering:pixelated; }
   #intro-stage .terminal-header { height:28px; background:linear-gradient(to bottom,#444,#222); border-bottom:2px solid #000; display:flex; align-items:center; padding:0 8px; gap:6px; }
   #intro-stage .terminal-btn { width:12px; height:12px; border:1px solid #000; border-radius:0; }
   #intro-stage .btn-close { background:#ff5f56; }
   #intro-stage .btn-min { background:#ffbd2e; }
   #intro-stage .btn-max { background:#27ca40; }
   #intro-stage .terminal-title { color:#aaa; font-size:12px; margin-left:10px; letter-spacing:1px; }
-  #intro-stage .terminal-body { padding:12px; min-height:320px; max-height:52vh; overflow-y:auto; color:#00ff41; font-size:14px; line-height:1.6; background:#0a0a0a; font-family:'Courier New','Consolas',monospace; }
+  #intro-stage .terminal-body { padding:12px; flex:1; min-height:0; overflow-y:auto; color:#00ff41; font-size:21px; line-height:1.6; background:#0a0a0a; font-family:'Courier New','Consolas',monospace; }
   #intro-stage .terminal-body::-webkit-scrollbar { width:8px; }
   #intro-stage .terminal-body::-webkit-scrollbar-track { background:#1a1a1a; }
   #intro-stage .terminal-body::-webkit-scrollbar-thumb { background:#444; border:1px solid #222; }
   #intro-stage .output-line { white-space:pre-wrap; word-break:break-all; }
   #intro-stage .prompt { color:#00ff41; }
   #intro-stage .input-line { display:flex; align-items:center; }
-  #intro-stage .input-line input { flex:1; background:transparent; border:none; outline:none; color:#00ff41; font-family:inherit; font-size:14px; caret-color:#00ff41; margin-left:4px; }
+  #intro-stage .input-line input { flex:1; background:transparent; border:none; outline:none; color:#00ff41; font-family:inherit; font-size:21px; caret-color:#00ff41; margin-left:4px; }
   #intro-stage .text-success { color:#00ff41; font-weight:bold; text-shadow:0 0 5px rgba(0,255,65,.5); }
   #intro-stage .text-error { color:#ff4444; }
   #intro-stage .dir-name { color:#4dabff; }
