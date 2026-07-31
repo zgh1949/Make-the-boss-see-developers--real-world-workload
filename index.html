@@ -704,6 +704,25 @@
   #intro-stage .i-bar-btn { background:#fff; border:2px solid #e1e6ed; padding:10px 16px; border-radius:14px; font-weight:800; color:#5a6678; cursor:pointer; transition:all .2s; font-family:inherit; font-size:13px; }
   #intro-stage .i-bar-btn:hover { background:#f5f8ff; border-color:#2f6fed; color:#2f6fed; transform:translateY(-2px); }
   #intro-stage .i-bar-btn:active { transform:translateY(0); }
+  #intro-stage .terminal-window { width:480px; max-width:92vw; background:#0d0d0d; border:4px solid #333; box-shadow:0 0 0 2px #000, 0 0 0 4px #555, 8px 8px 0 rgba(0,0,0,.5); image-rendering:pixelated; }
+  #intro-stage .terminal-header { height:28px; background:linear-gradient(to bottom,#444,#222); border-bottom:2px solid #000; display:flex; align-items:center; padding:0 8px; gap:6px; }
+  #intro-stage .terminal-btn { width:12px; height:12px; border:1px solid #000; border-radius:0; }
+  #intro-stage .btn-close { background:#ff5f56; }
+  #intro-stage .btn-min { background:#ffbd2e; }
+  #intro-stage .btn-max { background:#27ca40; }
+  #intro-stage .terminal-title { color:#aaa; font-size:12px; margin-left:10px; letter-spacing:1px; }
+  #intro-stage .terminal-body { padding:12px; min-height:320px; max-height:52vh; overflow-y:auto; color:#00ff41; font-size:14px; line-height:1.6; background:#0a0a0a; font-family:'Courier New','Consolas',monospace; }
+  #intro-stage .terminal-body::-webkit-scrollbar { width:8px; }
+  #intro-stage .terminal-body::-webkit-scrollbar-track { background:#1a1a1a; }
+  #intro-stage .terminal-body::-webkit-scrollbar-thumb { background:#444; border:1px solid #222; }
+  #intro-stage .output-line { white-space:pre-wrap; word-break:break-all; }
+  #intro-stage .prompt { color:#00ff41; }
+  #intro-stage .input-line { display:flex; align-items:center; }
+  #intro-stage .input-line input { flex:1; background:transparent; border:none; outline:none; color:#00ff41; font-family:inherit; font-size:14px; caret-color:#00ff41; margin-left:4px; }
+  #intro-stage .text-success { color:#00ff41; font-weight:bold; text-shadow:0 0 5px rgba(0,255,65,.5); }
+  #intro-stage .text-error { color:#ff4444; }
+  #intro-stage .dir-name { color:#4dabff; }
+  #intro-stage .file-name { color:#e0e0e0; }
 </style>
 
 <style id="app-theme-css">
@@ -874,6 +893,27 @@
           <div class="deploy-card" id="deploy-card-back"><div class="card-icon">⬡</div><div class="card-title">后端代码包</div><div class="card-desc">Java/Python</div></div>
         </div>
         <div class="deploy-hint">把代码包拖拽到对应的服务器目录中</div>
+      </div>
+      <div class="i-region" id="i-terminal" style="display:none;">
+        <div class="terminal-window">
+          <div class="terminal-header">
+            <div class="terminal-btn btn-close"></div>
+            <div class="terminal-btn btn-min"></div>
+            <div class="terminal-btn btn-max"></div>
+            <span class="terminal-title">root@linux: ~</span>
+          </div>
+          <div class="terminal-body" id="term-body">
+            <div class="output-line">Welcome to Pixel Linux Terminal</div>
+            <div class="output-line">代码包已备好，试试：mkdir frontEnd, cp note.html frontEnd, tree, run</div>
+            <div class="output-line">按 Tab 键可自动补全命令和文件名</div>
+            <div class="output-line">&nbsp;</div>
+            <div id="term-output"></div>
+            <div class="input-line">
+              <span class="prompt" id="term-prompt">&gt;</span>
+              <input type="text" id="term-input" autocomplete="off" spellcheck="false">
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="i-bubble" id="i-bubble"></div>
@@ -1815,7 +1855,7 @@
   }
 
   function showRegion(name){
-    ['i-ref','i-mock','i-overview','i-brainstorm','i-bar','i-deploy'].forEach(function(id){ el(id).style.display = (id === name ? '' : 'none'); });
+    ['i-ref','i-mock','i-overview','i-brainstorm','i-bar','i-deploy','i-terminal'].forEach(function(id){ el(id).style.display = (id === name ? '' : 'none'); });
   }
   function setChar(name){
     var col = charImg.parentElement;
@@ -2391,6 +2431,199 @@
         canvas.appendChild(div);
       }
     }
+  }
+
+  var termFs = { '/': { type:'dir', children:{} } };
+  var termPath = '/';
+  var termOutput = el('term-output');
+  var termInput = el('term-input');
+  var termPromptEl = el('term-prompt');
+  var termBody = el('term-body');
+  function termPromptText(){
+    termPromptEl.textContent = termPath === '/' ? '>' : termPath + ' >';
+  }
+  function termDir(){
+    var parts = termPath.split('/').filter(function(p){ return p; });
+    var dir = termFs['/'];
+    for (var i = 0; i < parts.length; i++){
+      if (dir.children[parts[i]] && dir.children[parts[i]].type === 'dir') dir = dir.children[parts[i]];
+    }
+    return dir;
+  }
+  function termPrint(text, cls){
+    var line = document.createElement('div');
+    line.className = 'output-line' + (cls ? ' ' + cls : '');
+    line.innerHTML = text;
+    termOutput.appendChild(line);
+    termBody.scrollTop = termBody.scrollHeight;
+  }
+  function termEscape(text){
+    var div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+  function termEcho(cmd){
+    var promptText = termPath === '/' ? '>' : termPath + ' >';
+    termPrint('<span class="prompt">' + promptText + '</span> ' + termEscape(cmd));
+  }
+  function termLs(){
+    var items = Object.keys(termDir().children);
+    if (!items.length) return;
+    items.forEach(function(name){
+      var it = termDir().children[name];
+      if (it.type === 'dir') termPrint('<span class="dir-name">' + name + '</span>');
+      else termPrint('<span class="file-name">' + name + '</span>');
+    });
+  }
+  function termMkdir(args){
+    if (!args.length){ termPrint('mkdir: missing operand', 'text-error'); return; }
+    var dir = termDir(), name = args[0].replace(/\/+$/, '');
+    if (!name) return;
+    if (dir.children[name]){ termPrint('mkdir: cannot create directory \u2018' + name + '\u2019: File exists', 'text-error'); return; }
+    dir.children[name] = { type:'dir', children:{} };
+  }
+  function termCd(args){
+    if (!args.length){ termPath = '/'; return; }
+    var target = args[0];
+    if (target === '/'){ termPath = '/'; return; }
+    if (target === '.'){ return; }
+    if (target.charAt(0) === '/'){
+      var absParts = target.split('/').filter(function(p){ return p; });
+      var absDir = termFs['/'];
+      for (var ai = 0; ai < absParts.length; ai++){
+        if (absDir.children[absParts[ai]] && absDir.children[absParts[ai]].type === 'dir') absDir = absDir.children[absParts[ai]];
+        else { termPrint('bash: cd: ' + target + ': No such file or directory', 'text-error'); return; }
+      }
+      termPath = '/' + absParts.join('/');
+      if (termPath === '/') termPath = '/';
+      return;
+    }
+    target = target.replace(/\/+$/, '');
+    if (target === '..'){
+      if (termPath !== '/'){
+        var parts = termPath.split('/').filter(function(p){ return p; });
+        parts.pop();
+        termPath = '/' + parts.join('/');
+        if (termPath === '/') termPath = '/';
+      }
+      return;
+    }
+    var dir = termDir();
+    if (dir.children[target] && dir.children[target].type === 'dir'){
+      termPath = termPath === '/' ? '/' + target : termPath + '/' + target;
+    } else {
+      termPrint('bash: cd: ' + target + ': No such file or directory', 'text-error');
+    }
+  }
+  function termCp(args){
+    if (args.length < 2){ termPrint('cp: missing file operand', 'text-error'); return; }
+    var dest = args[args.length - 1].replace(/\/+$/, '');
+    var sources = args.slice(0, -1);
+    var dir = termDir();
+    var targetDir = dest === '.' ? dir : (dir.children[dest] && dir.children[dest].type === 'dir' ? dir.children[dest] : null);
+    if (!targetDir){ termPrint('cp: target \u2018' + dest + '\u2019: No such directory', 'text-error'); return; }
+    var files = ['note.html', 'note.css', 'note.js', 'note.py'];
+    sources.forEach(function(src){
+      if (files.indexOf(src) >= 0){
+        targetDir.children[src] = { type:'file', content:'' };
+      } else {
+        termPrint('cp: cannot stat \u2018' + src + '\u2019: No such file or directory', 'text-error');
+      }
+    });
+  }
+  function termTree(){
+    termPrint('.');
+    termTreeWalk(termDir().children, '');
+  }
+  function termTreeWalk(children, prefix){
+    var keys = Object.keys(children);
+    keys.forEach(function(name, i){
+      var last = i === keys.length - 1;
+      var conn = last ? '\u2514\u2500\u2500 ' : '\u251c\u2500\u2500 ';
+      var it = children[name];
+      termPrint(prefix + conn + '<span class="' + (it.type === 'dir' ? 'dir-name' : 'file-name') + '">' + name + '</span>');
+      if (it.type === 'dir') termTreeWalk(it.children, prefix + (last ? '    ' : '\u2502   '));
+    });
+  }
+  function termRun(){
+    var root = termFs['/'];
+    var hasFront = root.children['frontEnd'] && root.children['frontEnd'].children['note.html'] && root.children['frontEnd'].children['note.css'] && root.children['frontEnd'].children['note.js'];
+    var hasBack = root.children['backEnd'] && root.children['backEnd'].children['note.py'];
+    if (hasFront && hasBack){
+      termPrint('<span class="text-success">Note app is active!</span>');
+    } else {
+      termPrint('Error: Missing required files to run Note app', 'text-error');
+      if (!hasFront) termPrint('  - frontEnd files not found (need note.html, note.css, note.js)', 'text-error');
+      if (!hasBack) termPrint('  - backEnd files not found (need note.py)', 'text-error');
+    }
+  }
+  function termExec(input){
+    var trimmed = input.trim();
+    if (!trimmed) return;
+    termEcho(trimmed);
+    var parts = trimmed.split(/\s+/);
+    var cmd = parts[0].toLowerCase();
+    var args = parts.slice(1);
+    switch (cmd){
+      case 'ls': termLs(); break;
+      case 'mkdir': termMkdir(args); break;
+      case 'cd': termCd(args); break;
+      case 'cp': termCp(args); break;
+      case 'tree': termTree(); break;
+      case 'run': termRun(); break;
+      default: termPrint('bash: ' + cmd + ': command not found', 'text-error');
+    }
+    termPromptText();
+    termBody.scrollTop = termBody.scrollHeight;
+  }
+  var termCmds = ['ls', 'mkdir', 'cd', 'cp', 'tree', 'run'];
+  function termComplete(){
+    var val = termInput.value;
+    var m = val.match(/(\S*)$/);
+    var cur = m ? m[1] : '';
+    var prefix = val.slice(0, val.length - cur.length);
+    var isArg = /\s/.test(prefix);
+    if (!isArg){
+      if (!cur){ termPrint(termCmds.join('  ')); return; }
+      var cmdMatches = termCmds.filter(function(c){ return c.indexOf(cur) === 0; });
+      if (cmdMatches.length === 1){
+        termInput.value = cmdMatches[0] + ' ';
+      } else if (cmdMatches.length > 1){
+        termPrint(cmdMatches.join('  '));
+      }
+      return;
+    }
+    var baseDir = termDir();
+    var namePart = cur;
+    var slashIdx = cur.lastIndexOf('/');
+    if (slashIdx >= 0){
+      var dirPart = cur.slice(0, slashIdx + 1);
+      namePart = cur.slice(slashIdx + 1);
+      var segs = dirPart.split('/').filter(function(s){ return s; });
+      for (var i = 0; i < segs.length; i++){
+        var next = baseDir.children[segs[i]];
+        if (!next || next.type !== 'dir') return;
+        baseDir = next;
+      }
+    }
+    var entries = Object.keys(baseDir.children).filter(function(n){ return n.indexOf(namePart) === 0; });
+    if (entries.length === 1){
+      var one = entries[0];
+      var isDir = baseDir.children[one].type === 'dir';
+      termInput.value = val.slice(0, val.length - cur.length) + one + (isDir ? '/' : ' ');
+    } else if (entries.length > 1){
+      termPrint(entries.join('  '));
+    }
+  }
+  termInput.addEventListener('keydown', function(e){
+    if (e.key === 'Enter'){ termExec(termInput.value); termInput.value = ''; }
+    else if (e.key === 'Tab'){ e.preventDefault(); termComplete(); }
+  });
+  termBody.addEventListener('click', function(){ termInput.focus(); });
+  function showTerminalScene(){
+    showRegion('i-terminal');
+    termPromptText();
+    termInput.focus();
   }
 
   // ---------- 作品展示帧 ----------
@@ -3108,7 +3341,9 @@
     { char:null, nobubble:true, cap:'一个真实用户：「一份炒饭，谢谢」', fn:function(){ } },
     { char:'ops', nobubble:true, cap:'运维人员登场', fn:function(){ playReveal('ops'); } },
     { char:'ops', cap:'让我看看部署环境……', fn:function(){ playBrainstorm('ops'); } },
-    { char:'ops', cap:'来，把前端和后端的代码分别打包，然后部署到服务器上', fn:function(){ showDeployScene(); } }
+    { char:'ops', cap:'来，把前端和后端的代码分别打包，然后部署到服务器上', fn:function(){ showDeployScene(); } },
+    { char:'ops', cap:'部署完成！用终端把代码包部署到服务器目录，再启动服务', fn:function(){ showTerminalScene(); } },
+    { char:null, nobubble:true, cap:'在终端试试：mkdir、cp、tree、run', fn:function(){ } }
   ];
 
   // ---------- UI 设计阶段：漂浮颜色拖拽 ----------
@@ -3584,7 +3819,7 @@
   }
 
   el('intro-stage').addEventListener('click', function(e){
-    if (e.target.closest('.i-corner') || e.target.closest('#i-enter') || e.target.closest('.color-blob') || e.target.closest('.pm-chip') || e.target.closest('.i-map-node') || e.target.closest('.deploy-card') || e.target.closest('.zone-box') || e.target.closest('.deploy-success')) return;
+    if (e.target.closest('.i-corner') || e.target.closest('#i-enter') || e.target.closest('.color-blob') || e.target.closest('.pm-chip') || e.target.closest('.i-map-node') || e.target.closest('.deploy-card') || e.target.closest('.zone-box') || e.target.closest('.deploy-success') || e.target.closest('#i-terminal')) return;
     if (_backendDbPending && !e.target.closest('#i-er-main-canvas')){
       _backendDbPending = false;
       magicErToTable();
@@ -3598,6 +3833,7 @@
       return;
     }
     if (el('intro-stage').style.display === 'none') return;
+    if (e.target && e.target.closest && e.target.closest('#i-terminal')) return;
     if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
     else if (e.key === 'ArrowLeft') { prev(); }
   });
