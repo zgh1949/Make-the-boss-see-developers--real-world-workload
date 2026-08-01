@@ -263,9 +263,7 @@
 #intro-stage * { box-sizing:border-box; }
 #intro-stage .i-top { flex:1; display:flex; align-items:center; justify-content:center; gap:18px; padding:20px 36px; min-height:0; position:relative; overflow:visible; }
 #intro-stage .i-char { width:360px; flex-shrink:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
-#intro-stage .i-char img { max-height:70vh; max-width:100%; object-fit:contain; filter:drop-shadow(0 12px 24px rgba(0,0,0,.18)); transition:opacity .35s; }
-/* 针对后端工程师立绘单独调整大小 */
-#intro-stage .i-char.char-be img { max-height:38vh; }
+#intro-stage .i-char img { max-height:70vh; max-width:100%; aspect-ratio:4/3; object-fit:contain; filter:drop-shadow(0 12px 24px rgba(0,0,0,.18)); transition:opacity .35s; }
 #intro-stage .i-char-name { margin-top:4px; font-size:15px; font-weight:700; color:#5a6678; }
 #intro-stage .i-stage-area { flex:1; display:flex; align-items:center; justify-content:center; min-height:0; min-width:0; }
 #intro-stage .i-region { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; }
@@ -621,9 +619,8 @@
   @keyframes stripeSlide { from{ transform:translate(0,0); } to{ transform:translate(68px,-68px); } }
   #intro-stage .i-reveal-left { position:relative; z-index:2; flex:0 0 46%; height:100%; display:flex; align-items:center; justify-content:center; }
   #intro-stage .i-reveal-left img { max-height:70vh; max-width:100%; object-fit:contain; filter:drop-shadow(0 18px 36px rgba(0,0,0,.32)); animation: revealImg .7s cubic-bezier(.2,.85,.2,1); }
-  /* 针对后端工程师立绘单独调整大小 */
-  #intro-stage .reveal-be .i-reveal-left img { max-height:38vh; }
-  #intro-stage .reveal-ops .i-reveal-left img { max-height:38vh; }
+  #intro-stage .reveal-be .i-reveal-left img,
+  #intro-stage .reveal-test .i-reveal-left img { max-height:min(35vh, 350px); }
   @keyframes revealImg { from{ transform:translateX(-80px) scale(.92); opacity:0; } to{ transform:translateX(0) scale(1); opacity:1; } }
   #intro-stage .i-reveal-right { position:relative; z-index:2; flex:1; padding:0 7% 0 3%; color:#fff; transition:opacity .3s ease; }
   #intro-stage .i-reveal-role { font-size:14px; font-weight:800; letter-spacing:9px; opacity:.82; animation: revealTxt .5s .2s both; }
@@ -3683,6 +3680,7 @@
   // 标记是否正在进行登场过渡
   var isRevealTransitioning = false;
   function go(i){
+    if (isRevealTransitioning) return;
     if (i < 0 || i >= STEPS.length) return;
     // 检查是否是从登场页面往后走
     var fromReveal = idx >= 0 && STEPS[idx] && STEPS[idx].nobubble && STEPS[idx].cap && STEPS[idx].cap.indexOf('登场') >= 0;
