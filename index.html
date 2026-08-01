@@ -4103,7 +4103,7 @@
     }
   };
   var app = null, container = null, layers = null, ready = false, failedLoad = false;
-  var nodes = [], slots = [], users = [], rays = [], floats = [], completions = [];
+  var nodes = [], users = [], rays = [], floats = [], completions = [];
   var gold = 600, userScale = 60, hitRate = 0.5, burst = false, burstTimer = 0;
   var reqEnabled = { get:true, list:true, save:true, calculate:true, download:true };
   var lbStrategy = 'round', roundRobin = 0;
@@ -4140,7 +4140,6 @@
     app.stage.addChild(layers.bg, layers.region, layers.node, layers.panel, layers.fx);
     buildBackground();
     buildRegions();
-    buildSlots();
     buildRegionLabels();
     bindUI();
     $('wl-modal-bg').addEventListener('click', function(){ hideModals(); });
@@ -4216,32 +4215,6 @@
     });
   }
 
-  function buildSlots(){
-    var db = CONFIG.regions.db, be = CONFIG.regions.backend, ca = CONFIG.regions.cache, gw = CONFIG.regions.gateway;
-    var plans = [];
-    for (var i = 0; i < 3; i++){
-      var sy = db.y + 18 + i * ((db.h - 36 - 2 * 16) / 3 + 16);
-      plans.push({ type:'db', index:i, x:db.x + 18, y:sy, w:db.w - 36, h:(db.h - 36 - 2 * 16) / 3 });
-    }
-    for (i = 0; i < 5; i++){
-      plans.push({ type:'backend', index:i, x:be.x + 16 + i * ((be.w - 32 - 4 * 12) / 5 + 12), y:be.y + 16, w:(be.w - 32 - 4 * 12) / 5, h:be.h - 32 });
-    }
-    for (i = 0; i < 3; i++){
-      plans.push({ type:'cache', index:i, x:ca.x + 16 + i * ((ca.w - 32 - 2 * 12) / 3 + 12), y:ca.y + 16, w:(ca.w - 32 - 2 * 12) / 3, h:ca.h - 32 });
-    }
-    plans.push({ type:'gateway', index:0, x:gw.x + 15, y:gw.y + 15, w:gw.w - 30, h:gw.h - 30 });
-    plans.forEach(function(p){
-      var g = new PIXI.Graphics();
-      g.lineStyle(2, 0x000000, 1).beginFill(0x0c1320, 1).drawRect(p.x, p.y, p.w, p.h).endFill();
-      g.lineStyle(1, 0x2a3a5c, 0.8).drawRect(p.x + 3, p.y + 3, p.w - 6, p.h - 6);
-      var plus = new PIXI.Text('+', { fontFamily:FG, fontSize:22, fill:0x3b4a66, fontWeight:'800' });
-      plus.anchor.set(0.5);
-      plus.position.set(p.x + p.w / 2, p.y + p.h / 2);
-      layers.region.addChild(g, plus);
-      slots.push({ type:p.type, index:p.index, x:p.x, y:p.y, w:p.w, h:p.h, occupied:false, plus:plus });
-    });
-  }
-
   function buildNodeSprite(n){
     var c = new PIXI.Container();
     c.position.set(n.x, n.y);
@@ -4272,8 +4245,33 @@
     c.on('pointerdown', function(e){
       if (dragActive) return;
       e.stopPropagation();
-      if (n.type === 'gateway') openGateway();
-      else openDetail(n);
+      var canvas = app.view;
+      var rect = canvas.getBoundingClientRect();
+      var startX = (e.clientX - rect.left) / rect.width * CONFIG.W;
+      var startY = (e.clientY - rect.top) / rect.height * CONFIG.H;
+      var ox = n.baseX, oy = n.baseY;
+      var moved = false;
+      function onMove(ev){
+        var rc = canvas.getBoundingClientRect();
+        var gx = (ev.clientX - rc.left) / rc.width * CONFIG.W;
+        var gy = (ev.clientY - rc.top) / rc.height * CONFIG.H;
+        var dx = gx - startX, dy = gy - startY;
+        if (!moved && Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
+        moved = true;
+        placeNodeAt(n, ox + dx, oy + dy);
+      }
+      function onUp(ev){
+        document.removeEventListener('pointermove', onMove);
+        document.removeEventListener('pointerup', onUp);
+        document.removeEventListener('pointercancel', onUp);
+        if (!moved){
+          if (n.type === 'gateway') openGateway();
+          else openDetail(n);
+        }
+      }
+      document.addEventListener('pointermove', onMove);
+      document.addEventListener('pointerup', onUp);
+      document.addEventListener('pointercancel', onUp);
     });
     layers.node.addChild(c);
     n.container = c;
@@ -4316,23 +4314,29 @@
     }
   }
 
-  function slotCenter(s){ return { x:s.x + s.w / 2, y:s.y + s.h / 2 }; }
+  function placeNodeAt(n, x, y){
+    var reg = CONFIG.regions[n.type];
+    x = Math.max(reg.x + n.w / 2, Math.min(reg.x + reg.w - n.w / 2, x));
+    y = Math.max(reg.y + n.h / 2, Math.min(reg.y + reg.h - n.h / 2, y));
+    n.x = x; n.y = y; n.baseX = x; n.baseY = y;
+    n.container.position.set(x, y);
+    n.jitter = null;
+    n.jitterEnd = 0;
+  }
 
-  function tryDeploy(type, slot){
+  function tryDeploy(type, pos){
     var cfg = CONFIG.nodeTypes[type];
     if (gold < cfg.cost) return false;
     gold -= cfg.cost;
     updateGoldUI();
-    var c = slotCenter(slot);
     var node = {
-      type: type, slotIndex: slot.index, level: 1,
+      type: type, level: 1,
       cores: cfg.cores, memMax: cfg.mem, maxThreads: cfg.cores * CONFIG.threadsPerCore,
       threadsUsed: 0, memUsed: 0, active: [], queue: [], completed: 0, tps: 0,
       stamps: [], hist: [], cpu: 0, mem: 0,
-      x: c.x, y: c.y, w: cfg.w, h: cfg.h,
-      baseX: c.x, baseY: c.y, failed: false, glowAlpha: 0, jitter: null, jitterEnd: 0
+      x: pos.x, y: pos.y, w: cfg.w, h: cfg.h,
+      baseX: pos.x, baseY: pos.y, failed: false, glowAlpha: 0, jitter: null, jitterEnd: 0
     };
-    slot.occupied = true;
     nodes.push(node);
     buildNodeSprite(node);
     updateUnlocks();
@@ -4427,7 +4431,6 @@
   function resetAll(){
     nodes.forEach(function(n){ if (n.container){ n.container.destroy({ children: true }); } });
     nodes = [];
-    slots.forEach(function(s){ s.occupied = false; });
     users.forEach(function(u){ u.body.destroy(); });
     users = [];
     rays.forEach(function(r){ r.g.destroy(); });
@@ -4576,17 +4579,22 @@
     var r = container.getBoundingClientRect();
     var lx = (ev.clientX - r.left) / r.width * CONFIG.W;
     var ly = (ev.clientY - r.top) / r.height * CONFIG.H;
+    var reg = CONFIG.regions[type];
+    var cfg = CONFIG.nodeTypes[type];
     var valid = null;
     mask.clear();
     mask.beginFill(0x050a14, 0.55).drawRect(0, 0, CONFIG.W, CONFIG.H).endFill();
-    slots.forEach(function(s){
-      if (s.type !== type || s.occupied || isLocked(type)) return;
-      if (lx >= s.x && lx <= s.x + s.w && ly >= s.y && ly <= s.y + s.h) valid = s;
-    });
-    slots.forEach(function(s){
-      if (s.type !== type || s.occupied || isLocked(type)) return;
-      mask.beginFill(0xffd54a, s === valid ? 0.28 : 0.12).lineStyle(2, 0xffd54a, 0.95).drawRect(s.x, s.y, s.w, s.h).endFill();
-    });
+    var inside = lx >= reg.x && lx <= reg.x + reg.w && ly >= reg.y && ly <= reg.y + reg.h;
+    if (inside && countNode(type) < cfg.slots){
+      var px = Math.max(reg.x + cfg.w / 2, Math.min(reg.x + reg.w - cfg.w / 2, lx));
+      var py = Math.max(reg.y + cfg.h / 2, Math.min(reg.y + reg.h - cfg.h / 2, ly));
+      var collide = nodes.some(function(n){ return n.type === type && Math.abs(n.x - px) < cfg.w && Math.abs(n.y - py) < cfg.h; });
+      if (!collide){
+        valid = { x: px, y: py };
+        mask.beginFill(0xffd54a, 0.28).lineStyle(2, 0xffd54a, 0.95).drawRect(reg.x, reg.y, reg.w, reg.h).endFill();
+        mask.beginFill(0xffffff, 0.10).lineStyle(2, 0xffd54a, 0.9).drawRect(px - cfg.w / 2, py - cfg.h / 2, cfg.w, cfg.h).endFill();
+      }
+    }
     dragActive.valid = valid;
   }
 
