@@ -3929,72 +3929,74 @@
 
 <style>
   /* ===== 工作量仿真场景（第九章 · 让老板看见真实工作量） ===== */
-  #wl-root { position:fixed; inset:0; z-index:30000; background:#0b1220; color:#e2e8f0; font-family:"Microsoft YaHei","PingFang SC",sans-serif; display:none; overflow:hidden; }
-  #wl-root .wl-topbar { position:absolute; top:0; left:0; right:0; height:58px; display:flex; align-items:center; padding:0 14px; gap:14px; background:rgba(15,23,42,.94); border-bottom:1px solid #1e293b; z-index:30; }
-  #wl-root .wl-brand { font-size:16px; font-weight:700; white-space:nowrap; }
-  #wl-root .wl-brand small { font-size:11px; font-weight:400; color:#64748b; margin-left:8px; }
-  #wl-root .wl-gold { font-size:13px; color:#fbbf24; font-weight:700; }
-  #wl-root .wl-gold .wl-gold-rate { font-size:11px; color:#64748b; font-weight:400; }
-  #wl-root .wl-gold b { font-size:16px; }
-  #wl-root .wl-cards { margin-left:auto; display:flex; gap:10px; padding-right:46px; }
-  #wl-root .wl-card { width:96px; border-radius:10px; padding:7px 8px; cursor:grab; border:1px solid #334155; background:#16213a; display:flex; flex-direction:column; align-items:center; gap:4px; position:relative; user-select:none; }
-  #wl-root .wl-card .wl-swatch { width:20px; height:20px; border-radius:5px; }
-  #wl-root .wl-card .wl-cname { font-size:12px; font-weight:600; }
-  #wl-root .wl-card .wl-cost { font-size:11px; color:#94a3b8; }
-  #wl-root .wl-card.locked { opacity:.4; cursor:not-allowed; }
-  #wl-root .wl-card.locked::after { content:'锁定'; position:absolute; inset:0; background:rgba(11,18,32,.5); border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:11px; color:#94a3b8; }
-  #wl-root .wl-card.insufficient .wl-cost { color:#f87171; }
-  #wl-root .wl-ghost { position:fixed; z-index:40000; pointer-events:none; opacity:.92; transform:scale(1.06); }
-  #wl-root .wl-metrics { position:absolute; top:66px; right:12px; width:210px; background:rgba(15,23,42,.88); border:1px solid #1e293b; border-radius:12px; padding:12px 14px; z-index:30; }
-  #wl-root .wl-metrics .wm-title { font-size:12px; color:#64748b; margin-bottom:8px; }
-  #wl-root .wl-metric { display:flex; justify-content:space-between; align-items:baseline; padding:3px 0; font-size:13px; color:#94a3b8; }
-  #wl-root .wl-metric b { font-size:16px; color:#e2e8f0; }
-  #wl-root .wl-metric.qps b { color:#22d3ee; }
-  #wl-root .wl-metric.real b { color:#a78bfa; }
-  #wl-root .wl-metric.users b { color:#34d399; }
-  #wl-root #wl-canvas { position:absolute; top:58px; left:0; right:0; bottom:176px; }
+  #wl-root { position:fixed; inset:0; z-index:30000; background:#0a0e1a; color:#dbe4f0; font-family:"Microsoft YaHei","PingFang SC",monospace; display:none; overflow:hidden; }
+  #wl-root .wl-topbar { position:absolute; top:0; left:0; right:0; height:64px; display:flex; align-items:center; padding:0 12px; gap:12px; background:linear-gradient(#202c46,#141d31); border-bottom:3px solid #000; box-shadow:inset 0 1px 0 #3b4c70, 0 3px 0 #05070f; z-index:30; }
+  #wl-root .wl-brand { font-size:15px; font-weight:800; color:#ffd54a; letter-spacing:1px; white-space:nowrap; text-shadow:2px 2px 0 #000; }
+  #wl-root .wl-brand small { font-size:10px; font-weight:600; color:#8fa3c8; margin-left:8px; text-shadow:1px 1px 0 #000; }
+  #wl-root .wl-gold { font-size:13px; color:#ffd54a; font-weight:800; background:#141d31; border:2px solid #000; padding:6px 10px; box-shadow:0 3px 0 #05070f, inset 0 0 0 2px #3b4c70; }
+  #wl-root .wl-gold .wl-gold-rate { font-size:11px; color:#9aa9c4; font-weight:600; }
+  #wl-root .wl-gold b { font-size:17px; }
+  #wl-root .wl-cards { margin-left:auto; display:flex; gap:8px; padding-right:48px; }
+  #wl-root .wl-card { width:86px; height:100px; cursor:grab; background:#22314e; border:2px solid #000; box-shadow:0 4px 0 #05070f, inset 0 0 0 2px #3b4c70; display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:6px 4px; position:relative; user-select:none; }
+  #wl-root .wl-card .wl-swatch { width:44px; height:44px; border:2px solid #000; box-shadow:inset 0 0 0 2px rgba(255,255,255,.25); }
+  #wl-root .wl-card .wl-cname { font-size:11px; font-weight:700; color:#e8eef8; text-shadow:1px 1px 0 #000; }
+  #wl-root .wl-card .wl-cost { font-size:11px; font-weight:800; color:#ffd54a; background:#0c1220; border:2px solid #000; padding:2px 8px; box-shadow:0 2px 0 #000; }
+  #wl-root .wl-card.locked { filter:grayscale(1) brightness(.55); cursor:not-allowed; }
+  #wl-root .wl-card.locked::after { content:'锁'; position:absolute; inset:2px; background:rgba(5,8,15,.72); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; color:#ffd54a; }
+  #wl-root .wl-card.insufficient .wl-cost { color:#ff6b6b; }
+  #wl-root .wl-ghost { position:fixed; z-index:40000; pointer-events:none; opacity:.92; transform:scale(1.05) rotate(2deg); }
+  #wl-root .wl-metrics { position:absolute; top:72px; right:12px; width:216px; background:#1b2a44; border:2px solid #000; box-shadow:0 4px 0 #05070f, inset 0 0 0 2px #3b4c70; padding:10px 12px; z-index:30; }
+  #wl-root .wl-metrics .wm-title { font-size:11px; font-weight:800; color:#8fa3c8; margin-bottom:6px; letter-spacing:2px; }
+  #wl-root .wl-metric { display:flex; justify-content:space-between; align-items:baseline; padding:3px 0; font-size:13px; color:#aab8d0; }
+  #wl-root .wl-metric b { font-size:17px; color:#fff; text-shadow:2px 2px 0 #000; }
+  #wl-root .wl-metric.qps b { color:#3fe0ff; }
+  #wl-root .wl-metric.real b { color:#b48cff; }
+  #wl-root .wl-metric.users b { color:#49e0a0; }
+  #wl-root #wl-canvas { position:absolute; top:64px; left:0; right:0; bottom:180px; }
   #wl-root #wl-canvas canvas { display:block; }
-  #wl-root .wl-controls { position:absolute; bottom:0; left:0; right:0; height:176px; background:rgba(15,23,42,.95); border-top:1px solid #1e293b; padding:12px 18px; z-index:30; display:flex; flex-direction:column; gap:8px; }
-  #wl-root .wl-row { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
-  #wl-root .wl-row .wl-label { font-size:12px; color:#64748b; min-width:80px; }
-  #wl-root .wl-row .wl-val { font-size:13px; font-weight:700; color:#e2e8f0; min-width:52px; }
-  #wl-root input[type=range] { accent-color:#22d3ee; }
-  #wl-root .wl-toggle { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:#94a3b8; cursor:pointer; padding:5px 10px; border:1px solid #334155; border-radius:8px; background:#16213a; }
-  #wl-root .wl-toggle.on { color:#e2e8f0; border-color:#22d3ee; }
-  #wl-root .wl-toggle .wl-dot { width:8px; height:8px; border-radius:50%; }
+  #wl-root .wl-controls { position:absolute; bottom:0; left:0; right:0; height:180px; background:linear-gradient(#202c46,#141d31); border-top:3px solid #000; box-shadow:inset 0 1px 0 #3b4c70, 0 -3px 0 #05070f; padding:10px 16px; z-index:30; display:flex; flex-direction:column; gap:8px; }
+  #wl-root .wl-row { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  #wl-root .wl-row .wl-label { font-size:12px; font-weight:700; color:#8fa3c8; min-width:78px; text-shadow:1px 1px 0 #000; }
+  #wl-root .wl-row .wl-val { font-size:13px; font-weight:800; color:#ffd54a; min-width:56px; text-shadow:1px 1px 0 #000; }
+  #wl-root input[type=range] { accent-color:#3fe0ff; height:18px; }
+  #wl-root .wl-toggle { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; color:#aab8d0; cursor:pointer; padding:4px 10px; border:2px solid #000; box-shadow:0 2px 0 #05070f, inset 0 0 0 2px #3b4c70; background:#1b2a44; }
+  #wl-root .wl-toggle.on { color:#fff; background:#16425c; box-shadow:0 2px 0 #05070f, inset 0 0 0 2px #3fe0ff; }
+  #wl-root .wl-toggle .wl-dot { width:10px; height:10px; }
   #wl-root .wl-toggle input { display:none; }
   #wl-root .wl-hitrow { transition:opacity .3s; }
-  #wl-root .wl-controls.lock .wl-hitrow { opacity:.4; pointer-events:none; }
-  #wl-root .wl-hint { font-size:12px; color:#64748b; min-height:16px; }
-  #wl-root .wl-btn { padding:6px 16px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#cbd5e1; cursor:pointer; font-size:12px; font-family:inherit; }
-  #wl-root .wl-btn:hover { background:#273549; }
-  #wl-root .wl-btn:disabled { opacity:.4; cursor:not-allowed; }
-  #wl-root .wl-btn.on { background:#22d3ee; border-color:#22d3ee; color:#0b1220; font-weight:700; }
-  #wl-root .wl-close { position:absolute; top:12px; right:12px; z-index:40; width:34px; height:34px; border-radius:50%; border:1px solid #334155; background:#1e293b; color:#94a3b8; font-size:15px; cursor:pointer; line-height:1; }
-  #wl-root .wl-close:hover { background:#273549; color:#e2e8f0; }
-  #wl-root .wl-modal-bg { position:absolute; inset:58px 0 176px 0; background:rgba(2,6,15,.55); z-index:35; display:none; }
-  #wl-root .wl-modal { position:absolute; top:50%; left:50%; transform:translate(-50%,-52%); width:560px; max-height:70vh; overflow:auto; background:#111a2e; border:1px solid #2b3b5c; border-radius:16px; z-index:36; display:none; padding:18px 20px; }
-  #wl-root .wl-modal .wm-hd { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
-  #wl-root .wl-modal .wm-hd h3 { font-size:16px; }
-  #wl-root .wl-modal .wm-x { cursor:pointer; color:#64748b; font-size:14px; }
+  #wl-root .wl-controls.lock .wl-hitrow { opacity:.35; pointer-events:none; }
+  #wl-root .wl-hint { font-size:12px; color:#8fa3c8; min-height:16px; text-shadow:1px 1px 0 #000; }
+  #wl-root .wl-btn { padding:6px 16px; border:2px solid #000; box-shadow:0 3px 0 #05070f, inset 0 0 0 2px rgba(255,255,255,.18); background:#2a3a5c; color:#dbe4f0; cursor:pointer; font-size:12px; font-weight:700; font-family:inherit; }
+  #wl-root .wl-btn:active { transform:translateY(2px); box-shadow:0 1px 0 #05070f; }
+  #wl-root .wl-btn:hover { background:#34507c; }
+  #wl-root .wl-btn:disabled { filter:grayscale(1) brightness(.6); cursor:not-allowed; }
+  #wl-root .wl-btn.on { background:#176b8a; box-shadow:0 3px 0 #05070f, inset 0 0 0 2px #3fe0ff; color:#fff; }
+  #wl-root .wl-close { position:absolute; top:14px; right:12px; z-index:40; width:36px; height:36px; border:2px solid #000; box-shadow:0 3px 0 #05070f, inset 0 0 0 2px rgba(255,255,255,.15); background:#2a3a5c; color:#ff6b6b; font-size:16px; font-weight:800; cursor:pointer; line-height:1; }
+  #wl-root .wl-close:hover { background:#3a2a3a; }
+  #wl-root .wl-modal-bg { position:absolute; inset:64px 0 180px 0; background:rgba(3,5,12,.66); z-index:35; display:none; }
+  #wl-root .wl-modal { position:absolute; top:50%; left:50%; transform:translate(-50%,-52%); width:560px; max-height:70vh; overflow:auto; background:#1b2a44; border:3px solid #000; box-shadow:0 6px 0 #05070f, inset 0 0 0 2px #3b4c70; z-index:36; display:none; padding:16px 18px; }
+  #wl-root .wl-modal .wm-hd { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; background:#22314e; border:2px solid #000; box-shadow:0 3px 0 #05070f; padding:6px 10px; }
+  #wl-root .wl-modal .wm-hd h3 { font-size:15px; font-weight:800; color:#ffd54a; text-shadow:2px 2px 0 #000; margin:0; }
+  #wl-root .wl-modal .wm-x { cursor:pointer; color:#ff6b6b; font-size:14px; font-weight:800; }
   #wl-root .wl-charts { display:flex; gap:10px; margin-bottom:12px; }
-  #wl-root .wl-chart { flex:1; background:#0b1220; border:1px solid #1e293b; border-radius:10px; padding:8px; }
-  #wl-root .wl-chart .wc-lbl { font-size:11px; color:#94a3b8; margin-bottom:6px; }
+  #wl-root .wl-chart { flex:1; background:#0c1220; border:2px solid #000; box-shadow:inset 0 0 0 2px #2a3a5c; padding:8px; }
+  #wl-root .wl-chart .wc-lbl { font-size:11px; font-weight:700; color:#8fa3c8; margin-bottom:6px; }
   #wl-root .wl-chart canvas { width:100%; height:64px; display:block; }
-  #wl-root .wl-attrs { display:grid; grid-template-columns:1fr 1fr; gap:6px 18px; font-size:13px; color:#94a3b8; margin-bottom:14px; }
-  #wl-root .wl-attrs b { color:#e2e8f0; }
-  #wl-root .wl-up { width:100%; padding:10px; border-radius:10px; border:1px solid #22d3ee; background:rgba(34,211,238,.12); color:#22d3ee; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
-  #wl-root .wl-up:disabled { opacity:.4; cursor:not-allowed; }
+  #wl-root .wl-attrs { display:grid; grid-template-columns:1fr 1fr; gap:6px 18px; font-size:13px; color:#aab8d0; margin-bottom:14px; }
+  #wl-root .wl-attrs b { color:#fff; text-shadow:1px 1px 0 #000; }
+  #wl-root .wl-up { width:100%; padding:10px; border:2px solid #000; box-shadow:0 4px 0 #0b3b24, inset 0 0 0 2px #49e0a0; background:#176b45; color:#fff; font-size:14px; font-weight:800; cursor:pointer; font-family:inherit; }
+  #wl-root .wl-up:active { transform:translateY(2px); box-shadow:0 2px 0 #0b3b24; }
+  #wl-root .wl-up:disabled { filter:grayscale(1) brightness(.6); cursor:not-allowed; }
   #wl-root .wl-lb { display:flex; flex-direction:column; gap:8px; margin-bottom:10px; }
-  #wl-root .wl-lb-item { display:flex; align-items:center; gap:8px; font-size:13px; color:#cbd5e1; cursor:pointer; }
-  #wl-root .wl-lb-item input { accent-color:#22d3ee; }
+  #wl-root .wl-lb-item { display:flex; align-items:center; gap:8px; font-size:13px; color:#dbe4f0; cursor:pointer; }
+  #wl-root .wl-lb-item input { accent-color:#3fe0ff; }
   #wl-root .wl-be-list { display:flex; flex-direction:column; gap:6px; margin-bottom:8px; }
-  #wl-root .wl-be-row { display:flex; align-items:center; justify-content:space-between; font-size:13px; color:#cbd5e1; padding:7px 10px; background:#0b1220; border-radius:8px; }
-  #wl-root .wl-be-row.failed .wl-be-name { color:#f87171; text-decoration:line-through; }
-  #wl-root .wl-fail-btn { font-size:11px; padding:3px 10px; border-radius:6px; border:1px solid #475569; background:#1e293b; color:#94a3b8; cursor:pointer; }
-  #wl-root .wl-fail-btn:hover { background:#273549; }
-  #wl-root .wl-lock-note { font-size:12px; color:#64748b; min-height:16px; margin-bottom:10px; }
-  #wl-root .wl-note { font-size:12px; color:#64748b; margin-top:8px; line-height:1.6; }
+  #wl-root .wl-be-row { display:flex; align-items:center; justify-content:space-between; font-size:13px; color:#dbe4f0; padding:7px 10px; background:#0c1220; border:2px solid #000; box-shadow:inset 0 0 0 2px #2a3a5c; }
+  #wl-root .wl-be-row.failed .wl-be-name { color:#ff6b6b; text-decoration:line-through; }
+  #wl-root .wl-fail-btn { font-size:11px; font-weight:700; padding:3px 10px; border:2px solid #000; box-shadow:0 2px 0 #05070f; background:#2a3a5c; color:#ffb0b0; cursor:pointer; }
+  #wl-root .wl-fail-btn:hover { background:#3a2a3a; }
+  #wl-root .wl-lock-note { font-size:12px; color:#8fa3c8; min-height:16px; margin-bottom:10px; }
+  #wl-root .wl-note { font-size:12px; color:#8fa3c8; margin-top:8px; line-height:1.6; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/pixi.js@7.4.2/dist/pixi.min.js"></script>
 <div id="wl-root">
@@ -4129,7 +4131,7 @@
     container = $('wl-canvas');
     var el2 = document.getElementById('wl-close');
     el2.addEventListener('click', function(){ close(); });
-    app = new PIXI.Application({ width:CONFIG.W, height:CONFIG.H, backgroundColor:0x0b1220, antialias:true, autoDensity:true, resolution:Math.max(1, window.devicePixelRatio || 1) });
+    app = new PIXI.Application({ width:CONFIG.W, height:CONFIG.H, backgroundColor:0x0a0e1a, antialias:false, autoDensity:true, resolution:Math.max(1, window.devicePixelRatio || 1) });
     app.view.style.width = '100%';
     app.view.style.height = '100%';
     container.appendChild(app.view);
@@ -4139,6 +4141,7 @@
     buildBackground();
     buildRegions();
     buildSlots();
+    buildRegionLabels();
     bindUI();
     $('wl-modal-bg').addEventListener('click', function(){ hideModals(); });
     document.querySelectorAll('.wl-modal .wm-x').forEach(function(x){
@@ -4164,29 +4167,52 @@
 
   function buildBackground(){
     var g = new PIXI.Graphics();
-    g.beginFill(0x0b1220, 1).drawRect(0, 0, CONFIG.W, CONFIG.H).endFill();
-    g.lineStyle(1, 0x1e293b, 0.35);
-    for (var x = 64; x < CONFIG.W; x += 64){ g.moveTo(x, 0); g.lineTo(x, CONFIG.H); }
-    for (var y = 64; y < CONFIG.H; y += 64){ g.moveTo(0, y); g.lineTo(CONFIG.W, y); }
-    g.lineStyle(2, 0x2b3b5c, 0.5).moveTo(340, 520).lineTo(1240, 520);
-    g.lineStyle(2, 0x2b3b5c, 0.35).moveTo(800, 285).lineTo(800, 360);
-    g.beginFill(0x2b3b5c, 0.6);
-    for (var ax = 430; ax < 1240; ax += 120){ g.moveTo(ax + 8, 520); g.lineTo(ax, 520); g.lineTo(ax + 4, 514); g.lineTo(ax + 8, 520); g.lineTo(ax + 4, 526); }
+    g.beginFill(0x0a0e1a, 1).drawRect(0, 0, CONFIG.W, CONFIG.H).endFill();
+    var step = 24;
+    for (var x = 0; x < CONFIG.W; x += step){
+      for (var y = 0; y < CONFIG.H; y += step){
+        var shade = ((x / step + y / step) % 2 === 0) ? 0x121a2e : 0x101828;
+        g.beginFill(shade, 1).drawRect(x, y, step, step).endFill();
+      }
+    }
+    g.beginFill(0x1a2337, 1);
+    for (var rx = 340; rx <= 1240; rx += 12){ g.drawRect(rx, 512, 8, 18); }
+    g.endFill();
+    g.beginFill(0x2b3b5c, 1);
+    for (var ax = 452; ax < 1230; ax += 96){
+      g.drawRect(ax, 518, 10, 6);
+      g.drawRect(ax - 5, 513, 6, 16);
+    }
+    g.endFill();
+    g.beginFill(0x2b3b5c, 1);
+    for (var vy = 285; vy <= 360; vy += 9){ g.drawRect(796, vy, 8, 5); }
     g.endFill();
     layers.bg.addChild(g);
   }
 
   function buildRegions(){
     var keys = ['db', 'cache', 'backend', 'gateway', 'user'];
+    var regionColor = { db:0x2a2450, cache:0x1b3a55, backend:0x1c4233, gateway:0x4a3a1a, user:0x30343e };
+    var regionLine = { db:0x4a44ff, cache:0x3fe0ff, backend:0x49e0a0, gateway:0xffd54a, user:0x7a869c };
     keys.forEach(function(k){
       var r = CONFIG.regions[k];
       var g = new PIXI.Graphics();
-      g.beginFill(0x141e33, 0.6).lineStyle(1, 0x2b3b5c, 0.6).drawRoundedRect(r.x, r.y, r.w, r.h, 12).endFill();
-      var title = new PIXI.Text(r.label, { fontFamily:FG, fontSize:15, fill:0x8ea3c4, fontWeight:'700' });
-      title.position.set(r.x + 14, r.y + 10);
-      var sub = new PIXI.Text(r.sub, { fontFamily:FG, fontSize:11, fill:0x4a5a78 });
-      sub.position.set(r.x + 14, r.y + 32);
-      layers.region.addChild(g, title, sub);
+      g.lineStyle(2, 0x000000, 1).beginFill(regionColor[k], 1).drawRect(r.x, r.y, r.w, r.h).endFill();
+      g.lineStyle(1, regionLine[k], 0.5).drawRect(r.x + 3, r.y + 3, r.w - 6, r.h - 6);
+      layers.region.addChild(g);
+    });
+  }
+  function buildRegionLabels(){
+    var keys = ['db', 'cache', 'backend', 'gateway', 'user'];
+    keys.forEach(function(k){
+      var r = CONFIG.regions[k];
+      var tb = new PIXI.Graphics();
+      tb.lineStyle(2, 0x000000, 1).beginFill(0x0a0e1a, 0.85).drawRect(r.x + 4, r.y + 4, r.w - 8, 28).endFill();
+      var title = new PIXI.Text(r.label, { fontFamily:FG, fontSize:14, fill:0xffffff, fontWeight:'800', stroke:0x000000, strokeThickness:3 });
+      title.position.set(r.x + 12, r.y + 11);
+      var sub = new PIXI.Text(r.sub, { fontFamily:FG, fontSize:10, fill:0x8fa3c8, stroke:0x000000, strokeThickness:2 });
+      sub.position.set(r.x + 12, r.y + 38);
+      layers.region.addChild(tb, title, sub);
     });
   }
 
@@ -4206,8 +4232,9 @@
     plans.push({ type:'gateway', index:0, x:gw.x + 15, y:gw.y + 15, w:gw.w - 30, h:gw.h - 30 });
     plans.forEach(function(p){
       var g = new PIXI.Graphics();
-      g.beginFill(0x0a1426, 0.8).lineStyle(2, 0x2b3b5c, 0.7).drawRoundedRect(p.x, p.y, p.w, p.h, 10).endFill();
-      var plus = new PIXI.Text('+', { fontFamily:FG, fontSize:22, fill:0x3b4a66 });
+      g.lineStyle(2, 0x000000, 1).beginFill(0x0c1320, 1).drawRect(p.x, p.y, p.w, p.h).endFill();
+      g.lineStyle(1, 0x2a3a5c, 0.8).drawRect(p.x + 3, p.y + 3, p.w - 6, p.h - 6);
+      var plus = new PIXI.Text('+', { fontFamily:FG, fontSize:22, fill:0x3b4a66, fontWeight:'800' });
       plus.anchor.set(0.5);
       plus.position.set(p.x + p.w / 2, p.y + p.h / 2);
       layers.region.addChild(g, plus);
@@ -4222,19 +4249,19 @@
     c.addChildAt(glow, 0);
     var body = new PIXI.Graphics();
     c.addChild(body);
-    var lbl = new PIXI.Text('', { fontFamily:FG, fontSize:13, fill:0xf1f5f9, fontWeight:'700' });
-    lbl.anchor.set(0, 0.5);
-    lbl.position.set(-n.w / 2 + 32, -8);
+    var lbl = new PIXI.Text('', { fontFamily:FG, fontSize:12, fill:0xffffff, fontWeight:'800', stroke:0x000000, strokeThickness:3 });
+    lbl.anchor.set(0.5, 0.5);
+    lbl.position.set(0, -n.h / 2 + 16);
     c.addChild(lbl);
-    var st = new PIXI.Text('', { fontFamily:FG, fontSize:11, fill:0x94a3b8 });
+    var st = new PIXI.Text('', { fontFamily:FG, fontSize:10, fill:0x9fb0c8, fontWeight:'700', stroke:0x000000, strokeThickness:3 });
     st.anchor.set(0.5, 0.5);
-    st.position.set(0, n.h / 2 - 24);
+    st.position.set(0, n.h / 2 - 22);
     c.addChild(st);
-    var st2 = new PIXI.Text('', { fontFamily:FG, fontSize:11, fill:0x94a3b8 });
+    var st2 = new PIXI.Text('', { fontFamily:FG, fontSize:10, fill:0x9fb0c8, fontWeight:'700', stroke:0x000000, strokeThickness:3 });
     st2.anchor.set(0.5, 0.5);
     st2.position.set(0, n.h / 2 - 8);
     c.addChild(st2);
-    var badge = new PIXI.Text('宕机', { fontFamily:FG, fontSize:13, fill:0xf87171, fontWeight:'700' });
+    var badge = new PIXI.Text('宕机', { fontFamily:FG, fontSize:12, fill:0xff6b6b, fontWeight:'800', stroke:0x000000, strokeThickness:4 });
     badge.anchor.set(0.5);
     badge.position.set(0, -6);
     badge.visible = false;
@@ -4263,8 +4290,22 @@
     var cfg = CONFIG.nodeTypes[n.type];
     var g = n.body;
     g.clear();
-    g.beginFill(0x1c2942, 1).lineStyle(2, cfg.color, 0.85).drawRoundedRect(-n.w / 2, -n.h / 2, n.w, n.h, 12).endFill();
-    g.beginFill(cfg.color, 1).drawRoundedRect(-n.w / 2 + 7, -n.h / 2 + 7, 16, n.h - 14, 5).endFill();
+    g.lineStyle(2, 0x000000, 1).beginFill(0x1c2942, 1).drawRect(-n.w / 2, -n.h / 2, n.w, n.h).endFill();
+    g.beginFill(0x3a4c6e, 1).drawRect(-n.w / 2 + 2, -n.h / 2 + 2, n.w - 4, 5).endFill();
+    g.beginFill(0x0a0e1a, 1).drawRect(-n.w / 2 + 2, n.h / 2 - 5, n.w - 4, 3).endFill();
+    g.beginFill(cfg.color, 1).drawRect(-n.w / 2 + 3, -n.h / 2 + 4, n.w - 6, 24).endFill();
+    g.beginFill(0x000000, 0.14);
+    for (var hx = -n.w / 2 + 8; hx < n.w / 2 - 8; hx += 8){
+      for (var hy = -n.h / 2 + 8; hy < -n.h / 2 + 24; hy += 8){ g.drawRect(hx, hy, 4, 4); }
+    }
+    g.endFill();
+    g.beginFill(0xffffff, 0.05);
+    for (var px = -n.w / 2 + 8; px < n.w / 2 - 8; px += 10){
+      for (var py = -n.h / 2 + 34; py < n.h / 2 - 8; py += 10){
+        if (((px >> 3) + (py >> 3)) % 2 === 0) g.drawRect(px, py, 5, 5);
+      }
+    }
+    g.endFill();
     n.labelText.text = cfg.short + ' L' + n.level;
     if (n.failed){
       n.container.alpha = 0.5;
@@ -4544,7 +4585,7 @@
     });
     slots.forEach(function(s){
       if (s.type !== type || s.occupied || isLocked(type)) return;
-      mask.beginFill(0x22d3ee, s === valid ? 0.22 : 0.1).lineStyle(2, 0x22d3ee, 0.95).drawRoundedRect(s.x, s.y, s.w, s.h, 10).endFill();
+      mask.beginFill(0xffd54a, s === valid ? 0.28 : 0.12).lineStyle(2, 0xffd54a, 0.95).drawRect(s.x, s.y, s.w, s.h).endFill();
     });
     dragActive.valid = valid;
   }
@@ -4612,8 +4653,9 @@
     var x = reg.x + 40 + Math.random() * (reg.w - 80);
     var y = reg.y + 40 + Math.random() * (reg.h - 80);
     var g = new PIXI.Graphics();
-    g.beginFill(0x94a3b8, 0.9).drawCircle(0, 0, 9).endFill();
-    g.lineStyle(1, 0x64748b, 0.35).drawCircle(0, 0, 14);
+    g.lineStyle(1, 0x000000, 1).beginFill(0x9fb0c8, 1).drawRect(-8, -8, 16, 16).endFill();
+    g.beginFill(0xffffff, 0.35).drawRect(-8, -8, 16, 4).endFill();
+    g.beginFill(0x0a0e1a, 0.3).drawRect(-8, 4, 16, 4).endFill();
     g.position.set(x, y);
     layers.fx.addChild(g);
     var u = { x: x, y: y, body: g, req: null, state: 'waiting', fadeStart: 0, seed: Math.random() * 100 };
@@ -4676,7 +4718,7 @@
   function failReq(r, label){
     r.user.state = 'giveup';
     r.user.fadeStart = performance.now();
-    var red = new PIXI.Text(label, { fontFamily:FG, fontSize:15, fill:0xf87171, fontWeight:'700' });
+    var red = new PIXI.Text(label, { fontFamily:FG, fontSize:14, fill:0xff6b6b, fontWeight:'800', stroke:0x000000, strokeThickness:4 });
     red.anchor.set(0.5);
     red.position.set(r.be.x, r.be.y - r.be.h / 2 - 16);
     layers.fx.addChild(red);
@@ -4739,16 +4781,22 @@
         cx = ex; cy = ey;
         remain -= L;
       }
-      g.beginFill(lastCol, 1).drawCircle(cx, cy, 4).endFill();
+      g.beginFill(lastCol, 1).drawRect(cx - 3, cy - 3, 6, 6).endFill();
     }
   }
 
   function floatText(u, t, dur){
-    var txt = new PIXI.Text(t.label, { fontFamily:FG, fontSize:16, fill:t.color, fontWeight:'700' });
+    var bubble = new PIXI.Container();
+    var bg = new PIXI.Graphics();
+    bg.lineStyle(2, 0x000000, 1).beginFill(0x0a0e1a, 0.88).drawRect(-26, -13, 52, 26).endFill();
+    bg.lineStyle(1, t.color, 0.8).drawRect(-24, -11, 48, 22);
+    var txt = new PIXI.Text(t.label, { fontFamily:FG, fontSize:15, fill:t.color, fontWeight:'800', stroke:0x000000, strokeThickness:3 });
     txt.anchor.set(0.5);
-    txt.position.set(u.x, u.y - 20);
-    layers.fx.addChild(txt);
-    floats.push({ t: txt, x: u.x, y: u.y - 20, start: performance.now(), dur: dur });
+    txt.position.set(0, 0);
+    bubble.addChild(bg, txt);
+    bubble.position.set(u.x, u.y - 20);
+    layers.fx.addChild(bubble);
+    floats.push({ t: bubble, x: u.x, y: u.y - 20, start: performance.now(), dur: dur });
   }
 
   function updateFloats(now, dt){
@@ -4817,7 +4865,7 @@
       if (m < 75 && n.glowAlpha > 0){ n.glowAlpha = Math.max(0, n.glowAlpha - dt / 300); }
       n.glow.clear();
       if (n.glowAlpha > 0.01){
-        n.glow.beginFill(0xff3340, 0.12 * n.glowAlpha).lineStyle(6, 0xff3340, n.glowAlpha).drawRoundedRect(-n.w / 2 - 7, -n.h / 2 - 7, n.w + 14, n.h + 14, 16).endFill();
+        n.glow.beginFill(0xff3340, 0.12 * n.glowAlpha).lineStyle(5, 0xff3340, n.glowAlpha).drawRect(-n.w / 2 - 6, -n.h / 2 - 6, n.w + 12, n.h + 12).endFill();
       }
     });
   }
