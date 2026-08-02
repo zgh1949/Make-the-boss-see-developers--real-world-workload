@@ -3929,75 +3929,77 @@
 </script>
 
 <style>
-  /* ===== 工作量仿真场景（第九章 · 让老板看见真实工作量） ===== */
-  #wl-root { position:fixed; inset:0; z-index:30000; background:#0a0e1a; color:#dbe4f0; font-family:"Microsoft YaHei","PingFang SC",monospace; display:none; overflow:hidden; }
-  #wl-root .wl-topbar { position:absolute; top:0; left:0; right:0; height:64px; display:flex; align-items:center; padding:0 12px; gap:12px; background:linear-gradient(#202c46,#141d31); border-bottom:3px solid #000; box-shadow:inset 0 1px 0 #3b4c70, 0 3px 0 #05070f; z-index:30; }
-  #wl-root .wl-brand { font-size:15px; font-weight:800; color:#ffd54a; letter-spacing:1px; white-space:nowrap; text-shadow:2px 2px 0 #000; }
-  #wl-root .wl-brand small { font-size:10px; font-weight:600; color:#8fa3c8; margin-left:8px; text-shadow:1px 1px 0 #000; }
-  #wl-root .wl-gold { font-size:13px; color:#ffd54a; font-weight:800; background:#141d31; border:2px solid #000; padding:6px 10px; box-shadow:0 3px 0 #05070f, inset 0 0 0 2px #3b4c70; }
-  #wl-root .wl-gold .wl-gold-rate { font-size:11px; color:#9aa9c4; font-weight:600; }
-  #wl-root .wl-gold b { font-size:17px; }
-  #wl-root .wl-cards { margin-left:auto; display:flex; gap:8px; padding-right:48px; }
-  #wl-root .wl-card { width:86px; height:100px; cursor:grab; background:#22314e; border:2px solid #000; box-shadow:0 4px 0 #05070f, inset 0 0 0 2px #3b4c70; display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:6px 4px; position:relative; user-select:none; }
-  #wl-root .wl-card .wl-swatch { width:44px; height:44px; border:2px solid #000; box-shadow:inset 0 0 0 2px rgba(255,255,255,.25); }
-  #wl-root .wl-card .wl-cname { font-size:11px; font-weight:700; color:#e8eef8; text-shadow:1px 1px 0 #000; }
-  #wl-root .wl-card .wl-cost { font-size:11px; font-weight:800; color:#ffd54a; background:#0c1220; border:2px solid #000; padding:2px 8px; box-shadow:0 2px 0 #000; }
-  #wl-root .wl-card.locked { filter:grayscale(1) brightness(.55); cursor:not-allowed; }
-  #wl-root .wl-card.locked::after { content:'锁'; position:absolute; inset:2px; background:rgba(5,8,15,.72); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; color:#ffd54a; }
-  #wl-root .wl-card.insufficient .wl-cost { color:#ff6b6b; }
-  #wl-root .wl-ghost { position:fixed; z-index:40000; pointer-events:none; opacity:.92; transform:scale(1.05) rotate(2deg); }
-  #wl-root .wl-metrics { position:absolute; top:72px; right:12px; width:216px; background:#1b2a44; border:2px solid #000; box-shadow:0 4px 0 #05070f, inset 0 0 0 2px #3b4c70; padding:10px 12px; z-index:30; }
-  #wl-root .wl-metrics .wm-title { font-size:11px; font-weight:800; color:#8fa3c8; margin-bottom:6px; letter-spacing:2px; }
-  #wl-root .wl-metric { display:flex; justify-content:space-between; align-items:baseline; padding:3px 0; font-size:13px; color:#aab8d0; }
-  #wl-root .wl-metric b { font-size:17px; color:#fff; text-shadow:2px 2px 0 #000; }
-  #wl-root .wl-metric.qps b { color:#3fe0ff; }
-  #wl-root .wl-metric.real b { color:#b48cff; }
-  #wl-root .wl-metric.users b { color:#49e0a0; }
-  #wl-root #wl-canvas { position:absolute; top:64px; left:0; right:0; bottom:180px; }
-  #wl-root #wl-canvas canvas { display:block; }
-  #wl-root .wl-controls { position:absolute; bottom:0; left:0; right:0; height:180px; background:linear-gradient(#202c46,#141d31); border-top:3px solid #000; box-shadow:inset 0 1px 0 #3b4c70, 0 -3px 0 #05070f; padding:10px 16px; z-index:30; display:flex; flex-direction:column; gap:8px; }
-  #wl-root .wl-row { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
-  #wl-root .wl-row .wl-label { font-size:12px; font-weight:700; color:#8fa3c8; min-width:78px; text-shadow:1px 1px 0 #000; }
-  #wl-root .wl-row .wl-val { font-size:13px; font-weight:800; color:#ffd54a; min-width:56px; text-shadow:1px 1px 0 #000; }
-  #wl-root input[type=range] { accent-color:#3fe0ff; height:18px; }
-  #wl-root .wl-toggle { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; color:#aab8d0; cursor:pointer; padding:4px 10px; border:2px solid #000; box-shadow:0 2px 0 #05070f, inset 0 0 0 2px #3b4c70; background:#1b2a44; }
-  #wl-root .wl-toggle.on { color:#fff; background:#16425c; box-shadow:0 2px 0 #05070f, inset 0 0 0 2px #3fe0ff; }
-  #wl-root .wl-toggle .wl-dot { width:10px; height:10px; }
+  /* ===== 工作量仿真场景（Claymorphism 奶油亮色版） ===== */
+  #wl-root { position:fixed; inset:0; z-index:30000; background:linear-gradient(160deg,#f7efe3 0%,#fdf8ef 40%,#f3e9d8 100%); color:#5b5345; font-family:"Microsoft YaHei","PingFang SC",sans-serif; display:none; overflow:hidden; }
+  #wl-root .wl-topbar { position:absolute; top:16px; left:16px; right:16px; height:86px; display:flex; align-items:center; padding:0 20px; gap:14px; background:#f9f2e6; border-radius:24px; box-shadow:0 10px 24px rgba(120,90,50,.14), inset 0 2px 6px rgba(255,255,255,.75), inset 0 -4px 8px rgba(160,130,80,.10); z-index:30; }
+  #wl-root .wl-brand { font-size:18px; font-weight:800; color:#4a4035; letter-spacing:1px; white-space:nowrap; }
+  #wl-root .wl-brand small { font-size:11px; font-weight:600; color:#a0917b; margin-left:8px; }
+  #wl-root .wl-gold { font-size:13px; color:#7a5c1e; font-weight:800; background:#fff7e0; border-radius:16px; padding:8px 16px; box-shadow:0 6px 14px rgba(150,110,40,.14), inset 0 2px 4px rgba(255,255,255,.8), inset 0 -3px 6px rgba(180,140,60,.16); }
+  #wl-root .wl-gold .wl-gold-rate { font-size:11px; color:#c9a24e; font-weight:600; }
+  #wl-root .wl-gold b { font-size:19px; color:#b8860b; }
+  #wl-root .wl-cards { margin-left:auto; display:flex; gap:14px; padding-right:8px; }
+  #wl-root .wl-card { width:104px; height:126px; cursor:grab; background:#fff9ee; border-radius:22px; box-shadow:0 10px 20px rgba(120,90,50,.16), inset 0 3px 8px rgba(255,255,255,.85), inset 0 -6px 10px rgba(180,150,90,.12); display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:10px 6px 8px; position:relative; user-select:none; transition:transform .18s ease, box-shadow .18s ease; }
+  #wl-root .wl-card:hover { transform:translateY(-4px); box-shadow:0 16px 28px rgba(120,90,50,.2), inset 0 3px 8px rgba(255,255,255,.85), inset 0 -6px 10px rgba(180,150,90,.12); }
+  #wl-root .wl-card:active { transform:translateY(-1px) scale(.98); }
+  #wl-root .wl-card .wl-emoji { font-size:38px; line-height:1; margin:4px 0 2px; filter:drop-shadow(0 6px 8px rgba(120,90,50,.22)); }
+  #wl-root .wl-card .wl-cname { font-size:13px; font-weight:700; color:#4a4035; }
+  #wl-root .wl-card .wl-cost { font-size:12px; font-weight:800; color:#b8860b; background:#fff2d0; border-radius:12px; padding:3px 12px; box-shadow:inset 0 2px 4px rgba(255,255,255,.7), 0 3px 6px rgba(150,110,40,.12); }
+  #wl-root .wl-card.locked { filter:grayscale(1) opacity(.55); cursor:not-allowed; }
+  #wl-root .wl-card.locked::after { content:'🔒'; position:absolute; inset:0; border-radius:22px; background:rgba(250,244,232,.6); display:flex; align-items:center; justify-content:center; font-size:22px; }
+  #wl-root .wl-card.insufficient .wl-cost { color:#d97474; }
+  #wl-root .wl-ghost { position:fixed; z-index:40000; pointer-events:none; opacity:.9; transform:scale(1.04) rotate(2deg); filter:drop-shadow(0 12px 20px rgba(120,90,50,.28)); }
+  #wl-root .wl-metrics { position:absolute; top:120px; right:16px; width:230px; background:#f9f2e6; border-radius:24px; box-shadow:0 10px 24px rgba(120,90,50,.14), inset 0 2px 6px rgba(255,255,255,.75), inset 0 -4px 8px rgba(160,130,80,.10); padding:14px 18px; z-index:30; }
+  #wl-root .wl-metrics .wm-title { font-size:11px; font-weight:800; color:#a0917b; margin-bottom:8px; letter-spacing:2px; }
+  #wl-root .wl-metric { display:flex; justify-content:space-between; align-items:baseline; padding:4px 0; font-size:14px; color:#6b6354; }
+  #wl-root .wl-metric b { font-size:19px; color:#4a4035; }
+  #wl-root .wl-metric.qps b { color:#2f9bed; }
+  #wl-root .wl-metric.real b { color:#9254de; }
+  #wl-root .wl-metric.users b { color:#21c46b; }
+  #wl-root #wl-canvas { position:absolute; top:118px; left:16px; right:16px; bottom:150px; border-radius:28px; overflow:hidden; box-shadow:inset 0 0 0 2px rgba(255,255,255,.6), 0 12px 28px rgba(120,90,50,.12); }
+  #wl-root #wl-canvas canvas { display:block; width:100% !important; height:100% !important; }
+  #wl-root .wl-controls { position:absolute; bottom:16px; left:16px; right:16px; height:118px; background:#f9f2e6; border-radius:24px; box-shadow:0 10px 24px rgba(120,90,50,.14), inset 0 2px 6px rgba(255,255,255,.75), inset 0 -4px 8px rgba(160,130,80,.10); padding:14px 22px; z-index:30; display:flex; flex-direction:column; gap:6px; }
+  #wl-root .wl-row { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  #wl-root .wl-row .wl-label { font-size:13px; font-weight:700; color:#8b806c; min-width:78px; }
+  #wl-root .wl-row .wl-val { font-size:14px; font-weight:800; color:#b8860b; min-width:56px; }
+  #wl-root input[type=range] { accent-color:#e8a33d; height:18px; }
+  #wl-root .wl-toggle { display:inline-flex; align-items:center; gap:7px; font-size:12px; font-weight:700; color:#8b806c; cursor:pointer; padding:6px 14px; border-radius:16px; background:#fff9ee; box-shadow:0 6px 12px rgba(120,90,50,.13), inset 0 2px 4px rgba(255,255,255,.8); transition:all .18s ease; }
+  #wl-root .wl-toggle.on { color:#5a4a28; background:#fff2d0; box-shadow:0 6px 12px rgba(160,120,50,.16), inset 0 2px 4px rgba(255,255,255,.85); }
+  #wl-root .wl-toggle .wl-dot { width:11px; height:11px; border-radius:50%; box-shadow:0 2px 4px rgba(120,90,50,.25), inset 0 1px 2px rgba(255,255,255,.6); }
   #wl-root .wl-toggle input { display:none; }
   #wl-root .wl-hitrow { transition:opacity .3s; }
-  #wl-root .wl-controls.lock .wl-hitrow { opacity:.35; pointer-events:none; }
-  #wl-root .wl-hint { font-size:12px; color:#8fa3c8; min-height:16px; text-shadow:1px 1px 0 #000; }
-  #wl-root .wl-btn { padding:6px 16px; border:2px solid #000; box-shadow:0 3px 0 #05070f, inset 0 0 0 2px rgba(255,255,255,.18); background:#2a3a5c; color:#dbe4f0; cursor:pointer; font-size:12px; font-weight:700; font-family:inherit; }
-  #wl-root .wl-btn:active { transform:translateY(2px); box-shadow:0 1px 0 #05070f; }
-  #wl-root .wl-btn:hover { background:#34507c; }
-  #wl-root .wl-btn:disabled { filter:grayscale(1) brightness(.6); cursor:not-allowed; }
-  #wl-root .wl-btn.on { background:#176b8a; box-shadow:0 3px 0 #05070f, inset 0 0 0 2px #3fe0ff; color:#fff; }
-  #wl-root .wl-close { position:absolute; top:14px; right:12px; z-index:40; width:36px; height:36px; border:2px solid #000; box-shadow:0 3px 0 #05070f, inset 0 0 0 2px rgba(255,255,255,.15); background:#2a3a5c; color:#ff6b6b; font-size:16px; font-weight:800; cursor:pointer; line-height:1; }
-  #wl-root .wl-close:hover { background:#3a2a3a; }
-  #wl-root .wl-modal-bg { position:absolute; inset:64px 0 180px 0; background:rgba(3,5,12,.66); z-index:35; display:none; }
-  #wl-root .wl-modal { position:absolute; top:50%; left:50%; transform:translate(-50%,-52%); width:560px; max-height:70vh; overflow:auto; background:#1b2a44; border:3px solid #000; box-shadow:0 6px 0 #05070f, inset 0 0 0 2px #3b4c70; z-index:36; display:none; padding:16px 18px; }
-  #wl-root .wl-modal .wm-hd { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; background:#22314e; border:2px solid #000; box-shadow:0 3px 0 #05070f; padding:6px 10px; }
-  #wl-root .wl-modal .wm-hd h3 { font-size:15px; font-weight:800; color:#ffd54a; text-shadow:2px 2px 0 #000; margin:0; }
-  #wl-root .wl-modal .wm-x { cursor:pointer; color:#ff6b6b; font-size:14px; font-weight:800; }
-  #wl-root .wl-charts { display:flex; gap:10px; margin-bottom:12px; }
-  #wl-root .wl-chart { flex:1; background:#0c1220; border:2px solid #000; box-shadow:inset 0 0 0 2px #2a3a5c; padding:8px; }
-  #wl-root .wl-chart .wc-lbl { font-size:11px; font-weight:700; color:#8fa3c8; margin-bottom:6px; }
+  #wl-root .wl-controls.lock .wl-hitrow { opacity:.4; pointer-events:none; }
+  #wl-root .wl-hint { font-size:12px; color:#a0917b; min-height:16px; }
+  #wl-root .wl-btn { padding:8px 20px; border:none; border-radius:18px; box-shadow:0 8px 16px rgba(120,90,50,.16), inset 0 2px 5px rgba(255,255,255,.75), inset 0 -4px 8px rgba(180,150,90,.10); background:#fff7e8; color:#5a4a28; cursor:pointer; font-size:13px; font-weight:800; font-family:inherit; transition:all .18s ease; }
+  #wl-root .wl-btn:active { transform:translateY(2px); box-shadow:0 4px 10px rgba(120,90,50,.16), inset 0 2px 5px rgba(255,255,255,.6); }
+  #wl-root .wl-btn:hover { background:#fffdf5; }
+  #wl-root .wl-btn:disabled { filter:grayscale(1) opacity(.55); cursor:not-allowed; }
+  #wl-root .wl-btn.on { background:#fff2d0; }
+  #wl-root .wl-close { position:absolute; top:26px; right:30px; z-index:40; width:42px; height:42px; border:none; border-radius:16px; box-shadow:0 8px 16px rgba(120,90,50,.16), inset 0 2px 5px rgba(255,255,255,.8); background:#fff7e8; color:#c96a6a; font-size:18px; font-weight:800; cursor:pointer; line-height:1; }
+  #wl-root .wl-close:hover { background:#fffdf5; }
+  #wl-root .wl-modal-bg { position:absolute; inset:0; background:rgba(90,75,55,.42); z-index:35; display:none; backdrop-filter:blur(3px); }
+  #wl-root .wl-modal { position:absolute; top:50%; left:50%; transform:translate(-50%,-52%); width:600px; max-height:72vh; overflow:auto; background:#f9f2e6; border-radius:30px; box-shadow:0 24px 48px rgba(90,70,40,.3), inset 0 3px 8px rgba(255,255,255,.8), inset 0 -8px 16px rgba(170,140,80,.12); z-index:36; display:none; padding:22px 26px; }
+  #wl-root .wl-modal .wm-hd { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; padding:8px 6px; }
+  #wl-root .wl-modal .wm-hd h3 { font-size:17px; font-weight:800; color:#4a4035; margin:0; }
+  #wl-root .wl-modal .wm-x { cursor:pointer; color:#c96a6a; font-size:14px; font-weight:800; background:#fff3e3; padding:6px 14px; border-radius:14px; box-shadow:0 5px 10px rgba(120,90,50,.13), inset 0 2px 4px rgba(255,255,255,.8); }
+  #wl-root .wl-charts { display:flex; gap:14px; margin-bottom:16px; }
+  #wl-root .wl-chart { flex:1; background:#fff9ee; border-radius:18px; box-shadow:inset 0 3px 8px rgba(150,120,70,.14); padding:10px; }
+  #wl-root .wl-chart .wc-lbl { font-size:12px; font-weight:700; color:#8b806c; margin-bottom:6px; }
   #wl-root .wl-chart canvas { width:100%; height:64px; display:block; }
-  #wl-root .wl-attrs { display:grid; grid-template-columns:1fr 1fr; gap:6px 18px; font-size:13px; color:#aab8d0; margin-bottom:14px; }
-  #wl-root .wl-attrs b { color:#fff; text-shadow:1px 1px 0 #000; }
-  #wl-root .wl-up { width:100%; padding:10px; border:2px solid #000; box-shadow:0 4px 0 #0b3b24, inset 0 0 0 2px #49e0a0; background:#176b45; color:#fff; font-size:14px; font-weight:800; cursor:pointer; font-family:inherit; }
-  #wl-root .wl-up:active { transform:translateY(2px); box-shadow:0 2px 0 #0b3b24; }
-  #wl-root .wl-up:disabled { filter:grayscale(1) brightness(.6); cursor:not-allowed; }
-  #wl-root .wl-lb { display:flex; flex-direction:column; gap:8px; margin-bottom:10px; }
-  #wl-root .wl-lb-item { display:flex; align-items:center; gap:8px; font-size:13px; color:#dbe4f0; cursor:pointer; }
-  #wl-root .wl-lb-item input { accent-color:#3fe0ff; }
-  #wl-root .wl-be-list { display:flex; flex-direction:column; gap:6px; margin-bottom:8px; }
-  #wl-root .wl-be-row { display:flex; align-items:center; justify-content:space-between; font-size:13px; color:#dbe4f0; padding:7px 10px; background:#0c1220; border:2px solid #000; box-shadow:inset 0 0 0 2px #2a3a5c; }
-  #wl-root .wl-be-row.failed .wl-be-name { color:#ff6b6b; text-decoration:line-through; }
-  #wl-root .wl-fail-btn { font-size:11px; font-weight:700; padding:3px 10px; border:2px solid #000; box-shadow:0 2px 0 #05070f; background:#2a3a5c; color:#ffb0b0; cursor:pointer; }
-  #wl-root .wl-fail-btn:hover { background:#3a2a3a; }
-  #wl-root .wl-lock-note { font-size:12px; color:#8fa3c8; min-height:16px; margin-bottom:10px; }
-  #wl-root .wl-note { font-size:12px; color:#8fa3c8; margin-top:8px; line-height:1.6; }
+  #wl-root .wl-attrs { display:grid; grid-template-columns:1fr 1fr; gap:8px 20px; font-size:13px; color:#6b6354; margin-bottom:16px; }
+  #wl-root .wl-attrs b { color:#4a4035; }
+  #wl-root .wl-up { width:100%; padding:12px; border:none; border-radius:20px; box-shadow:0 10px 18px rgba(90,140,80,.2), inset 0 2px 5px rgba(255,255,255,.7), inset 0 -5px 10px rgba(120,180,110,.18); background:#d9f0cd; color:#3f6b35; font-size:15px; font-weight:800; cursor:pointer; font-family:inherit; }
+  #wl-root .wl-up:active { transform:translateY(2px); }
+  #wl-root .wl-up:disabled { filter:grayscale(1) opacity(.6); cursor:not-allowed; }
+  #wl-root .wl-lb { display:flex; flex-direction:column; gap:10px; margin-bottom:12px; }
+  #wl-root .wl-lb-item { display:flex; align-items:center; gap:10px; font-size:14px; color:#5b5345; cursor:pointer; padding:8px 12px; border-radius:14px; background:#fff9ee; box-shadow:inset 0 2px 5px rgba(150,120,70,.1); }
+  #wl-root .wl-lb-item input { accent-color:#e8a33d; }
+  #wl-root .wl-be-list { display:flex; flex-direction:column; gap:8px; margin-bottom:10px; }
+  #wl-root .wl-be-row { display:flex; align-items:center; justify-content:space-between; font-size:13px; color:#5b5345; padding:9px 12px; background:#fff9ee; border-radius:14px; box-shadow:inset 0 2px 5px rgba(150,120,70,.1); }
+  #wl-root .wl-be-row.failed .wl-be-name { color:#c96a6a; text-decoration:line-through; }
+  #wl-root .wl-fail-btn { font-size:11px; font-weight:700; padding:4px 12px; border:none; border-radius:12px; background:#fde3d5; color:#c96a6a; cursor:pointer; box-shadow:0 4px 8px rgba(150,90,60,.14), inset 0 1px 3px rgba(255,255,255,.7); }
+  #wl-root .wl-fail-btn:hover { background:#fff0e6; }
+  #wl-root .wl-lock-note { font-size:12px; color:#a0917b; min-height:16px; margin-bottom:10px; }
+  #wl-root .wl-note { font-size:12px; color:#a0917b; margin-top:8px; line-height:1.6; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/pixi.js@7.4.2/dist/pixi.min.js"></script>
 <div id="wl-root">
@@ -4005,10 +4007,10 @@
     <div class="wl-brand">让老板看见真实工作量 <small>请求链路 · 负载仿真</small></div>
     <div class="wl-gold">金币 <b id="wl-gold">600</b> <span class="wl-gold-rate" id="wl-gold-rate"></span></div>
     <div class="wl-cards" id="wl-cards">
-      <div class="wl-card" data-type="db"><span class="wl-swatch" style="background:#6366f1"></span><span class="wl-cname">数据库</span><span class="wl-cost">300 金币</span></div>
-      <div class="wl-card" data-type="cache"><span class="wl-swatch" style="background:#3b82f6"></span><span class="wl-cname">缓存服务器</span><span class="wl-cost">250 金币</span></div>
-      <div class="wl-card" data-type="backend"><span class="wl-swatch" style="background:#22c55e"></span><span class="wl-cname">后端服务器</span><span class="wl-cost">200 金币</span></div>
-      <div class="wl-card" data-type="gateway"><span class="wl-swatch" style="background:#f59e0b"></span><span class="wl-cname">网关</span><span class="wl-cost">100 金币</span></div>
+      <div class="wl-card" data-type="db"><span class="wl-emoji">🗄️</span><span class="wl-cname">数据库</span><span class="wl-cost">300 金币</span></div>
+      <div class="wl-card" data-type="cache"><span class="wl-emoji">💽</span><span class="wl-cname">缓存服务器</span><span class="wl-cost">250 金币</span></div>
+      <div class="wl-card" data-type="backend"><span class="wl-emoji">🖥️</span><span class="wl-cname">后端服务器</span><span class="wl-cost">200 金币</span></div>
+      <div class="wl-card" data-type="gateway"><span class="wl-emoji">🌐</span><span class="wl-cname">网关</span><span class="wl-cost">100 金币</span></div>
     </div>
   </div>
   <button class="wl-close" id="wl-close" title="返回教程">✕</button>
@@ -4057,11 +4059,11 @@
       <input type="range" id="wl-scale" min="10" max="600" value="60">
       <span class="wl-val" id="wl-scale-val">60 人/秒</span>
       <span class="wl-label">请求类型</span>
-      <label class="wl-toggle on" data-req="get"><input type="checkbox" checked><span class="wl-dot" style="background:#21c46b"></span>get</label>
-      <label class="wl-toggle on" data-req="list"><input type="checkbox" checked><span class="wl-dot" style="background:#2f9bed"></span>list</label>
-      <label class="wl-toggle on" data-req="save"><input type="checkbox" checked><span class="wl-dot" style="background:#f5a623"></span>save</label>
-      <label class="wl-toggle on" data-req="calculate"><input type="checkbox" checked><span class="wl-dot" style="background:#9254de"></span>calculate</label>
-      <label class="wl-toggle on" data-req="download"><input type="checkbox" checked><span class="wl-dot" style="background:#f43f5e"></span>download</label>
+      <label class="wl-toggle on" data-req="get"><input type="checkbox" checked><span class="wl-dot" style="background:#21c46b"></span>⬇️ get</label>
+      <label class="wl-toggle on" data-req="list"><input type="checkbox" checked><span class="wl-dot" style="background:#2f9bed"></span>📋 list</label>
+      <label class="wl-toggle on" data-req="save"><input type="checkbox" checked><span class="wl-dot" style="background:#f5a623"></span>💾 save</label>
+      <label class="wl-toggle on" data-req="calculate"><input type="checkbox" checked><span class="wl-dot" style="background:#9254de"></span>🧮 calculate</label>
+      <label class="wl-toggle on" data-req="download"><input type="checkbox" checked><span class="wl-dot" style="background:#f43f5e"></span>📥 download</label>
     </div>
     <div class="wl-row wl-hitrow">
       <span class="wl-label">缓存命中率</span>
@@ -4132,7 +4134,7 @@
     container = $('wl-canvas');
     var el2 = document.getElementById('wl-close');
     el2.addEventListener('click', function(){ close(); });
-    app = new PIXI.Application({ width:CONFIG.W, height:CONFIG.H, backgroundColor:0x0a0e1a, antialias:false, autoDensity:true, resolution:Math.max(1, window.devicePixelRatio || 1) });
+    app = new PIXI.Application({ width:CONFIG.W, height:CONFIG.H, backgroundColor:0xf6efe2, transparent:false, antialias:false, autoDensity:true, resolution:Math.max(1, window.devicePixelRatio || 1) });
     app.view.style.width = '100%';
     app.view.style.height = '100%';
     container.appendChild(app.view);
@@ -4167,38 +4169,35 @@
 
   function buildBackground(){
     var g = new PIXI.Graphics();
-    g.beginFill(0x0a0e1a, 1).drawRect(0, 0, CONFIG.W, CONFIG.H).endFill();
-    var step = 24;
+    g.beginFill(0xf6efe2, 1).drawRect(0, 0, CONFIG.W, CONFIG.H).endFill();
+    var step = 28;
     for (var x = 0; x < CONFIG.W; x += step){
       for (var y = 0; y < CONFIG.H; y += step){
-        var shade = ((x / step + y / step) % 2 === 0) ? 0x121a2e : 0x101828;
+        var shade = ((x / step + y / step) % 2 === 0) ? 0xf3ecdf : 0xf7f0e4;
         g.beginFill(shade, 1).drawRect(x, y, step, step).endFill();
       }
     }
-    g.beginFill(0x1a2337, 1);
+    g.beginFill(0xede2cd, 1);
     for (var rx = 340; rx <= 1240; rx += 12){ g.drawRect(rx, 512, 8, 18); }
     g.endFill();
-    g.beginFill(0x2b3b5c, 1);
+    g.beginFill(0xe5d8be, 1);
     for (var ax = 452; ax < 1230; ax += 96){
       g.drawRect(ax, 518, 10, 6);
       g.drawRect(ax - 5, 513, 6, 16);
     }
-    g.endFill();
-    g.beginFill(0x2b3b5c, 1);
-    for (var vy = 285; vy <= 360; vy += 9){ g.drawRect(796, vy, 8, 5); }
     g.endFill();
     layers.bg.addChild(g);
   }
 
   function buildRegions(){
     var keys = ['db', 'cache', 'backend', 'gateway', 'user'];
-    var regionColor = { db:0x2a2450, cache:0x1b3a55, backend:0x1c4233, gateway:0x4a3a1a, user:0x30343e };
-    var regionLine = { db:0x4a44ff, cache:0x3fe0ff, backend:0x49e0a0, gateway:0xffd54a, user:0x7a869c };
+    var regionColor = { db:0xf0e8fb, cache:0xe3f1fa, backend:0xe9f4e7, gateway:0xfbf0dc, user:0xeeeef2 };
+    var regionLine = { db:0xb89fe0, cache:0x9ccae8, backend:0xa4d3a8, gateway:0xe8c58a, user:0xbdbdc8 };
     keys.forEach(function(k){
       var r = CONFIG.regions[k];
       var g = new PIXI.Graphics();
-      g.lineStyle(2, 0x000000, 1).beginFill(regionColor[k], 1).drawRect(r.x, r.y, r.w, r.h).endFill();
-      g.lineStyle(1, regionLine[k], 0.5).drawRect(r.x + 3, r.y + 3, r.w - 6, r.h - 6);
+      g.lineStyle(3, 0xffffff, 0.9).beginFill(regionColor[k], 1).drawRoundedRect(r.x, r.y, r.w, r.h, 22).endFill();
+      g.lineStyle(2, regionLine[k], 0.6).drawRoundedRect(r.x + 5, r.y + 5, r.w - 10, r.h - 10, 18);
       layers.region.addChild(g);
     });
   }
@@ -4207,11 +4206,11 @@
     keys.forEach(function(k){
       var r = CONFIG.regions[k];
       var tb = new PIXI.Graphics();
-      tb.lineStyle(2, 0x000000, 1).beginFill(0x0a0e1a, 0.85).drawRect(r.x + 4, r.y + 4, r.w - 8, 28).endFill();
-      var title = new PIXI.Text(r.label, { fontFamily:FG, fontSize:14, fill:0xffffff, fontWeight:'800', stroke:0x000000, strokeThickness:3 });
-      title.position.set(r.x + 12, r.y + 11);
-      var sub = new PIXI.Text(r.sub, { fontFamily:FG, fontSize:10, fill:0x8fa3c8, stroke:0x000000, strokeThickness:2 });
-      sub.position.set(r.x + 12, r.y + 38);
+      tb.lineStyle(2, 0xffffff, 0.8).beginFill(0xfffdf8, 0.92).drawRoundedRect(r.x + 10, r.y + 10, r.w - 20, 32, 14).endFill();
+      var title = new PIXI.Text(r.label, { fontFamily:FG, fontSize:14, fill:0x6b6354, fontWeight:'800' });
+      title.position.set(r.x + 22, r.y + 18);
+      var sub = new PIXI.Text(r.sub, { fontFamily:FG, fontSize:10, fill:0xa0917b });
+      sub.position.set(r.x + 22, r.y + 38);
       layers.region.addChild(tb, title, sub);
     });
   }
@@ -4285,29 +4284,29 @@
     redrawNodeBody(n);
   }
 
+  var NODE_EMOJI = { db:'🗄️', cache:'💽', backend:'🖥️', gateway:'🌐' };
+  var NODE_TINT = { db:0xd9c4f2, cache:0xc3e2f5, backend:0xd3efd3, gateway:0xf7e2c3 };
   function redrawNodeBody(n){
     var cfg = CONFIG.nodeTypes[n.type];
     var g = n.body;
     g.clear();
-    g.lineStyle(2, 0x000000, 1).beginFill(0x1c2942, 1).drawRect(-n.w / 2, -n.h / 2, n.w, n.h).endFill();
-    g.beginFill(0x3a4c6e, 1).drawRect(-n.w / 2 + 2, -n.h / 2 + 2, n.w - 4, 5).endFill();
-    g.beginFill(0x0a0e1a, 1).drawRect(-n.w / 2 + 2, n.h / 2 - 5, n.w - 4, 3).endFill();
-    g.beginFill(cfg.color, 1).drawRect(-n.w / 2 + 3, -n.h / 2 + 4, n.w - 6, 24).endFill();
-    g.beginFill(0x000000, 0.14);
-    for (var hx = -n.w / 2 + 8; hx < n.w / 2 - 8; hx += 8){
-      for (var hy = -n.h / 2 + 8; hy < -n.h / 2 + 24; hy += 8){ g.drawRect(hx, hy, 4, 4); }
+    var w = n.w, h = n.h;
+    var tint = NODE_TINT[n.type] || 0xffffff;
+    g.lineStyle(3, 0xffffff, 0.9).beginFill(tint, 1).drawRoundedRect(-w / 2, -h / 2, w, h, 18).endFill();
+    g.lineStyle(2, 0xe8ddc8, 1).drawRoundedRect(-w / 2 + 4, -h / 2 + 4, w - 8, h - 8, 14);
+    g.lineStyle(2, 0xffffff, 0.5).drawRoundedRect(-w / 2 + 7, -h / 2 + 7, w - 14, h - 14, 11);
+    var em = n.emojiText;
+    if (!em){
+      em = new PIXI.Text('', { fontFamily:'"Segoe UI Emoji","Apple Color Emoji",sans-serif', fontSize:40, align:'center' });
+      em.anchor.set(0.5);
+      em.position.set(0, -8);
+      n.container.addChild(em);
+      n.emojiText = em;
     }
-    g.endFill();
-    g.beginFill(0xffffff, 0.05);
-    for (var px = -n.w / 2 + 8; px < n.w / 2 - 8; px += 10){
-      for (var py = -n.h / 2 + 34; py < n.h / 2 - 8; py += 10){
-        if (((px >> 3) + (py >> 3)) % 2 === 0) g.drawRect(px, py, 5, 5);
-      }
-    }
-    g.endFill();
+    em.text = NODE_EMOJI[n.type] || '❔';
     n.labelText.text = cfg.short + ' L' + n.level;
     if (n.failed){
-      n.container.alpha = 0.5;
+      n.container.alpha = 0.55;
       n.failedBadge.visible = true;
     } else {
       n.container.alpha = 1;
@@ -4584,7 +4583,7 @@
     var cfg = CONFIG.nodeTypes[type];
     var valid = null;
     mask.clear();
-    mask.beginFill(0x050a14, 0.55).drawRect(0, 0, CONFIG.W, CONFIG.H).endFill();
+    mask.beginFill(0xfffdf8, 0.62).drawRect(0, 0, CONFIG.W, CONFIG.H).endFill();
     var inside = lx >= reg.x && lx <= reg.x + reg.w && ly >= reg.y && ly <= reg.y + reg.h;
     if (inside && countNode(type) < cfg.slots){
       var px = Math.max(reg.x + cfg.w / 2, Math.min(reg.x + reg.w - cfg.w / 2, lx));
@@ -4592,8 +4591,8 @@
       var collide = nodes.some(function(n){ return n.type === type && Math.abs(n.x - px) < cfg.w && Math.abs(n.y - py) < cfg.h; });
       if (!collide){
         valid = { x: px, y: py };
-        mask.beginFill(0xffd54a, 0.28).lineStyle(2, 0xffd54a, 0.95).drawRect(reg.x, reg.y, reg.w, reg.h).endFill();
-        mask.beginFill(0xffffff, 0.10).lineStyle(2, 0xffd54a, 0.9).drawRect(px - cfg.w / 2, py - cfg.h / 2, cfg.w, cfg.h).endFill();
+        mask.beginFill(0x9fd8a8, 0.30).lineStyle(2, 0x6cbf7c, 0.95).drawRect(reg.x, reg.y, reg.w, reg.h).endFill();
+        mask.beginFill(0xffffff, 0.35).lineStyle(2, 0x6cbf7c, 0.9).drawRect(px - cfg.w / 2, py - cfg.h / 2, cfg.w, cfg.h).endFill();
       }
     }
     dragActive.valid = valid;
