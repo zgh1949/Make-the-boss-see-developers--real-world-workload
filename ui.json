@@ -1,0 +1,334 @@
+{
+  "image": "农村全图.png",
+  "width": 1024,
+  "height": 768,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "yAxis": "down",
+  "units": "px",
+  "shapes": [
+    {
+      "id": "shape_lvmb2q",
+      "label": "卡片栏",
+      "type": "polygon",
+      "color": "#d4ff00",
+      "closed": true,
+      "points": [
+        {
+          "x": 34,
+          "y": 71
+        },
+        {
+          "x": 378,
+          "y": 72
+        },
+        {
+          "x": 379,
+          "y": 185,
+          "hIn": {
+            "x": 2,
+            "y": -2
+          },
+          "hOut": {
+            "x": -2,
+            "y": 2
+          },
+          "smooth": true
+        },
+        {
+          "x": 34,
+          "y": 187
+        }
+      ]
+    },
+    {
+      "id": "shape_52ajuy",
+      "label": "第一个卡片",
+      "type": "polygon",
+      "color": "#00d4ff",
+      "closed": true,
+      "points": [
+        {
+          "x": 53,
+          "y": 82
+        },
+        {
+          "x": 124,
+          "y": 84
+        },
+        {
+          "x": 124,
+          "y": 177
+        },
+        {
+          "x": 55,
+          "y": 176
+        }
+      ]
+    },
+    {
+      "id": "shape_f3003w",
+      "label": "数据库区",
+      "type": "polygon",
+      "color": "#ff4d8d",
+      "closed": true,
+      "points": [
+        {
+          "x": 36,
+          "y": 327
+        },
+        {
+          "x": 195,
+          "y": 327
+        },
+        {
+          "x": 197,
+          "y": 509
+        },
+        {
+          "x": 42,
+          "y": 510
+        }
+      ]
+    },
+    {
+      "id": "shape_9hvz8i",
+      "label": "缓存服务器区域",
+      "type": "polygon",
+      "color": "#ffa500",
+      "closed": true,
+      "points": [
+        {
+          "x": 304,
+          "y": 207
+        },
+        {
+          "x": 475,
+          "y": 206
+        },
+        {
+          "x": 480,
+          "y": 294
+        },
+        {
+          "x": 305,
+          "y": 293
+        }
+      ]
+    },
+    {
+      "id": "shape_wgdfr5",
+      "label": "后端服务器区域",
+      "type": "polygon",
+      "color": "#a0ff60",
+      "closed": true,
+      "points": [
+        {
+          "x": 292,
+          "y": 384
+        },
+        {
+          "x": 516,
+          "y": 387
+        },
+        {
+          "x": 516,
+          "y": 563
+        },
+        {
+          "x": 291,
+          "y": 568
+        }
+      ]
+    },
+    {
+      "id": "shape_7gc4wu",
+      "label": "网关区域",
+      "type": "polygon",
+      "color": "#ff6464",
+      "closed": true,
+      "points": [
+        {
+          "x": 624,
+          "y": 389
+        },
+        {
+          "x": 624,
+          "y": 475
+        },
+        {
+          "x": 744,
+          "y": 473
+        },
+        {
+          "x": 740,
+          "y": 395
+        }
+      ]
+    },
+    {
+      "id": "shape_ucnt04",
+      "label": "用户区域",
+      "type": "polygon",
+      "color": "#9c64ff",
+      "closed": true,
+      "points": [
+        {
+          "x": 868,
+          "y": 202
+        },
+        {
+          "x": 871,
+          "y": 541
+        },
+        {
+          "x": 983,
+          "y": 539
+        },
+        {
+          "x": 980,
+          "y": 207
+        }
+      ]
+    },
+    {
+      "id": "shape_r84znx",
+      "label": "说明区域",
+      "type": "polygon",
+      "color": "#64ffd4",
+      "closed": true,
+      "points": [
+        {
+          "x": 8,
+          "y": 596
+        },
+        {
+          "x": 309,
+          "y": 594
+        },
+        {
+          "x": 313,
+          "y": 763
+        },
+        {
+          "x": 9,
+          "y": 762
+        }
+      ]
+    },
+    {
+      "id": "shape_yqez0f",
+      "label": "状态区域和业务两个控制滑块区域",
+      "type": "polygon",
+      "color": "#d4ff00",
+      "closed": true,
+      "points": [
+        {
+          "x": 321,
+          "y": 761
+        },
+        {
+          "x": 739,
+          "y": 763
+        },
+        {
+          "x": 741,
+          "y": 584
+        },
+        {
+          "x": 716,
+          "y": 568
+        },
+        {
+          "x": 331,
+          "y": 571
+        },
+        {
+          "x": 317,
+          "y": 586
+        }
+      ]
+    },
+    {
+      "id": "shape_zb8gg8",
+      "label": "请求类型开关区域",
+      "type": "polygon",
+      "color": "#00d4ff",
+      "closed": true,
+      "points": [
+        {
+          "x": 752,
+          "y": 597
+        },
+        {
+          "x": 748,
+          "y": 761
+        },
+        {
+          "x": 1011,
+          "y": 763
+        },
+        {
+          "x": 1009,
+          "y": 601
+        },
+        {
+          "x": 1004,
+          "y": 593
+        }
+      ]
+    },
+    {
+      "id": "shape_qjdvru",
+      "label": "QPS 用户数区域",
+      "type": "polygon",
+      "color": "#ff4d8d",
+      "closed": true,
+      "points": [
+        {
+          "x": 342,
+          "y": 581
+        },
+        {
+          "x": 339,
+          "y": 645
+        },
+        {
+          "x": 719,
+          "y": 642
+        },
+        {
+          "x": 718,
+          "y": 580
+        }
+      ]
+    },
+    {
+      "id": "shape_01p2vq",
+      "label": "Get按钮开关",
+      "type": "polygon",
+      "color": "#ffa500",
+      "closed": true,
+      "points": [
+        {
+          "x": 782,
+          "y": 630
+        },
+        {
+          "x": 783,
+          "y": 656
+        },
+        {
+          "x": 862,
+          "y": 656
+        },
+        {
+          "x": 859,
+          "y": 627
+        }
+      ]
+    }
+  ]
+}
