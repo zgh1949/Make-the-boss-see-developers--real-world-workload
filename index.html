@@ -3931,7 +3931,7 @@
 <style>
   /* ===== 工作量仿真场景（Claymorphism 奶油亮色版） ===== */
   #wl-root { position:fixed; inset:0; z-index:30000; background:linear-gradient(160deg,#f7efe3 0%,#fdf8ef 40%,#f3e9d8 100%); color:#5b5345; font-family:"Microsoft YaHei","PingFang SC",sans-serif; display:none; overflow:hidden; }
-  #wl-root .wl-topbar { position:absolute; top:16px; left:16px; right:16px; height:86px; display:flex; align-items:center; padding:0 20px; gap:14px; background:#f9f2e6; border-radius:24px; box-shadow:0 10px 24px rgba(120,90,50,.14), inset 0 2px 6px rgba(255,255,255,.75), inset 0 -4px 8px rgba(160,130,80,.10); z-index:30; }
+  #wl-root .wl-topbar { position:absolute; top:16px; left:16px; right:16px; height:86px; display:flex; align-items:center; padding:0 64px 0 20px; gap:14px; background:#f9f2e6; border-radius:24px; box-shadow:0 10px 24px rgba(120,90,50,.14), inset 0 2px 6px rgba(255,255,255,.75), inset 0 -4px 8px rgba(160,130,80,.10); z-index:30; }
   #wl-root .wl-brand { font-size:18px; font-weight:800; color:#4a4035; letter-spacing:1px; white-space:nowrap; }
   #wl-root .wl-brand small { font-size:11px; font-weight:600; color:#a0917b; margin-left:8px; }
   #wl-root .wl-gold { font-size:13px; color:#7a5c1e; font-weight:800; background:#fff7e0; border-radius:16px; padding:8px 16px; box-shadow:0 6px 14px rgba(150,110,40,.14), inset 0 2px 4px rgba(255,255,255,.8), inset 0 -3px 6px rgba(180,140,60,.16); }
@@ -3948,10 +3948,10 @@
   #wl-root .wl-card.locked::after { content:'🔒'; position:absolute; inset:0; border-radius:22px; background:rgba(250,244,232,.6); display:flex; align-items:center; justify-content:center; font-size:22px; }
   #wl-root .wl-card.insufficient .wl-cost { color:#d97474; }
   #wl-root .wl-ghost { position:fixed; z-index:40000; pointer-events:none; opacity:.9; transform:scale(1.04) rotate(2deg); filter:drop-shadow(0 12px 20px rgba(120,90,50,.28)); }
-  #wl-root .wl-metrics { position:absolute; top:120px; right:16px; width:230px; background:#f9f2e6; border-radius:24px; box-shadow:0 10px 24px rgba(120,90,50,.14), inset 0 2px 6px rgba(255,255,255,.75), inset 0 -4px 8px rgba(160,130,80,.10); padding:14px 18px; z-index:30; }
-  #wl-root .wl-metrics .wm-title { font-size:11px; font-weight:800; color:#a0917b; margin-bottom:8px; letter-spacing:2px; }
-  #wl-root .wl-metric { display:flex; justify-content:space-between; align-items:baseline; padding:4px 0; font-size:14px; color:#6b6354; }
-  #wl-root .wl-metric b { font-size:19px; color:#4a4035; }
+  #wl-root .wl-metrics { display:flex; align-items:center; gap:16px; background:#fff7e0; border-radius:18px; box-shadow:0 6px 14px rgba(150,110,40,.14), inset 0 2px 4px rgba(255,255,255,.8), inset 0 -3px 6px rgba(180,140,60,.16); padding:8px 16px; }
+  #wl-root .wl-metrics .wm-title { font-size:11px; font-weight:800; color:#a0917b; letter-spacing:1px; white-space:nowrap; }
+  #wl-root .wl-metric { display:flex; flex-direction:column; align-items:center; gap:2px; font-size:11px; font-weight:700; color:#8b806c; white-space:nowrap; }
+  #wl-root .wl-metric b { font-size:17px; color:#4a4035; line-height:1; }
   #wl-root .wl-metric.qps b { color:#2f9bed; }
   #wl-root .wl-metric.real b { color:#9254de; }
   #wl-root .wl-metric.users b { color:#21c46b; }
@@ -4012,14 +4012,14 @@
       <div class="wl-card" data-type="backend"><span class="wl-emoji">🖥️</span><span class="wl-cname">后端服务器</span><span class="wl-cost">200 金币</span></div>
       <div class="wl-card" data-type="gateway"><span class="wl-emoji">🌐</span><span class="wl-cname">网关</span><span class="wl-cost">100 金币</span></div>
     </div>
+    <div class="wl-metrics">
+      <div class="wm-title">核心指标（每秒刷新）</div>
+      <div class="wl-metric qps">理论 QPS <b id="wl-qps-theory">0</b></div>
+      <div class="wl-metric real">真实 QPS <b id="wl-qps-real">0</b></div>
+      <div class="wl-metric users">在线用户 <b id="wl-users">0</b></div>
+    </div>
   </div>
   <button class="wl-close" id="wl-close" title="返回教程">✕</button>
-  <div class="wl-metrics">
-    <div class="wm-title">核心指标（每秒刷新）</div>
-    <div class="wl-metric qps">理论 QPS <b id="wl-qps-theory">0</b></div>
-    <div class="wl-metric real">真实 QPS <b id="wl-qps-real">0</b></div>
-    <div class="wl-metric users">在线用户 <b id="wl-users">0</b></div>
-  </div>
   <div id="wl-canvas"></div>
   <div class="wl-modal-bg" id="wl-modal-bg"></div>
   <div class="wl-modal" id="wl-detail">
