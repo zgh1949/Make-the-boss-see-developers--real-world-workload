@@ -3934,9 +3934,9 @@
   #wl-root .wl-topbar { position:absolute; top:16px; left:16px; right:16px; height:86px; display:flex; align-items:center; padding:0 64px 0 20px; gap:14px; background:#f7f9fc; border-radius:24px; box-shadow:0 10px 24px rgba(20,30,48,.10), inset 0 2px 6px rgba(255,255,255,.75), inset 0 -4px 8px rgba(160,172,190,.12); z-index:30; }
   #wl-root .wl-brand { font-size:18px; font-weight:800; color:#2c3e50; letter-spacing:1px; white-space:nowrap; }
   #wl-root .wl-brand small { font-size:11px; font-weight:600; color:#8a94a6; margin-left:8px; }
-  #wl-root .wl-gold { font-size:13px; color:#b8860b; font-weight:800; background:#fffbe6; border-radius:16px; padding:8px 16px; box-shadow:0 6px 14px rgba(20,30,48,.10), inset 0 2px 4px rgba(255,255,255,.8), inset 0 -3px 6px rgba(200,170,90,.18); }
-  #wl-root .wl-gold .wl-gold-rate { font-size:11px; color:#c9a24e; font-weight:600; }
-  #wl-root .wl-gold b { font-size:19px; color:#b8860b; }
+  #wl-root .wl-cost-chip { font-size:13px; color:#b8860b; font-weight:800; background:#fffbe6; border-radius:16px; padding:8px 16px; box-shadow:0 6px 14px rgba(20,30,48,.10), inset 0 2px 4px rgba(255,255,255,.8), inset 0 -3px 6px rgba(200,170,90,.18); }
+  #wl-root .wl-cost-chip .wl-cost-sub { font-size:11px; color:#c9a24e; font-weight:600; margin-left:6px; }
+  #wl-root .wl-cost-chip b { font-size:19px; color:#b8860b; }
   #wl-root .wl-cards { margin-left:auto; display:flex; gap:14px; padding-right:8px; }
   #wl-root .wl-card { width:104px; height:126px; cursor:grab; background:#ffffff; border-radius:22px; box-shadow:0 10px 20px rgba(20,30,48,.12), inset 0 3px 8px rgba(255,255,255,.85), inset 0 -6px 10px rgba(210,220,232,.35); display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:10px 6px 8px; position:relative; user-select:none; transition:transform .18s ease, box-shadow .18s ease; }
   #wl-root .wl-card:hover { transform:translateY(-4px); box-shadow:0 16px 28px rgba(20,30,48,.16), inset 0 3px 8px rgba(255,255,255,.85), inset 0 -6px 10px rgba(210,220,232,.35); }
@@ -4005,12 +4005,12 @@
 <div id="wl-root">
   <div class="wl-topbar">
     <div class="wl-brand">让老板看见真实工作量 <small>请求链路 · 负载仿真</small></div>
-    <div class="wl-gold">金币 <b id="wl-gold">600</b> <span class="wl-gold-rate" id="wl-gold-rate"></span></div>
+    <div class="wl-cost-chip">云成本 <b id="wl-cost">¥0/月</b><span class="wl-cost-sub" id="wl-cost-sub">共 0 台</span></div>
     <div class="wl-cards" id="wl-cards">
-      <div class="wl-card" data-type="db"><span class="wl-emoji">🗄️</span><span class="wl-cname">数据库</span><span class="wl-cost">300 金币</span></div>
-      <div class="wl-card" data-type="cache"><span class="wl-emoji">💽</span><span class="wl-cname">缓存服务器</span><span class="wl-cost">250 金币</span></div>
-      <div class="wl-card" data-type="backend"><span class="wl-emoji">🖥️</span><span class="wl-cname">后端服务器</span><span class="wl-cost">200 金币</span></div>
-      <div class="wl-card" data-type="gateway"><span class="wl-emoji">🌐</span><span class="wl-cname">网关</span><span class="wl-cost">100 金币</span></div>
+      <div class="wl-card" data-type="db"><span class="wl-emoji">🗄️</span><span class="wl-cname">数据库</span><span class="wl-cost">¥950/月</span></div>
+      <div class="wl-card" data-type="cache"><span class="wl-emoji">💽</span><span class="wl-cname">缓存服务器</span><span class="wl-cost">¥260/月</span></div>
+      <div class="wl-card" data-type="backend"><span class="wl-emoji">🖥️</span><span class="wl-cname">后端服务器</span><span class="wl-cost">¥360/月</span></div>
+      <div class="wl-card" data-type="gateway"><span class="wl-emoji">🌐</span><span class="wl-cname">网关</span><span class="wl-cost">¥170/月</span></div>
     </div>
     <div class="wl-metrics">
       <div class="wm-title">核心指标（每秒刷新）</div>
@@ -4024,6 +4024,7 @@
   <div class="wl-modal-bg" id="wl-modal-bg"></div>
   <div class="wl-modal" id="wl-detail">
     <div class="wm-hd"><h3 id="wl-detail-title">节点详情</h3><span class="wm-x" data-close="wl-detail">关闭</span></div>
+    <div class="wl-note" id="wl-node-meta" style="margin-top:0"></div>
     <div class="wl-charts">
       <div class="wl-chart"><div class="wc-lbl">CPU 占用率</div><canvas id="wl-cpu-chart" width="240" height="64"></canvas></div>
       <div class="wl-chart"><div class="wc-lbl">内存占用率</div><canvas id="wl-mem-chart" width="240" height="64"></canvas></div>
@@ -4085,10 +4086,10 @@
     W: 1920, H: 740,
     threadsPerCore: 10,
     nodeTypes: {
-      db:      { label:'数据库',     short:'数据库', color:0x6366f1, cost:300, cores:8,  mem:4096, upgradeCost:200, perLevel:{cores:4, mem:2048}, slots:3, w:92,  h:88,  upgradeable:true },
-      cache:   { label:'缓存服务器', short:'缓存',   color:0x3b82f6, cost:250, cores:2,  mem:1024, upgradeCost:150, perLevel:{cores:2, mem:512},  slots:3, w:92,  h:82,  upgradeable:true },
-      backend: { label:'后端服务器', short:'后端',   color:0x22c55e, cost:200, cores:4,  mem:2048, upgradeCost:150, perLevel:{cores:2, mem:1024}, slots:5, w:104, h:92,  upgradeable:true },
-      gateway: { label:'网关',       short:'网关',   color:0xf59e0b, cost:100, cores:2,  mem:1024, upgradeCost:0,   perLevel:{cores:0, mem:0},   slots:1, w:100, h:86,  upgradeable:false }
+      db:      { label:'数据库',     short:'数据库', color:0x6366f1, monthly:950, perMonthly:400, instance:'ecs.g7.2xlarge · 8 vCPU · 32GB', cores:8,  mem:4096, perLevel:{cores:4, mem:2048}, slots:3, w:92,  h:88,  upgradeable:true },
+      cache:   { label:'缓存服务器', short:'缓存',   color:0x3b82f6, monthly:260, perMonthly:120, instance:'ecs.g7.large · 2 vCPU · 8GB',  cores:2,  mem:1024, perLevel:{cores:2, mem:512},  slots:3, w:92,  h:82,  upgradeable:true },
+      backend: { label:'后端服务器', short:'后端',   color:0x22c55e, monthly:360, perMonthly:180, instance:'ecs.c7.xlarge · 4 vCPU · 8GB', cores:4,  mem:2048, perLevel:{cores:2, mem:1024}, slots:5, w:104, h:92,  upgradeable:true },
+      gateway: { label:'网关',       short:'网关',   color:0xf59e0b, monthly:170, perMonthly:0,   instance:'ecs.c7.large · 2 vCPU · 4GB',  cores:2,  mem:1024, perLevel:{cores:0, mem:0},   slots:1, w:100, h:86,  upgradeable:false }
     },
     reqTypes: {
       get:       { label:'get',       color:0x21c46b, cacheable:true,  cpu:1, mem:8,  backendMs:40,  dbMs:60,  cacheMs:10, rev:1 },
@@ -4107,7 +4108,7 @@
   };
   var app = null, container = null, layers = null, ready = false, failedLoad = false;
   var nodes = [], users = [], rays = [], floats = [], completions = [];
-  var gold = 600, userScale = 60, hitRate = 0.5, burst = false, burstTimer = 0;
+  var userScale = 60, hitRate = 0.5, burst = false, burstTimer = 0;
   var reqEnabled = { get:true, list:true, save:true, calculate:true, download:true };
   var lbStrategy = 'round', roundRobin = 0;
   var spawnAcc = 0, detailNode = null, dragActive = null;
@@ -4171,7 +4172,7 @@
     });
     setInterval(updateSimUI, 250);
     updateUnlocks();
-    updateGoldUI();
+    updateCostUI();
     ready = true;
   }
 
@@ -4327,9 +4328,6 @@
 
   function tryDeploy(type, pos){
     var cfg = CONFIG.nodeTypes[type];
-    if (gold < cfg.cost) return false;
-    gold -= cfg.cost;
-    updateGoldUI();
     var node = {
       type: type, level: 1,
       cores: cfg.cores, memMax: cfg.mem, maxThreads: cfg.cores * CONFIG.threadsPerCore,
@@ -4341,6 +4339,7 @@
     nodes.push(node);
     buildNodeSprite(node);
     updateUnlocks();
+    updateCostUI();
     return true;
   }
 
@@ -4366,21 +4365,23 @@
     $('wl-lb-note').textContent = beCount >= 2 ? '负载均衡策略已解锁' : '解锁条件：部署 2 台以上后端服务器';
     document.querySelectorAll('#wl-lb input').forEach(function(r){ r.disabled = beCount < 2; });
     var hint = '';
-    if (gwCount < 1 || beCount < 1) hint = '起始资金 600 金币：先部署网关（100）、一台后端（200）、一台数据库（300），流量跑通后每完成一个请求赚取金币。';
-    else if (dbCount < 1) hint = '还差数据库（300 金币）。所有请求都要落库，部署后流量跑通、金币开始正向增长。';
-    else if (cacheCount < 1) hint = '再部署缓存服务器（250 金币，后端正上方旁路区），读请求命中缓存后走蓝色垂直短线，不再压数据库。';
-    else if (beCount < 2) hint = '缓存已就位。赚够金币再部署一台后端（200 金币），可解锁网关的负载均衡与故障模拟。';
-    else hint = '完整链路已就绪。请求持续赚取金币用于扩容升级；拉高用户量级观察负载：CPU 满载请求排队、内存耗尽（download）请求失败，真实 QPS 在瓶颈节点触顶。';
+    if (gwCount < 1 || beCount < 1) hint = '先部署网关、后端、数据库，把请求链路跑通。顶栏云成本 = 各节点阿里云包月单价之和，部署即产生费用。';
+    else if (dbCount < 1) hint = '还差数据库。所有请求都要落库，部署后链路打通，云成本 +¥' + CONFIG.nodeTypes.db.monthly + '/月。';
+    else if (cacheCount < 1) hint = '再部署缓存服务器（后端正上方旁路区），读请求命中缓存后走蓝色垂直短线，不再压数据库。';
+    else if (beCount < 2) hint = '缓存已就位。再部署一台后端（¥' + CONFIG.nodeTypes.backend.monthly + '/月），解锁网关的负载均衡与故障模拟。';
+    else hint = '完整链路已就绪。拉高用户量级观察负载：CPU 满载请求排队、内存耗尽（download）请求失败，真实 QPS 在瓶颈节点触顶。云成本按阿里云包月单价汇总，升级节点会提高月费。';
     $('wl-hint').textContent = hint;
   }
 
-  function updateGoldUI(){
-    $('wl-gold').textContent = gold;
-    document.querySelectorAll('#wl-cards .wl-card').forEach(function(card){
-      var type = card.getAttribute('data-type');
-      var cost = CONFIG.nodeTypes[type].cost;
-      card.classList.toggle('insufficient', gold < cost);
-    });
+  function nodeMonthly(n){
+    var cfg = CONFIG.nodeTypes[n.type];
+    return cfg.monthly + (n.level - 1) * cfg.perMonthly;
+  }
+  function updateCostUI(){
+    var total = 0;
+    nodes.forEach(function(n){ total += nodeMonthly(n); });
+    $('wl-cost').textContent = '¥' + total + '/月';
+    $('wl-cost-sub').textContent = '共 ' + nodes.length + ' 台';
   }
 
   function bindUI(){
@@ -4414,10 +4415,6 @@
       var n = detailNode;
       var cfg = CONFIG.nodeTypes[n.type];
       if (!cfg.upgradeable) return;
-      var cost = cfg.upgradeCost * n.level;
-      if (gold < cost) return;
-      gold -= cost;
-      updateGoldUI();
       n.level++;
       n.cores += cfg.perLevel.cores;
       n.memMax += cfg.perLevel.mem;
@@ -4425,6 +4422,7 @@
       redrawNodeBody(n);
       updateDetailUI();
       updateUnlocks();
+      updateCostUI();
     });
     initCards();
   }
@@ -4438,12 +4436,11 @@
     rays = [];
     floats = [];
     completions = [];
-    gold = 600;
     detailNode = null;
     lbStrategy = 'round';
     roundRobin = 0;
     hideModals();
-    updateGoldUI();
+    updateCostUI();
     updateUnlocks();
   }
 
@@ -4474,10 +4471,11 @@
     drawChart($('wl-cpu-chart'), n.hist.map(function(h){ return h.cpu; }), '#eb2f96');
     drawChart($('wl-mem-chart'), n.hist.map(function(h){ return h.mem; }), '#2f9bed');
     var cfg = CONFIG.nodeTypes[n.type];
+    var meta = $('wl-node-meta');
+    if (meta) meta.textContent = '阿里云实例 ' + cfg.instance + ' · 包月 ¥' + nodeMonthly(n) + '/月';
     if (cfg.upgradeable){
-      var cost = cfg.upgradeCost * n.level;
-      $('wl-up').disabled = gold < cost;
-      $('wl-up').textContent = '升级 ( ' + cost + ' 金币 · CPU +' + cfg.perLevel.cores + ' 核 / 内存 +' + cfg.perLevel.mem + ' MB )';
+      $('wl-up').disabled = false;
+      $('wl-up').textContent = '升级 ( +' + cfg.perLevel.cores + ' 核 / +' + cfg.perLevel.mem + ' MB · 月成本 +¥' + cfg.perMonthly + ' )';
     } else {
       $('wl-up').disabled = true;
       $('wl-up').textContent = '网关不可升级';
@@ -4887,11 +4885,6 @@
     $('wl-qps-real').textContent = completions.length;
     $('wl-users').textContent = users.length;
     $('wl-qps-theory').textContent = Math.round(theoryQps());
-    var gRate = 0;
-    completions.forEach(function(c){ gRate += c.rev; });
-    $('wl-gold').textContent = Math.round(gold);
-    $('wl-gold-rate').textContent = gRate > 0 ? '+' + gRate + ' /秒' : '';
-    updateGoldUI();
     updateDetailUI();
   }
 
@@ -4939,7 +4932,6 @@
     be.stamps.push(now);
     if (r.db){ r.db.threadsUsed -= r.type.cpu; r.db.memUsed -= r.type.mem; r.db.completed++; r.db.stamps.push(now); }
     if (r.cache){ r.cache.threadsUsed -= r.type.cpu; r.cache.memUsed -= r.type.mem; r.cache.completed++; r.cache.stamps.push(now); }
-    gold += r.type.rev;
     completions.push({ t: now, rev: r.type.rev });
     if (r.user){ r.user.state = 'done'; r.user.fadeStart = now; }
   }
