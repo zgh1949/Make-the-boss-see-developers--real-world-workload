@@ -4080,7 +4080,7 @@
 (function(){
   if (!document.getElementById('wl-root')) return;
   var $ = function(id){ return document.getElementById(id); };
-  var FG = '"Microsoft YaHei","PingFang SC",sans-serif';
+  var FG = '"Microsoft YaHei","PingFang SC","Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
   var CONFIG = {
     W: 1920, H: 740,
     threadsPerCore: 10,
@@ -4660,10 +4660,8 @@
     var reg = CONFIG.regions.user;
     var x = reg.x + 40 + Math.random() * (reg.w - 80);
     var y = reg.y + 40 + Math.random() * (reg.h - 80);
-    var g = new PIXI.Graphics();
-    g.lineStyle(1, 0x000000, 1).beginFill(0x9fb0c8, 1).drawRect(-8, -8, 16, 16).endFill();
-    g.beginFill(0xffffff, 0.35).drawRect(-8, -8, 16, 4).endFill();
-    g.beginFill(0x0a0e1a, 0.3).drawRect(-8, 4, 16, 4).endFill();
+    var g = new PIXI.Text(['👤','🧑','🙋','💁','🧍'][Math.floor(Math.random() * 5)], { fontFamily:FG, fontSize:22, fontWeight:'700' });
+    g.anchor.set(0.5);
     g.position.set(x, y);
     layers.fx.addChild(g);
     var u = { x: x, y: y, body: g, req: null, state: 'waiting', fadeStart: 0, seed: Math.random() * 100 };
@@ -4794,17 +4792,11 @@
   }
 
   function floatText(u, t, dur){
-    var bubble = new PIXI.Container();
-    var bg = new PIXI.Graphics();
-    bg.lineStyle(2, 0x000000, 1).beginFill(0x0a0e1a, 0.88).drawRect(-26, -13, 52, 26).endFill();
-    bg.lineStyle(1, t.color, 0.8).drawRect(-24, -11, 48, 22);
     var txt = new PIXI.Text(t.label, { fontFamily:FG, fontSize:15, fill:t.color, fontWeight:'800', stroke:0x000000, strokeThickness:3 });
     txt.anchor.set(0.5);
-    txt.position.set(0, 0);
-    bubble.addChild(bg, txt);
-    bubble.position.set(u.x, u.y - 20);
-    layers.fx.addChild(bubble);
-    floats.push({ t: bubble, x: u.x, y: u.y - 20, start: performance.now(), dur: dur });
+    txt.position.set(u.x, u.y - 20);
+    layers.fx.addChild(txt);
+    floats.push({ t: txt, x: u.x, y: u.y - 20, start: performance.now(), dur: dur });
   }
 
   function updateFloats(now, dt){
