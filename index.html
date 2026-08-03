@@ -4708,7 +4708,7 @@
     if (dbMs && (!d || d.failed || !canHold(d, t))){ failReq(r, '数据库不可用'); return; }
     if (cacheMs && !canHold(c, t)){ failReq(r, '缓存不可用'); return; }
     r.db = d;
-    r.cache = c;
+    r.cache = cacheMs ? c : null;
     r.total = 6 + beMs + dbMs + cacheMs;
     be.threadsUsed += t.cpu;
     be.memUsed += t.mem;
