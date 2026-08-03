@@ -3955,8 +3955,8 @@
   #wl-root .wl-metric.qps b { color:#2f9bed; }
   #wl-root .wl-metric.real b { color:#9254de; }
   #wl-root .wl-metric.users b { color:#21c46b; }
-  #wl-root #wl-canvas { position:absolute; top:118px; left:16px; right:16px; bottom:150px; border-radius:28px; overflow:hidden; box-shadow:inset 0 0 0 2px rgba(255,255,255,.6), 0 12px 28px rgba(120,90,50,.12); }
-  #wl-root #wl-canvas canvas { display:block; width:100% !important; height:100% !important; }
+  #wl-root #wl-canvas { position:absolute; top:118px; left:16px; right:16px; bottom:150px; border-radius:28px; overflow:hidden; box-shadow:inset 0 0 0 2px rgba(255,255,255,.6), 0 12px 28px rgba(120,90,50,.12); display:flex; align-items:center; justify-content:center; }
+  #wl-root #wl-canvas canvas { display:block; }
   #wl-root .wl-controls { position:absolute; bottom:16px; left:16px; right:16px; height:118px; background:#f9f2e6; border-radius:24px; box-shadow:0 10px 24px rgba(120,90,50,.14), inset 0 2px 6px rgba(255,255,255,.75), inset 0 -4px 8px rgba(160,130,80,.10); padding:14px 22px; z-index:30; display:flex; flex-direction:column; gap:6px; }
   #wl-root .wl-row { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
   #wl-root .wl-row .wl-label { font-size:13px; font-weight:700; color:#8b806c; min-width:78px; }
@@ -4118,6 +4118,7 @@
       else init();
     }
     $('wl-root').style.display = 'block';
+    fitCanvas();
     if (ready && failedLoad){
       $('wl-canvas').innerHTML = '<div style="padding:48px 20px;font-size:14px;color:#94a3b8;line-height:1.9;text-align:center">PixiJS 加载失败（当前环境无法访问 CDN）。<br>请联网后刷新页面重试，或将 pixi.min.js 下载到本地并替换脚本引入地址。</div>';
     }
@@ -4127,6 +4128,15 @@
     $('wl-root').style.display = 'none';
     if (ready && app) app.stop();
   }
+  function fitCanvas(){
+    if (!container || !app) return;
+    var cw = container.clientWidth, ch = container.clientHeight;
+    if (!cw || !ch) return;
+    var s = Math.min(cw / CONFIG.W, ch / CONFIG.H);
+    app.view.style.width = Math.floor(CONFIG.W * s) + 'px';
+    app.view.style.height = Math.floor(CONFIG.H * s) + 'px';
+  }
+  window.addEventListener('resize', fitCanvas);
   window.showWorkloadScene = show;
   window.closeWorkloadScene = close;
 
@@ -4135,8 +4145,6 @@
     var el2 = document.getElementById('wl-close');
     el2.addEventListener('click', function(){ close(); });
     app = new PIXI.Application({ width:CONFIG.W, height:CONFIG.H, backgroundColor:0xf6efe2, transparent:false, antialias:false, autoDensity:true, resolution:Math.max(1, window.devicePixelRatio || 1) });
-    app.view.style.width = '100%';
-    app.view.style.height = '100%';
     container.appendChild(app.view);
     layers = { bg:new PIXI.Container(), region:new PIXI.Container(), node:new PIXI.Container(), panel:new PIXI.Container(), fx:new PIXI.Container() };
     layers.bg.name = 'bg'; layers.region.name = 'region'; layers.node.name = 'node'; layers.panel.name = 'panel'; layers.fx.name = 'fx';
@@ -4170,13 +4178,6 @@
   function buildBackground(){
     var g = new PIXI.Graphics();
     g.beginFill(0xf6efe2, 1).drawRect(0, 0, CONFIG.W, CONFIG.H).endFill();
-    var step = 28;
-    for (var x = 0; x < CONFIG.W; x += step){
-      for (var y = 0; y < CONFIG.H; y += step){
-        var shade = ((x / step + y / step) % 2 === 0) ? 0xf3ecdf : 0xf7f0e4;
-        g.beginFill(shade, 1).drawRect(x, y, step, step).endFill();
-      }
-    }
     g.beginFill(0xede2cd, 1);
     for (var rx = 340; rx <= 1240; rx += 12){ g.drawRect(rx, 512, 8, 18); }
     g.endFill();
@@ -4576,7 +4577,7 @@
   }
 
   function updateMask(ev, mask, type){
-    var r = container.getBoundingClientRect();
+    var r = app.view.getBoundingClientRect();
     var lx = (ev.clientX - r.left) / r.width * CONFIG.W;
     var ly = (ev.clientY - r.top) / r.height * CONFIG.H;
     var reg = CONFIG.regions[type];
