@@ -2758,7 +2758,7 @@
     if (overlay) overlay.remove();
     el('server-led').className = 'server-led';
   }
-  var _deployDone = false, _deployDragSetup = false;
+  var _deployDone = false, _deployDragSetup = false, _deployDoneAt = 0;
   function setupDeployDrag(){
     if (_deployDone || _deployDragSetup) return;
     _deployDragSetup = true;
@@ -2800,8 +2800,6 @@
           if (zone && zone.id === cardToZone(card.id)){
             zone.classList.add('filled');
             card.classList.add('placed');
-            var dot = el('server-led');
-            if (dot && !dot.classList.contains('green')) dot.classList.add('green');
             checkDeployDone();
           }
         }
@@ -2826,8 +2824,12 @@
   function checkDeployDone(){
     var front = el('deploy-zone-front');
     var back = el('deploy-zone-back');
-    if (front && back && front.classList.contains('filled') && back.classList.contains('filled')){
+    var both = front && back && front.classList.contains('filled') && back.classList.contains('filled');
+    var dot = el('server-led');
+    if (dot) dot.classList.toggle('green', !!both);
+    if (both){
       _deployDone = true;
+      _deployDoneAt = Date.now();
       var canvas = el('deploy-canvas');
       if (canvas){
         var div = document.createElement('div');
@@ -4128,7 +4130,7 @@
       if (!done){ nudgeChip(); return; }
     }
     if (idx === 12 && !chosenThemeColor){ nudgeColor(); return; }
-    if (idx === 39 && !_deployDone){ return; }
+    if (idx === 39 && (!_deployDone || Date.now() - _deployDoneAt < 900)){ return; }
     if (idx >= STEPS.length-1){ finish(); return; }
     go(idx+1);
   }
