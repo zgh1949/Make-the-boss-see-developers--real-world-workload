@@ -729,38 +729,44 @@
   #intro-stage .rep-stamp { position:absolute; right:26px; top:24px; width:78px; height:78px; border:4px solid #21c46b; color:#21c46b; font-size:26px; font-weight:900; display:flex; align-items:center; justify-content:center; border-radius:50%; transform:rotate(-16deg); opacity:0; animation:stampIn .45s .6s cubic-bezier(.2,1.6,.4,1) forwards; }
   @keyframes stampIn { from{ transform:rotate(-16deg) scale(2.4); opacity:0; } to{ transform:rotate(-16deg) scale(1); opacity:1; } }
   /* ===== 部署交互画布 ===== */
-  #intro-stage .deploy-canvas { display:flex; align-items:center; justify-content:center; gap:16px; width:100%; max-width:800px; height:260px; position:relative; background:linear-gradient(180deg,#1a2530 0%,#0f1820 100%); border-radius:18px; padding:20px 24px; box-shadow:0 8px 30px rgba(0,0,0,.3); }
+  #intro-stage .deploy-canvas { display:flex; align-items:center; justify-content:center; gap:28px; width:100%; max-width:880px; min-height:280px; position:relative; background:#fff; border:1px solid #e7ecf3; border-radius:20px; padding:30px 36px; box-shadow:0 14px 40px rgba(31,45,61,.10); }
+  #intro-stage .deploy-local { display:flex; flex-direction:column; align-items:center; gap:16px; flex-shrink:0; }
+  #intro-stage .deploy-sec-hd { font-size:12px; font-weight:800; color:#9aa3b0; letter-spacing:2px; }
+  #intro-stage .deploy-card { position:relative; width:178px; min-height:88px; border-radius:4px 14px 14px 14px; display:flex; flex-direction:column; justify-content:flex-end; padding:12px 14px; cursor:grab; user-select:none; touch-action:none; transition:transform .15s ease, box-shadow .15s ease; box-shadow:0 6px 16px rgba(31,45,61,.14); }
+  #intro-stage .deploy-card::before { content:''; position:absolute; top:-12px; left:6px; width:46px; height:15px; border-radius:6px 6px 0 0; background:inherit; }
+  #intro-stage #deploy-card-front { background:linear-gradient(160deg,#6b93f0,#4168d8); }
+  #intro-stage #deploy-card-back { background:linear-gradient(160deg,#f2a860,#e08a2d); }
+  #intro-stage .deploy-card:hover { transform:translateY(-3px); box-shadow:0 10px 22px rgba(31,45,61,.22); }
+  #intro-stage .deploy-card.dragging { cursor:grabbing; position:fixed; z-index:100; transform:scale(1.08); box-shadow:0 14px 30px rgba(31,45,61,.35); pointer-events:none; }
+  #intro-stage .deploy-card.placed { opacity:0; pointer-events:none; transition:opacity .35s ease; transform:scale(1.06); }
+  #intro-stage .deploy-card .card-title { font-size:15px; font-weight:900; color:#fff; }
+  #intro-stage .deploy-card .folder-files { display:flex; flex-wrap:wrap; gap:4px; margin-top:2px; }
+  #intro-stage .deploy-card .folder-files span { font-size:10px; font-weight:700; font-family:'Courier New',Consolas,monospace; color:rgba(255,255,255,.9); background:rgba(255,255,255,.18); padding:1px 6px; border-radius:5px; }
+  #intro-stage .deploy-connector { display:flex; align-items:center; flex-shrink:0; }
+  #intro-stage .deploy-pill { display:flex; align-items:center; gap:6px; padding:7px 16px; background:#eef2f7; border:1px solid #dde4ee; border-radius:999px; font-size:12px; font-weight:800; color:#5a6678; }
+  #intro-stage .deploy-pill .arrow-ico { font-size:14px; }
   #intro-stage .deploy-server { display:flex; flex-direction:column; align-items:center; gap:10px; flex-shrink:0; }
-  #intro-stage .server-body { width:76px; height:110px; background:linear-gradient(135deg,#3a4a60,#2b3a4f); border:2px solid #5a6a82; border-radius:8px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; position:relative; box-shadow:0 4px 14px rgba(0,0,0,.3); }
-  #intro-stage .server-led { width:18px; height:18px; border-radius:50%; background:#ff4d4f; box-shadow:0 0 8px rgba(255,77,79,.6); transition:all .4s ease; animation:ledPulse 1.5s ease-in-out infinite; }
-  #intro-stage .server-led.green { background:#52c41a; box-shadow:0 0 12px rgba(82,196,26,.8); animation:none; }
+  #intro-stage .server-rack { width:220px; background:#1c2632; border:1px solid #2e3d50; border-radius:14px; padding:14px; display:flex; flex-direction:column; gap:12px; box-shadow:0 12px 28px rgba(31,45,61,.22); }
+  #intro-stage .server-head { display:flex; align-items:center; gap:8px; padding-bottom:10px; border-bottom:1px solid #2e3d50; }
+  #intro-stage .server-led { width:12px; height:12px; border-radius:50%; background:#ff4d4f; box-shadow:0 0 8px rgba(255,77,79,.6); animation:ledPulse 1.5s ease-in-out infinite; }
+  #intro-stage .server-led.green { background:#21c46b; box-shadow:0 0 10px rgba(33,196,107,.8); animation:none; }
   @keyframes ledPulse { 0%,100%{box-shadow:0 0 8px rgba(255,77,79,.6);} 50%{box-shadow:0 0 16px rgba(255,77,79,.4);} }
-  #intro-stage .server-label { font-size:12px; font-weight:700; color:#8a94a6; text-align:center; }
-  #intro-stage .deploy-connector { display:flex; align-items:center; gap:2px; opacity:.4; flex-shrink:0; }
-  #intro-stage .conn-line { width:30px; height:2px; background:#5a6a82; }
-  #intro-stage .conn-arrow { font-size:16px; color:#5a6a82; font-weight:700; }
-  #intro-stage .deploy-zones-wrap { display:flex; gap:20px; flex:1; justify-content:center; }
-  #intro-stage .deploy-zone { display:flex; flex-direction:column; align-items:center; gap:10px; }
-  #intro-stage .zone-box { width:112px; height:100px; border:2px dashed #5a6a82; border-radius:12px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.04); transition:all .25s ease; }
-  #intro-stage .zone-box.drag-over { border-color:#52c41a; background:rgba(82,196,26,.1); transform:scale(1.05); }
-  #intro-stage .zone-box.filled { border-style:solid; border-color:#52c41a; background:rgba(82,196,26,.12); }
-  #intro-stage .zone-box-inner { display:flex; flex-direction:column; align-items:center; gap:4px; pointer-events:none; }
-  #intro-stage .zone-ico { font-size:24px; font-weight:900; color:#5a6a82; opacity:.5; }
-  #intro-stage #deploy-zone-back .zone-ico { color:#8a6a42; }
-  #intro-stage .zone-label { font-size:12px; color:#5a6a82; font-weight:600; text-align:center; }
-  #intro-stage .deploy-card { width:90px; padding:12px 8px; background:linear-gradient(135deg,#2b3a4f,#1e2a3a); border:2px solid #5a6a82; border-radius:10px; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:grab; transition:all .15s ease; user-select:none; touch-action:none; }
-  #intro-stage .deploy-card:hover { border-color:#2f6fed; transform:translateY(-2px); box-shadow:0 6px 16px rgba(47,111,237,.2); }
-  #intro-stage .deploy-card.dragging { cursor:grabbing; position:fixed; z-index:100; transform:scale(1.1); box-shadow:0 12px 30px rgba(0,0,0,.4); border-color:#2f6fed; pointer-events:none; }
-  #intro-stage .deploy-card.placed { opacity:0; pointer-events:none; transition:all .35s ease; transform:scale(1.1); }
-  #intro-stage .card-icon { font-size:22px; font-weight:900; color:#61afef; }
-  #intro-stage #deploy-card-back .card-icon { color:#d19a66; }
-  #intro-stage .card-title { font-size:12px; font-weight:700; color:#d4d4d4; }
-  #intro-stage .card-desc { font-size:10px; color:#8a94a6; }
-  #intro-stage .deploy-success { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.6); border-radius:18px; z-index:10; animation:fadeIn .3s ease-out; }
-  #intro-stage .success-text { font-size:36px; font-weight:900; color:#52c41a; text-shadow:0 0 30px rgba(82,196,26,.6); animation:successPop .5s cubic-bezier(.2,1.6,.4,1); }
+  #intro-stage .server-name { font-size:12px; color:#9fb0c3; font-weight:700; letter-spacing:.5px; }
+  #intro-stage .server-slots { display:flex; flex-direction:column; gap:10px; }
+  #intro-stage .deploy-zone { display:flex; flex-direction:column; align-items:center; gap:6px; }
+  #intro-stage .zone-box { width:100%; height:58px; border:2px dashed #4a5d74; border-radius:10px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.04); transition:all .25s ease; }
+  #intro-stage .zone-box.drag-over { border-color:#21c46b; background:rgba(33,196,107,.12); transform:scale(1.02); }
+  #intro-stage .zone-box.filled { border-style:solid; border-color:#21c46b; background:rgba(33,196,107,.16); }
+  #intro-stage .zone-box-inner { display:flex; flex-direction:column; align-items:center; gap:3px; pointer-events:none; }
+  #intro-stage .zone-label { font-size:13px; color:#d5dee9; font-weight:800; font-family:'Courier New',Consolas,monospace; }
+  #intro-stage .zone-tip { font-size:10px; color:#7f92a8; }
+  #intro-stage .zone-box.filled .zone-tip { color:#21c46b; }
+  #intro-stage .deploy-success { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; background:rgba(255,255,255,.94); border-radius:20px; z-index:10; animation:fadeIn .3s ease-out; }
+  #intro-stage .success-text { font-size:30px; font-weight:900; color:#21c46b; animation:successPop .5s cubic-bezier(.2,1.6,.4,1); }
+  #intro-stage .success-sub { font-size:14px; color:#8a94a6; font-weight:600; }
   @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
   @keyframes successPop { 0%{transform:scale(0);opacity:0;} 100%{transform:scale(1);opacity:1;} }
-  #intro-stage .deploy-hint { font-size:13px; color:rgba(255,255,255,.5); text-align:center; margin-top:6px; }
+  #intro-stage .deploy-hint { font-size:13px; color:#8a94a6; text-align:center; margin-top:6px; font-weight:600; }
 
   #intro-stage .terminal-window { width:640px; height:480px; display:flex; flex-direction:column; background:#0d0d0d; border:4px solid #333; box-shadow:0 0 0 2px #000, 0 0 0 4px #555, 8px 8px 0 rgba(0,0,0,.5); image-rendering:pixelated; }
   #intro-stage .terminal-header { height:28px; background:linear-gradient(to bottom,#444,#222); border-bottom:2px solid #000; display:flex; align-items:center; padding:0 8px; gap:6px; }
@@ -983,27 +989,38 @@
       </div>
       <div class="i-region" id="i-deploy" style="display:none;">
         <div class="deploy-canvas" id="deploy-canvas">
+          <div class="deploy-local">
+            <div class="deploy-sec-hd">本地代码</div>
+            <div class="deploy-card" id="deploy-card-front">
+              <div class="card-title">前端代码</div>
+              <div class="folder-files"><span>index.html</span><span>app.css</span><span>app.js</span></div>
+            </div>
+            <div class="deploy-card" id="deploy-card-back">
+              <div class="card-title">后端代码</div>
+              <div class="folder-files"><span>app.py</span></div>
+            </div>
+          </div>
+          <div class="deploy-connector">
+            <div class="deploy-pill"><span class="arrow-ico">→</span>部署</div>
+          </div>
           <div class="deploy-server">
-            <div class="server-body">
-              <div class="server-led" id="server-led"></div>
-              <div class="server-label">云服务器</div>
-            </div>
-          </div>
-          <div class="deploy-connector"><div class="conn-line"></div><div class="conn-arrow">→</div><div class="conn-line"></div></div>
-          <div class="deploy-zones-wrap">
-            <div class="deploy-zone">
-              <div class="zone-box" id="deploy-zone-front"><div class="zone-box-inner"><div class="zone-ico">◉</div><div class="zone-label">前端目录</div></div></div>
-            </div>
-            <div class="deploy-zone">
-              <div class="zone-box" id="deploy-zone-back"><div class="zone-box-inner"><div class="zone-ico">⬡</div><div class="zone-label">后端目录</div></div></div>
+            <div class="server-rack">
+              <div class="server-head">
+                <div class="server-led" id="server-led"></div>
+                <div class="server-name">云服务器 · note-server</div>
+              </div>
+              <div class="server-slots">
+                <div class="deploy-zone">
+                  <div class="zone-box" id="deploy-zone-front"><div class="zone-box-inner"><div class="zone-label">/frontEnd</div><div class="zone-tip">拖入前端代码</div></div></div>
+                </div>
+                <div class="deploy-zone">
+                  <div class="zone-box" id="deploy-zone-back"><div class="zone-box-inner"><div class="zone-label">/backEnd</div><div class="zone-tip">拖入后端代码</div></div></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <div class="deploy-cards" style="display:flex;gap:16px;justify-content:center;margin-top:12px;">
-          <div class="deploy-card" id="deploy-card-front"><div class="card-icon">◉</div><div class="card-title">前端代码包</div><div class="card-desc">HTML/CSS/JS</div></div>
-          <div class="deploy-card" id="deploy-card-back"><div class="card-icon">⬡</div><div class="card-title">后端代码包</div><div class="card-desc">Java/Python</div></div>
-        </div>
-        <div class="deploy-hint">把代码包拖拽到对应的服务器目录中</div>
+        <div class="deploy-hint">把代码文件夹拖进服务器的对应目录</div>
       </div>
       <div class="i-region" id="i-terminal" style="display:none;">
         <div class="terminal-window">
@@ -2815,7 +2832,7 @@
       if (canvas){
         var div = document.createElement('div');
         div.className = 'deploy-success';
-        div.innerHTML = '<div class="success-text">部署成功 ✓</div>';
+        div.innerHTML = '<div class="success-text">部署成功</div><div class="success-sub">代码已上传到服务器目录</div>';
         canvas.appendChild(div);
       }
     }
