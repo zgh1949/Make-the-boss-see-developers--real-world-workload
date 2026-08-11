@@ -3802,7 +3802,7 @@
     { char:'ops', cap:'来，把前端和后端的代码分别打包，然后部署到服务器上', fn:function(){ showDeployScene(); } },
     { char:'ops', cap:'部署完成！用终端把代码包部署到服务器目录，再启动服务', fn:function(){ showTerminalScene(); } },
     { char:null, nobubble:true, cap:'在终端试试：mkdir、cp、tree、run', fn:function(){ } },
-    { char:'ops', cap:'服务起来了，但真实跑起来要扛多少流量、压多少资源，光靠感觉说不清。我做了个可视化仿真，让老板亲眼看见每个请求背后的真实工作量', fn:function(){ if (window.showWorkloadScene) showWorkloadScene(); } },
+    { char:'ops', cap:'服务起来了，但真实跑起来要扛多少流量、压多少资源，光靠感觉说不清。我做了个可视化仿真，让大家亲眼看见每个请求背后的真实工作量', fn:function(){ if (window.showWorkloadScene) showWorkloadScene(); } },
     { char:'boss', nobubble:true, cap:'拖拽部署数据库 / 后端 / 缓存 / 网关，点击节点看负载，理解每个请求背后系统的真实压力（右上角 ✕ 返回教程）', fn:function(){ } }
   ];
 
@@ -4366,7 +4366,7 @@
 <script src="https://cdn.jsdelivr.net/npm/pixi.js@7.4.2/dist/pixi.min.js"></script>
 <div id="wl-root">
   <div class="wl-topbar">
-    <div class="wl-brand">让老板看见真实工作量 <small>请求链路 · 负载仿真</small></div>
+    <div class="wl-brand">迎接更多的用户 <small>请求链路 · 负载仿真</small></div>
     <div class="wl-cost-chip">云成本 <b id="wl-cost">¥0/月</b><span class="wl-cost-sub" id="wl-cost-sub">共 0 台</span></div>
     <div class="wl-cards" id="wl-cards">
       <div class="wl-card" data-type="db"><span class="wl-emoji">🗄️</span><span class="wl-cname">数据库</span><span class="wl-cost">¥950/月</span></div>
