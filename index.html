@@ -952,13 +952,11 @@
       </div>
       <div class="i-region" id="i-testcase" style="display:none;">
         <div class="tc-wrap">
-          <div class="tc-head">备忘录 · 测试用例</div>
           <div class="tc-canvas" id="tc-canvas"></div>
         </div>
       </div>
       <div class="i-region" id="i-review" style="display:none;">
         <div class="rv-wrap">
-          <div class="rv-board">用例评审会</div>
           <div class="rv-stage" id="rv-stage"></div>
           <div class="rv-hint">评审意见已补充进测试用例</div>
         </div>
@@ -2428,6 +2426,7 @@
   };
   function showTestCaseMap(){
     hideReveal();
+    setMagazine('01','TEST','测试用例','功能 · 边界 · 异常 · 性能','#9254de');
     showRegion('i-testcase');
     var canvas = el('tc-canvas');
     if (!canvas) return;
@@ -2477,6 +2476,7 @@
   var REVIEW_FLOATS = ['冒烟测试','断言','边界值','回归','覆盖率','期望值','PASS','FAIL','用例评审','Bug 追踪'];
   function showReview(){
     hideReveal();
+    setMagazine('02','REVIEW','用例评审','全员评审 · 补充建议','#9254de');
     showRegion('i-review');
     var stage = el('rv-stage');
     if (stage){
@@ -2522,7 +2522,7 @@
       if (!holder){
         holder = document.createElement('div');
         holder.id = 'rv-float-holder';
-        holder.style.cssText = 'position:absolute;left:0;right:0;top:4%;height:0;pointer-events:none;z-index:8;';
+        holder.style.cssText = 'position:absolute;left:0;right:0;top:40%;height:0;pointer-events:none;z-index:8;';
         charCol.appendChild(holder);
       }
       var s = document.createElement('span');
@@ -2534,7 +2534,7 @@
       s.style.setProperty('--dx', dx+'px');
       s.style.setProperty('--rot', rot+'deg');
       s.style.left = (42 + Math.random()*16) + '%';
-      s.style.top = (6 + Math.random()*26) + '%';
+      s.style.top = (2 + Math.random()*30) + '%';
       s.style.fontSize = (14 + Math.random()*9) + 'px';
       holder.appendChild(s);
       setTimeout(function(){ if (s.parentNode) s.parentNode.removeChild(s); }, 2500);
@@ -2569,6 +2569,7 @@
   function showTestRun(){
     hideReveal();
     cancelReviewFloats();
+    setMagazine('03','AUTOTEST','测试执行','对原型执行自动化测试','#9254de');
     showRegion('i-testrun');
     var wrap = el('tr-app');
     if (wrap){
