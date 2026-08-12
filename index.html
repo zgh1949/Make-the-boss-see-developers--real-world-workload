@@ -4308,6 +4308,7 @@
     clearDevMarks();
     clearAnnotations();
     destroyApiDots();
+    if (stageOf(i) !== 2){ var _na = el('n-app'); if (_na) _na.classList.remove('ui-interact'); }
     var isDev = (i >= 25 && i <= 27);
     el('i-replay').style.display = isDev ? '' : 'none';
     setChar(s.char);
