@@ -2121,7 +2121,7 @@
     img.src = I_IMG[k]; img.alt = NAMES[k]; img.title = NAMES[k];
     covChars.appendChild(img);
   });
-  function stageOf(i){ if(i<2)return 0; if(i<12)return 1; if(i<23)return 2; if(i<29)return 3; if(i<34)return 4; if(i<36)return 5; if(i<42)return 6; return 7; }
+  function stageOf(i){ if(i<2)return 0; if(i<13)return 1; if(i<24)return 2; if(i<30)return 3; if(i<35)return 4; if(i<37)return 5; if(i<43)return 6; return 7; }
   function updateMap(stage){
     var nodes = document.querySelectorAll('#intro-stage .i-map-node');
     for (var k=0;k<nodes.length;k++){
@@ -3978,6 +3978,7 @@
     { char:'pm', cap:'再画出笔记列表，一条条排下来', fn:function(){ setMagazine('01','PROTOTYPE','原型设计','笔记列表','#2f6fed'); showChip(6); } },
     { char:'pm', cap:'右下角加个「新建」按钮，标题栏旁边显示总数', fn:function(){ setMagazine('01','PROTOTYPE','原型设计','新建按钮','#2f6fed'); showChip(7); } },
     { char:'pm', cap:'点开任意一条还能看详情——原型齐活了', fn:function(){ setMagazine('01','PROTOTYPE','原型设计','详情区','#2f6fed'); showChip(8); } },
+    { char:'pm', cap:'原型完整了，先停一帧慢慢看——标题栏、搜索框、列表、新建、详情，五大区块都在', fn:function(){ setMagazine('01','PROTOTYPE','原型设计','全貌 · 完成','#2f6fed'); showRegion('i-mock'); el('i-code').style.display='none'; el('i-backend').style.display='none'; } },
     { char:'pm', cap:'原型定稿！我把它整理成一份完整的需求文档，研发照着做才不会跑偏', fn:function(){ setMagazine('02','PRD','设计文档','功能需求 · 非功能需求 · 验收标准','#2f6fed'); playPrdDoc(); } },
     { char:'pm', cap:'文档就位，再做排期：谁、在什么时候、交付什么，一目了然', fn:function(){ setMagazine('03','PLAN','需求排期','里程碑 · 负责人 · 交付物','#2f6fed'); playSchedule(); } },
     { char:'pm', cap:'最后开需求宣讲会，把价值和细节同步给 UI、前端和后端', fn:function(){ setMagazine('04','PITCH','需求宣讲','全员对齐 · 需求同步','#2f6fed'); playPitch(); } },
@@ -3985,11 +3986,11 @@
     { char:'ui', cap:'先在脑子里过一遍视觉风格……', fn:function(){ playBrainstorm('ui'); } },
     { char:'ui', cap:'我来给它整整容，先定个主色调--清爽又专业', fn:function(){ showRegion('i-mock'); morph('n-app'); morph('n-header'); setMagazine('01','UI','配色基调','主色调 · 轻盈质感','#eb2f96'); } },
     { char:'ui', cap:'基调定好了--圆角、投影都调柔和，整体才有轻盈的质感', fn:function(){ var a=el('n-app'); if(a)a.classList.add('ui-soft'); } },
-    { char:'ui', cap:'先把列表做成卡片，我拖个样式过去', fn:function(){ setMagazine('02','UI','卡片布局','卡片 · 阴影 · 间距','#eb2f96'); showChip(16); } },
+    { char:'ui', cap:'先把列表做成卡片，我拖个样式过去', fn:function(){ setMagazine('02','UI','卡片布局','卡片 · 阴影 · 间距','#eb2f96'); showChip(17); } },
     { char:'ui', cap:'卡片之间拉开间距、加上投影，一行一行的分割线不见了，呼吸感出来了', fn:function(){ var a=el('n-app'); if(a)a.classList.add('ui-cards'); } },
     { char:'ui', cap:'标题栏也精修一下--标题加粗、总数做成带主色的小胶囊', fn:function(){ var a=el('n-app'); if(a)a.classList.add('ui-tight'); } },
-    { char:'ui', cap:'搜索框和按钮也统一一下样式，看着才舒服', fn:function(){ setMagazine('03','UI','组件统一','搜索框 · 按钮 · 交互','#eb2f96'); showChip(19); } },
-    { char:'ui', cap:'详情区顺手美化一下--设计稿搞定', fn:function(){ showChip(20); } },
+    { char:'ui', cap:'搜索框和按钮也统一一下样式，看着才舒服', fn:function(){ setMagazine('03','UI','组件统一','搜索框 · 按钮 · 交互','#eb2f96'); showChip(20); } },
+    { char:'ui', cap:'详情区顺手美化一下--设计稿搞定', fn:function(){ showChip(21); } },
     { char:'ui', cap:'最后补上交互态：行能悬停高亮、点击有选中反馈，整个设计稿就完整了', fn:function(){ var a=el('n-app'); if(a)a.classList.add('ui-interact'); } },
     { char:'ui', cap:'设计稿完成！配色、卡片、样式，看着舒服多了', fn:function(){ playShowcase('ui'); } },
     { char:'dev', nobubble:true, cap:'前端工程师登场', fn:function(){ playReveal('fe'); } },
@@ -4191,9 +4192,9 @@
     6:  { type:'reveal', targets:['n-list'],              ico:'☰',  lbl:'笔记列表' },
     7:  { type:'reveal', targets:['n-fab'],               ico:'＋', lbl:'新建按钮' },
     8:  { type:'reveal', targets:['n-detail'],            ico:'📄', lbl:'详情区' },
-    16: { type:'morph',  targets:['n-list'],            ico:'▤',  lbl:'列表样式' },
-    19: { type:'morph',  targets:['n-search','n-fab'],    ico:'🎛', lbl:'搜索框·按钮' },
-    20: { type:'morph',  targets:['n-detail'],            ico:'📄', lbl:'详情样式' }
+    17: { type:'morph',  targets:['n-list'],            ico:'▤',  lbl:'列表样式' },
+    20: { type:'morph',  targets:['n-search','n-fab'],    ico:'🎛', lbl:'搜索框·按钮' },
+    21: { type:'morph',  targets:['n-detail'],            ico:'📄', lbl:'详情样式' }
   };
   function showChip(stepIdx){
     var chip = el('pm-chip');
@@ -4309,7 +4310,7 @@
     clearAnnotations();
     destroyApiDots();
     if (stageOf(i) !== 2){ var _na = el('n-app'); if (_na) _na.classList.remove('ui-interact'); }
-    var isDev = (i >= 25 && i <= 27);
+    var isDev = (i >= 26 && i <= 28);
     el('i-replay').style.display = isDev ? '' : 'none';
     setChar(s.char);
     if (s.nobubble){
@@ -4333,7 +4334,7 @@
     }
     if (!DRAG_STEPS[i]) hideChip();
     updateMap(stageOf(i));
-    toggleColorBlobs(i === 14);
+    toggleColorBlobs(i === 15);
     el('i-progress').textContent = (i+1) + ' / ' + STEPS.length;
     el('i-prev').disabled = (i === 0);
   }
@@ -4345,8 +4346,8 @@
       var done = info.targets.every(function(t){ var e = el(t); return e && (info.type === 'reveal' ? !e.classList.contains('hidden') : !e.classList.contains('wf')); });
       if (!done){ nudgeChip(); return; }
     }
-    if (idx === 14 && !chosenThemeColor){ nudgeColor(); return; }
-    if (idx === 45 && (!_deployDone || Date.now() - _deployDoneAt < 900)){ return; }
+    if (idx === 15 && !chosenThemeColor){ nudgeColor(); return; }
+    if (idx === 46 && (!_deployDone || Date.now() - _deployDoneAt < 900)){ return; }
     if (idx >= STEPS.length-1){ finish(); return; }
     go(idx+1);
   }
@@ -4368,7 +4369,7 @@
   function finish(){ el('intro-stage').classList.add('intro-finished'); window.scrollTo(0,0); window.__themeColor = chosenThemeColor; applyAppTheme(chosenThemeColor); }
 
   // 每个阶段对应的起始步骤
-  var STAGE_START_STEPS = { 0:0, 1:2, 2:12, 3:23, 4:29, 5:35, 6:36, 7:42 };
+  var STAGE_START_STEPS = { 0:0, 1:2, 2:13, 3:24, 4:30, 5:36, 6:37, 7:43 };
 
   // 确保有默认颜色
   function ensureDefaultTheme(){
