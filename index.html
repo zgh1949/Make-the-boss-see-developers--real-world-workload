@@ -852,9 +852,11 @@
   #intro-stage .sch-gantt .g-plan { background:#b7c6e8; }
   /* ===== 产品经理阶段：需求宣讲会 ===== */
   #intro-stage .pitch-room { position:relative; width:900px; height:500px; border-radius:18px; overflow:hidden; background:linear-gradient(180deg,#eef1f6 0%,#e3e7ef 42%,#ccd2de 42%,#b9c0cf 100%); box-shadow:0 18px 44px rgba(20,30,48,.18); }
-  #intro-stage .pitch-window { position:absolute; left:24px; top:20px; width:116px; height:86px; border-radius:6px 6px 2px 2px; background:linear-gradient(180deg,#cfe6f7,#f4f9fd); border:5px solid #fff; box-shadow:0 5px 14px rgba(20,30,48,.14); }
+  #intro-stage .pitch-window { position:absolute; left:24px; top:20px; width:116px; height:86px; border-radius:6px 6px 2px 2px; background:linear-gradient(180deg,#cfe6f7,#f4f9fd); border:5px solid #fff; box-shadow:0 5px 14px rgba(20,30,48,.14); overflow:hidden; }
   #intro-stage .pitch-window::before { content:''; position:absolute; left:50%; top:0; bottom:0; width:3px; background:rgba(255,255,255,.9); }
   #intro-stage .pitch-window::after { content:''; position:absolute; left:0; right:0; top:50%; height:3px; background:rgba(255,255,255,.9); }
+  #intro-stage .pitch-window .pw-glint { position:absolute; top:-10%; bottom:-10%; width:34%; left:-45%; background:linear-gradient(105deg, transparent 0%, rgba(255,255,255,.7) 45%, rgba(255,255,255,.95) 52%, transparent 100%); transform:skewX(-22deg); animation:pwGlint 3.2s ease-in-out infinite; }
+  @keyframes pwGlint { 0%,55%{ left:-45%; opacity:0; } 58%{ opacity:1; } 70%{ left:115%; opacity:1; } 73%,100%{ left:118%; opacity:0; } }
   #intro-stage .pitch-clock { position:absolute; left:166px; top:24px; width:50px; height:50px; border-radius:50%; background:#fff; border:4px solid #5a6678; box-shadow:0 4px 10px rgba(20,30,48,.14); }
   #intro-stage .pitch-screen { position:absolute; left:30px; top:130px; width:470px; height:242px; border-radius:10px; background:#16263f; padding:9px; box-shadow:0 16px 34px rgba(20,30,48,.3); }
   #intro-stage .pitch-screen::after { content:''; position:absolute; left:50%; top:100%; width:104px; height:54px; transform:translateX(-50%); background:linear-gradient(180deg,#3b4a5e,#2b3746); clip-path:polygon(0 0,100% 0,88% 100%,12% 100%); }
@@ -881,8 +883,6 @@
   #intro-stage .pitch-role { font-size:11px; color:#5a6678; font-weight:600; }
   #intro-stage .pitch-bubble { position:relative; background:#fff; border:1px solid #e1e6ed; border-radius:10px; padding:6px 8px; font-size:11px; color:#3a4358; line-height:1.45; box-shadow:0 6px 14px rgba(20,30,48,.12); }
   #intro-stage .pitch-mem .pitch-bubble::after { content:''; position:absolute; left:20px; top:100%; border:6px solid transparent; border-top-color:#fff; }
-  #intro-stage .pitch-window { animation:pitchGlowSoft 5s ease-in-out infinite; }
-  @keyframes pitchGlowSoft { 0%,100%{ box-shadow:0 5px 14px rgba(20,30,48,.14); } 50%{ box-shadow:0 5px 18px rgba(47,111,237,.22); } }
   #intro-stage .pitch-clock .pc-dial { position:absolute; inset:3px; border-radius:50%; background:repeating-conic-gradient(#8a94a6 0 1.5deg, transparent 1.5deg 30deg); -webkit-mask:radial-gradient(circle, transparent 0 70%, #000 74%); mask:radial-gradient(circle, transparent 0 70%, #000 74%); }
   #intro-stage .pitch-clock .pc-hand { position:absolute; bottom:50%; border-radius:2px; transform-origin:50% 100%; }
   #intro-stage .pitch-clock .pc-hour { left:calc(50% - 1.5px); width:3px; height:9px; background:#2c3e50; transform:rotate(305deg); animation:pitchHour 96s linear infinite; }
@@ -892,8 +892,9 @@
   @keyframes pitchMin { from{ transform:rotate(62deg); } to{ transform:rotate(422deg); } }
   #intro-stage .pitch-screen { animation:pitchGlow 5s ease-in-out infinite; }
   @keyframes pitchGlow { 0%,100%{ box-shadow:0 16px 34px rgba(20,30,48,.3); } 50%{ box-shadow:0 16px 42px rgba(47,111,237,.38); } }
-  #intro-stage .pitch-slide::before { content:''; position:absolute; width:10px; height:10px; border-radius:50%; background:#ff5b5b; box-shadow:0 0 10px rgba(255,80,80,.9); animation:pitchLaser 6s ease-in-out infinite; }
-  @keyframes pitchLaser { 0%{ left:10%; top:36%; opacity:0; } 8%{ opacity:1; } 28%{ left:70%; top:30%; } 48%{ left:26%; top:58%; } 72%{ left:78%; top:44%; } 92%{ opacity:1; } 100%{ left:10%; top:36%; opacity:0; } }
+  #intro-stage .pitch-page-hint { position:absolute; right:12px; top:12px; font-size:10px; color:rgba(255,255,255,.9); background:rgba(20,30,48,.4); padding:3px 9px; border-radius:10px; animation:pitchHintPulse 2s ease-in-out infinite; }
+  @keyframes pitchHintPulse { 0%,100%{ opacity:.5; } 50%{ opacity:1; } }
+  #intro-stage .pitch-screen { cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Ccircle cx='14' cy='14' r='7' fill='%23ff5b5b'/%3E%3C/svg%3E") 14 14, pointer; }
   #intro-stage .pitch-slide-bar i { width:33%; height:100%; background:#ffd60a; border-radius:2px; }
   #intro-stage .pitch-avatar { animation:pitchFloat 3.2s ease-in-out infinite; }
   #intro-stage .pitch-mem .pitch-bubble { animation:pitchFloat 3.6s ease-in-out infinite; }
@@ -1104,10 +1105,11 @@
       </div>
       <div class="i-region" id="i-pitch" style="display:none;">
         <div class="pitch-room">
-          <div class="pitch-window"></div>
+          <div class="pitch-window"><div class="pw-glint"></div></div>
           <div class="pitch-clock"><div class="pc-dial"></div><div class="pc-hand pc-hour"></div><div class="pc-hand pc-min"></div><div class="pc-cap"></div></div>
-          <div class="pitch-screen">
+          <div class="pitch-screen" id="pitch-screen">
             <div class="pitch-slide" id="pitch-slide">
+              <div class="pitch-page-hint">点击翻页</div>
               <div class="pitch-slide-tag" id="pitch-tag">需求宣讲会</div>
               <div class="pitch-slide-title" id="pitch-title">备忘录 App</div>
               <div class="pitch-slide-sub" id="pitch-sub">核心价值：简单好用 · 功能：列表 / 搜索 / 详情 / 新建 / 统计</div>
@@ -2657,18 +2659,27 @@
     showRegion('i-pitch');
     var ids = { 'pitch-pm':'pm', 'pitch-ui':'ui', 'pitch-fe':'dev', 'pitch-be':'be' };
     for (var k in ids){ var img = el(k); if (img) img.src = I_IMG[ids[k]]; }
-    if (_pitchTimer){ clearTimeout(_pitchTimer); _pitchTimer = null; }
-    var n = 0;
+    var state = { n: 0 };
     function render(){
-      var s = PITCH_SLIDES[n];
+      var s = PITCH_SLIDES[state.n];
       var tag = el('pitch-tag'), title = el('pitch-title'), sub = el('pitch-sub'), tags = el('pitch-tags'), foot = el('pitch-foot'), bar = el('pitch-bar-i');
       if (tag) tag.textContent = s.tag;
       if (title) title.textContent = s.title;
       if (sub) sub.textContent = s.sub;
       if (tags) tags.innerHTML = s.tags.map(function(t){ return '<span>'+t+'</span>'; }).join('');
-      if (foot) foot.textContent = '备忘录 App · 需求宣讲 · ' + (n+1) + ' / ' + PITCH_SLIDES.length;
-      if (bar) bar.style.width = Math.round((n+1)/PITCH_SLIDES.length*100) + '%';
-      _pitchTimer = setTimeout(function(){ n = (n+1) % PITCH_SLIDES.length; render(); }, 2600);
+      if (foot) foot.textContent = '备忘录 App · 需求宣讲 · ' + (state.n+1) + ' / ' + PITCH_SLIDES.length;
+      if (bar) bar.style.width = Math.round((state.n+1)/PITCH_SLIDES.length*100) + '%';
+      if (_pitchTimer){ clearTimeout(_pitchTimer); _pitchTimer = null; }
+      _pitchTimer = setTimeout(function(){ state.n = (state.n+1) % PITCH_SLIDES.length; render(); }, 2600);
+    }
+    var screen = el('pitch-screen');
+    if (screen && !screen._pitchBound){
+      screen._pitchBound = true;
+      screen.addEventListener('click', function(e){
+        e.stopPropagation();
+        state.n = (state.n+1) % PITCH_SLIDES.length;
+        render();
+      });
     }
     render();
   }
@@ -4539,7 +4550,7 @@
   }
 
   el('intro-stage').addEventListener('click', function(e){
-    if (e.target.closest('.i-corner') || e.target.closest('#i-enter') || e.target.closest('.color-blob') || e.target.closest('.pm-chip') || e.target.closest('.i-map-node') || e.target.closest('.deploy-card') || e.target.closest('.zone-box') || e.target.closest('.deploy-success') || e.target.closest('#i-terminal') || e.target.closest('.term-tasks')) return;
+    if (e.target.closest('.i-corner') || e.target.closest('#i-enter') || e.target.closest('.color-blob') || e.target.closest('.pm-chip') || e.target.closest('.i-map-node') || e.target.closest('.deploy-card') || e.target.closest('.zone-box') || e.target.closest('.deploy-success') || e.target.closest('#i-terminal') || e.target.closest('.term-tasks') || e.target.closest('.pitch-screen')) return;
     if (_backendDbPending && !e.target.closest('#i-er-main-canvas')){
       _backendDbPending = false;
       magicErToTable();
