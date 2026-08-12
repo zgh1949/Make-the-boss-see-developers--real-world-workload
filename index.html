@@ -300,6 +300,15 @@
 #intro-stage .n-detail.wf { background:#fafbfc; border-color:#c5cdd9; }
 #intro-stage .n-detail.wf .n-dt { color:#9aa3b0; }
 #intro-stage .n-detail.wf .n-dc { color:#bcc4d0; }
+#intro-stage .notes-app.ui-soft { border-radius:22px; box-shadow:0 18px 44px rgba(0,0,0,.16), 0 2px 8px rgba(0,0,0,.06); }
+#intro-stage .notes-app.ui-cards .n-list { display:flex; flex-direction:column; gap:8px; }
+#intro-stage .notes-app.ui-cards .n-row { background:#fff; border:1px solid #eef0f4; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,.06); }
+#intro-stage .notes-app.ui-cards .n-row:last-child { border-bottom:1px solid #eef0f4; }
+#intro-stage .notes-app.ui-tight .n-title { font-weight:800; letter-spacing:.5px; }
+#intro-stage .notes-app.ui-tight .n-count { letter-spacing:.3px; }
+#intro-stage .notes-app.ui-interact .n-row { cursor:pointer; }
+#intro-stage .notes-app.ui-interact .n-row:first-child { animation:uiSelPulse 1.6s ease 2; }
+@keyframes uiSelPulse { 0%,100%{ transform:translateX(0); background:#fff; } 35%{ transform:translateX(4px); background:var(--n-accent-tint, rgba(47,111,237,.10)); box-shadow:0 6px 16px rgba(0,0,0,.10); } }
 #intro-stage .hidden { opacity:0; transform:translateY(10px); pointer-events:none; }
 
 /* 代码/后端面板 */
@@ -2112,7 +2121,7 @@
     img.src = I_IMG[k]; img.alt = NAMES[k]; img.title = NAMES[k];
     covChars.appendChild(img);
   });
-  function stageOf(i){ if(i<2)return 0; if(i<12)return 1; if(i<19)return 2; if(i<25)return 3; if(i<30)return 4; if(i<32)return 5; if(i<38)return 6; return 7; }
+  function stageOf(i){ if(i<2)return 0; if(i<12)return 1; if(i<23)return 2; if(i<29)return 3; if(i<34)return 4; if(i<36)return 5; if(i<42)return 6; return 7; }
   function updateMap(stage){
     var nodes = document.querySelectorAll('#intro-stage .i-map-node');
     for (var k=0;k<nodes.length;k++){
@@ -3974,10 +3983,14 @@
     { char:'pm', cap:'最后开需求宣讲会，把价值和细节同步给 UI、前端和后端', fn:function(){ setMagazine('04','PITCH','需求宣讲','全员对齐 · 需求同步','#2f6fed'); playPitch(); } },
     { char:'ui', nobubble:true, cap:'UI 设计师登场', fn:function(){ playReveal('ui'); } },
     { char:'ui', cap:'先在脑子里过一遍视觉风格……', fn:function(){ playBrainstorm('ui'); } },
-    { char:'ui', cap:'我来给它整整容，先定个主色调--蓝色，清爽又专业', fn:function(){ showRegion('i-mock'); morph('n-app'); morph('n-header'); } },
-    { char:'ui', cap:'列表做成卡片，加阴影、拉间距，要有呼吸感', fn:function(){ showChip(15); } },
-    { char:'ui', cap:'搜索框和按钮也统一一下样式，看着才舒服', fn:function(){ showChip(16); } },
-    { char:'ui', cap:'详情区顺手美化一下--设计稿搞定', fn:function(){ showChip(17); } },
+    { char:'ui', cap:'我来给它整整容，先定个主色调--清爽又专业', fn:function(){ showRegion('i-mock'); morph('n-app'); morph('n-header'); setMagazine('01','UI','配色基调','主色调 · 轻盈质感','#eb2f96'); } },
+    { char:'ui', cap:'基调定好了--圆角、投影都调柔和，整体才有轻盈的质感', fn:function(){ var a=el('n-app'); if(a)a.classList.add('ui-soft'); } },
+    { char:'ui', cap:'先把列表做成卡片，我拖个样式过去', fn:function(){ showChip(16); } },
+    { char:'ui', cap:'卡片之间拉开间距、加上投影，一行一行的分割线不见了，呼吸感出来了', fn:function(){ var a=el('n-app'); if(a)a.classList.add('ui-cards'); } },
+    { char:'ui', cap:'标题栏也精修一下--标题加粗、总数做成带主色的小胶囊', fn:function(){ var a=el('n-app'); if(a)a.classList.add('ui-tight'); } },
+    { char:'ui', cap:'搜索框和按钮也统一一下样式，看着才舒服', fn:function(){ showChip(19); } },
+    { char:'ui', cap:'详情区顺手美化一下--设计稿搞定', fn:function(){ showChip(20); } },
+    { char:'ui', cap:'最后补上交互态：行能悬停高亮、点击有选中反馈，整个设计稿就完整了', fn:function(){ var a=el('n-app'); if(a)a.classList.add('ui-interact'); } },
     { char:'ui', cap:'设计稿完成！配色、卡片、样式，看着舒服多了', fn:function(){ playShowcase('ui'); } },
     { char:'dev', nobubble:true, cap:'前端工程师登场', fn:function(){ playReveal('fe'); } },
     { char:'dev', cap:'前端这块我先理一理……', fn:function(){ playBrainstorm('fe'); } },
@@ -4178,9 +4191,9 @@
     6:  { type:'reveal', targets:['n-list'],              ico:'☰',  lbl:'笔记列表' },
     7:  { type:'reveal', targets:['n-fab'],               ico:'＋', lbl:'新建按钮' },
     8:  { type:'reveal', targets:['n-detail'],            ico:'📄', lbl:'详情区' },
-    15: { type:'morph',  targets:['n-list'],              ico:'▤',  lbl:'列表样式' },
-    16: { type:'morph',  targets:['n-search','n-fab'],    ico:'🎛', lbl:'搜索框·按钮' },
-    17: { type:'morph',  targets:['n-detail'],            ico:'📄', lbl:'详情样式' }
+    16: { type:'morph',  targets:['n-list'],            ico:'▤',  lbl:'列表样式' },
+    19: { type:'morph',  targets:['n-search','n-fab'],    ico:'🎛', lbl:'搜索框·按钮' },
+    20: { type:'morph',  targets:['n-detail'],            ico:'📄', lbl:'详情样式' }
   };
   function showChip(stepIdx){
     var chip = el('pm-chip');
@@ -4295,7 +4308,7 @@
     clearDevMarks();
     clearAnnotations();
     destroyApiDots();
-    var isDev = (i >= 21 && i <= 23);
+    var isDev = (i >= 25 && i <= 27);
     el('i-replay').style.display = isDev ? '' : 'none';
     setChar(s.char);
     if (s.nobubble){
@@ -4332,7 +4345,7 @@
       if (!done){ nudgeChip(); return; }
     }
     if (idx === 14 && !chosenThemeColor){ nudgeColor(); return; }
-    if (idx === 41 && (!_deployDone || Date.now() - _deployDoneAt < 900)){ return; }
+    if (idx === 45 && (!_deployDone || Date.now() - _deployDoneAt < 900)){ return; }
     if (idx >= STEPS.length-1){ finish(); return; }
     go(idx+1);
   }
@@ -4354,7 +4367,7 @@
   function finish(){ el('intro-stage').classList.add('intro-finished'); window.scrollTo(0,0); window.__themeColor = chosenThemeColor; applyAppTheme(chosenThemeColor); }
 
   // 每个阶段对应的起始步骤
-  var STAGE_START_STEPS = { 0:0, 1:2, 2:12, 3:19, 4:25, 5:31, 6:32, 7:38 };
+  var STAGE_START_STEPS = { 0:0, 1:2, 2:12, 3:23, 4:29, 5:35, 6:36, 7:42 };
 
   // 确保有默认颜色
   function ensureDefaultTheme(){
