@@ -851,27 +851,53 @@
   #intro-stage .sch-gantt .g-done { background:#2f6fed; }
   #intro-stage .sch-gantt .g-plan { background:#b7c6e8; }
   /* ===== 产品经理阶段：需求宣讲会 ===== */
-  #intro-stage .pitch-wrap { display:flex; flex-direction:column; align-items:center; gap:16px; }
-  #intro-stage .pitch-screen { width:560px; background:linear-gradient(135deg,#2f6fed,#5b8cff); border-radius:14px; padding:22px 28px; box-shadow:0 14px 36px rgba(47,111,237,.35); }
+  #intro-stage .pitch-room { position:relative; width:900px; height:500px; border-radius:18px; overflow:hidden; background:linear-gradient(180deg,#eef1f6 0%,#e3e7ef 42%,#ccd2de 42%,#b9c0cf 100%); box-shadow:0 18px 44px rgba(20,30,48,.18); }
+  #intro-stage .pitch-window { position:absolute; left:24px; top:20px; width:116px; height:86px; border-radius:6px 6px 2px 2px; background:linear-gradient(180deg,#cfe6f7,#f4f9fd); border:5px solid #fff; box-shadow:0 5px 14px rgba(20,30,48,.14); }
+  #intro-stage .pitch-window::before { content:''; position:absolute; left:50%; top:0; bottom:0; width:3px; background:rgba(255,255,255,.9); }
+  #intro-stage .pitch-window::after { content:''; position:absolute; left:0; right:0; top:50%; height:3px; background:rgba(255,255,255,.9); }
+  #intro-stage .pitch-clock { position:absolute; left:166px; top:24px; width:50px; height:50px; border-radius:50%; background:#fff; border:4px solid #5a6678; box-shadow:0 4px 10px rgba(20,30,48,.14); }
+  #intro-stage .pitch-screen { position:absolute; left:30px; top:130px; width:470px; height:242px; border-radius:10px; background:#16263f; padding:9px; box-shadow:0 16px 34px rgba(20,30,48,.3); }
+  #intro-stage .pitch-screen::after { content:''; position:absolute; left:50%; top:100%; width:104px; height:54px; transform:translateX(-50%); background:linear-gradient(180deg,#3b4a5e,#2b3746); clip-path:polygon(0 0,100% 0,88% 100%,12% 100%); }
+  #intro-stage .pitch-slide { position:relative; width:100%; height:100%; border-radius:6px; background:linear-gradient(135deg,#2f6fed,#5b8cff); padding:20px 24px; overflow:hidden; }
   #intro-stage .pitch-slide-tag { font-size:11px; letter-spacing:6px; color:rgba(255,255,255,.75); font-weight:700; }
-  #intro-stage .pitch-slide-title { font-size:26px; font-weight:800; color:#fff; margin-top:6px; }
-  #intro-stage .pitch-slide-sub { font-size:12.5px; color:rgba(255,255,255,.85); margin-top:8px; line-height:1.6; }
+  #intro-stage .pitch-slide-title { font-size:24px; font-weight:800; color:#fff; margin-top:5px; }
+  #intro-stage .pitch-slide-sub { font-size:12px; color:rgba(255,255,255,.88); margin-top:8px; line-height:1.6; }
   #intro-stage .pitch-slide-tags { display:flex; gap:8px; margin-top:12px; }
   #intro-stage .pitch-slide-tags span { font-size:11px; color:#fff; border:1px solid rgba(255,255,255,.5); border-radius:12px; padding:2px 10px; }
-  #intro-stage .pitch-members { display:flex; gap:14px; }
-  #intro-stage .pitch-mem { width:122px; display:flex; flex-direction:column; align-items:center; gap:6px; opacity:0; animation:pitchIn .5s ease forwards; }
+  #intro-stage .pitch-slide-foot { position:absolute; left:20px; right:20px; bottom:18px; font-size:10px; color:rgba(255,255,255,.55); }
+  #intro-stage .pitch-slide-bar { position:absolute; left:20px; right:20px; bottom:9px; height:3px; background:rgba(255,255,255,.22); border-radius:2px; overflow:hidden; }
+  #intro-stage .pitch-slide-bar i { display:block; width:33%; height:100%; background:#ffd60a; border-radius:2px; }
+  #intro-stage .pitch-table { position:absolute; left:0; right:0; bottom:0; height:120px; background:linear-gradient(180deg,#e6d2b2,#cba277); box-shadow:inset 0 8px 14px rgba(120,80,40,.16), 0 -3px 8px rgba(20,30,48,.08); }
+  #intro-stage .pitch-table::before { content:''; position:absolute; left:0; right:0; top:0; height:8px; background:#f0e2c8; }
+  #intro-stage .pitch-mems { position:absolute; left:540px; right:20px; bottom:120px; display:flex; justify-content:space-around; align-items:flex-end; }
+  #intro-stage .pitch-mem { width:118px; display:flex; flex-direction:column; align-items:center; gap:4px; opacity:0; animation:pitchIn .5s ease forwards; }
   #intro-stage .pitch-mem.pm { animation-delay:.15s; }
   #intro-stage .pitch-mem.ui { animation-delay:.65s; }
   #intro-stage .pitch-mem.fe { animation-delay:1.15s; }
   #intro-stage .pitch-mem.be { animation-delay:1.65s; }
   @keyframes pitchIn { from { opacity:0; transform:translateY(14px);} to { opacity:1; transform:translateY(0);} }
-  #intro-stage .pitch-avatar { width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:700; color:#fff; box-shadow:0 6px 14px rgba(0,0,0,.16); }
-  #intro-stage .pitch-mem.pm .pitch-avatar { background:#2f6fed; }
-  #intro-stage .pitch-mem.ui .pitch-avatar { background:#eb2f96; }
-  #intro-stage .pitch-mem.fe .pitch-avatar { background:#21c46b; }
-  #intro-stage .pitch-mem.be .pitch-avatar { background:#d46b08; }
+  #intro-stage .pitch-avatar { width:56px; height:56px; border-radius:12px; object-fit:contain; background:#fff; border:3px solid #fff; box-shadow:0 6px 14px rgba(20,30,48,.2); }
+  #intro-stage .pitch-nameplate { font-size:11px; font-weight:700; color:#4a3a28; background:rgba(255,255,255,.75); padding:2px 9px; border-radius:8px; }
   #intro-stage .pitch-role { font-size:11px; color:#5a6678; font-weight:600; }
-  #intro-stage .pitch-bubble { position:relative; background:#fff; border:1px solid #e1e6ed; border-radius:10px; padding:7px 9px; font-size:11.5px; color:#3a4358; line-height:1.5; box-shadow:0 4px 12px rgba(0,0,0,.08); }
+  #intro-stage .pitch-bubble { position:relative; background:#fff; border:1px solid #e1e6ed; border-radius:10px; padding:6px 8px; font-size:11px; color:#3a4358; line-height:1.45; box-shadow:0 6px 14px rgba(20,30,48,.12); }
+  #intro-stage .pitch-mem .pitch-bubble::after { content:''; position:absolute; left:20px; top:100%; border:6px solid transparent; border-top-color:#fff; }
+  #intro-stage .pitch-window { animation:pitchGlowSoft 5s ease-in-out infinite; }
+  @keyframes pitchGlowSoft { 0%,100%{ box-shadow:0 5px 14px rgba(20,30,48,.14); } 50%{ box-shadow:0 5px 18px rgba(47,111,237,.22); } }
+  #intro-stage .pitch-clock .pc-dial { position:absolute; inset:3px; border-radius:50%; background:repeating-conic-gradient(#8a94a6 0 1.5deg, transparent 1.5deg 30deg); -webkit-mask:radial-gradient(circle, transparent 0 70%, #000 74%); mask:radial-gradient(circle, transparent 0 70%, #000 74%); }
+  #intro-stage .pitch-clock .pc-hand { position:absolute; bottom:50%; border-radius:2px; transform-origin:50% 100%; }
+  #intro-stage .pitch-clock .pc-hour { left:calc(50% - 1.5px); width:3px; height:9px; background:#2c3e50; transform:rotate(305deg); animation:pitchHour 96s linear infinite; }
+  #intro-stage .pitch-clock .pc-min { left:calc(50% - 1px); width:2px; height:14px; background:#3a4358; transform:rotate(62deg); animation:pitchMin 8s linear infinite; }
+  #intro-stage .pitch-clock .pc-cap { position:absolute; left:50%; top:50%; width:5px; height:5px; border-radius:50%; background:#5a6678; transform:translate(-50%,-50%); }
+  @keyframes pitchHour { from{ transform:rotate(305deg); } to{ transform:rotate(665deg); } }
+  @keyframes pitchMin { from{ transform:rotate(62deg); } to{ transform:rotate(422deg); } }
+  #intro-stage .pitch-screen { animation:pitchGlow 5s ease-in-out infinite; }
+  @keyframes pitchGlow { 0%,100%{ box-shadow:0 16px 34px rgba(20,30,48,.3); } 50%{ box-shadow:0 16px 42px rgba(47,111,237,.38); } }
+  #intro-stage .pitch-slide::before { content:''; position:absolute; width:10px; height:10px; border-radius:50%; background:#ff5b5b; box-shadow:0 0 10px rgba(255,80,80,.9); animation:pitchLaser 6s ease-in-out infinite; }
+  @keyframes pitchLaser { 0%{ left:10%; top:36%; opacity:0; } 8%{ opacity:1; } 28%{ left:70%; top:30%; } 48%{ left:26%; top:58%; } 72%{ left:78%; top:44%; } 92%{ opacity:1; } 100%{ left:10%; top:36%; opacity:0; } }
+  #intro-stage .pitch-slide-bar i { width:33%; height:100%; background:#ffd60a; border-radius:2px; }
+  #intro-stage .pitch-avatar { animation:pitchFloat 3.2s ease-in-out infinite; }
+  #intro-stage .pitch-mem .pitch-bubble { animation:pitchFloat 3.6s ease-in-out infinite; }
+  @keyframes pitchFloat { 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-4px); } }
 </style>
 
 <style id="app-theme-css">
@@ -1077,20 +1103,25 @@
         </div>
       </div>
       <div class="i-region" id="i-pitch" style="display:none;">
-        <div class="pitch-wrap">
+        <div class="pitch-room">
+          <div class="pitch-window"></div>
+          <div class="pitch-clock"><div class="pc-dial"></div><div class="pc-hand pc-hour"></div><div class="pc-hand pc-min"></div><div class="pc-cap"></div></div>
           <div class="pitch-screen">
-            <div class="pitch-slide">
-              <div class="pitch-slide-tag">需求宣讲会</div>
-              <div class="pitch-slide-title">备忘录 App</div>
-              <div class="pitch-slide-sub">核心价值：简单好用 · 功能：列表 / 搜索 / 详情 / 新建 / 统计 · 排期：07-01 ~ 07-30</div>
-              <div class="pitch-slide-tags"><span>价值</span><span>功能</span><span>排期</span></div>
+            <div class="pitch-slide" id="pitch-slide">
+              <div class="pitch-slide-tag" id="pitch-tag">需求宣讲会</div>
+              <div class="pitch-slide-title" id="pitch-title">备忘录 App</div>
+              <div class="pitch-slide-sub" id="pitch-sub">核心价值：简单好用 · 功能：列表 / 搜索 / 详情 / 新建 / 统计</div>
+              <div class="pitch-slide-tags" id="pitch-tags"><span>价值</span><span>功能</span><span>排期</span></div>
+              <div class="pitch-slide-foot" id="pitch-foot">备忘录 App · 需求宣讲 · 1 / 3</div>
+              <div class="pitch-slide-bar"><i id="pitch-bar-i"></i></div>
             </div>
           </div>
-          <div class="pitch-members">
-            <div class="pitch-mem pm"><div class="pitch-bubble">我来宣讲需求，大家对齐一下</div><div class="pitch-avatar">潘</div><div class="pitch-role">产品经理 · 老潘</div></div>
-            <div class="pitch-mem ui"><div class="pitch-bubble">收到，视觉稿我来设计</div><div class="pitch-avatar">雅</div><div class="pitch-role">UI · 小雅</div></div>
-            <div class="pitch-mem fe"><div class="pitch-bubble">页面和交互我来实现</div><div class="pitch-avatar">强</div><div class="pitch-role">前端 · 阿强</div></div>
-            <div class="pitch-mem be"><div class="pitch-bubble">接口和数据库我来对接</div><div class="pitch-avatar">李</div><div class="pitch-role">后端 · 小李</div></div>
+          <div class="pitch-table"></div>
+          <div class="pitch-mems">
+            <div class="pitch-mem pm"><div class="pitch-bubble">我来宣讲需求，大家对齐一下</div><div class="pitch-nameplate">产品 · 老潘</div><img class="pitch-avatar" id="pitch-pm" alt=""/></div>
+            <div class="pitch-mem ui"><div class="pitch-bubble">收到，视觉稿我来设计</div><div class="pitch-nameplate">UI · 小雅</div><img class="pitch-avatar" id="pitch-ui" alt=""/></div>
+            <div class="pitch-mem fe"><div class="pitch-bubble">页面和交互我来实现</div><div class="pitch-nameplate">前端 · 阿强</div><img class="pitch-avatar" id="pitch-fe" alt=""/></div>
+            <div class="pitch-mem be"><div class="pitch-bubble">接口和数据库我来对接</div><div class="pitch-nameplate">后端 · 小李</div><img class="pitch-avatar" id="pitch-be" alt=""/></div>
           </div>
         </div>
       </div>
@@ -2616,8 +2647,30 @@
     showRegion('i-schedule');
   }
 
+  var _pitchTimer = null;
+  var PITCH_SLIDES = [
+    { tag:'需求宣讲会', title:'备忘录 App', sub:'核心价值：简单好用 · 功能：列表 / 搜索 / 详情 / 新建 / 统计', tags:['价值','功能','排期'] },
+    { tag:'核心价值', title:'3 秒完成一条笔记', sub:'降低记录门槛 · 按标题模糊搜索 · 随时回顾整理', tags:['简单','好用','快'] },
+    { tag:'项目排期', title:'07-01 ~ 07-30', sub:'UI 07-13 起 · 前端/后端 07-18 起并行 · 测试 07-25 起 · 07-30 上线', tags:['里程碑','并行','上线'] }
+  ];
   function playPitch(){
     showRegion('i-pitch');
+    var ids = { 'pitch-pm':'pm', 'pitch-ui':'ui', 'pitch-fe':'dev', 'pitch-be':'be' };
+    for (var k in ids){ var img = el(k); if (img) img.src = I_IMG[ids[k]]; }
+    if (_pitchTimer){ clearTimeout(_pitchTimer); _pitchTimer = null; }
+    var n = 0;
+    function render(){
+      var s = PITCH_SLIDES[n];
+      var tag = el('pitch-tag'), title = el('pitch-title'), sub = el('pitch-sub'), tags = el('pitch-tags'), foot = el('pitch-foot'), bar = el('pitch-bar-i');
+      if (tag) tag.textContent = s.tag;
+      if (title) title.textContent = s.title;
+      if (sub) sub.textContent = s.sub;
+      if (tags) tags.innerHTML = s.tags.map(function(t){ return '<span>'+t+'</span>'; }).join('');
+      if (foot) foot.textContent = '备忘录 App · 需求宣讲 · ' + (n+1) + ' / ' + PITCH_SLIDES.length;
+      if (bar) bar.style.width = Math.round((n+1)/PITCH_SLIDES.length*100) + '%';
+      _pitchTimer = setTimeout(function(){ n = (n+1) % PITCH_SLIDES.length; render(); }, 2600);
+    }
+    render();
   }
 
   // ---------- 测试用例思维导图 ----------
@@ -4302,6 +4355,7 @@
     var s = STEPS[i];
     cancelAuto();
     cancelReviewFloats();
+    if (_pitchTimer){ clearTimeout(_pitchTimer); _pitchTimer = null; }
     hideMagazine();
     hideReveal();
     hideShowcase();
