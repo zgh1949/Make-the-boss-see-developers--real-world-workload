@@ -449,6 +449,13 @@
   .api-card .ac-desc {
     font-size: 12px; color: #8a94a6; margin-top: 8px; line-height: 1.4;
   }
+  .api-card .ac-params { margin-top: 8px; border-top: 1px solid #3a4a60; padding-top: 6px; min-width: 200px; }
+  .api-card .ac-ph { font-size: 10px; font-weight: 700; color: #8a94a6; letter-spacing: 2px; margin-bottom: 4px; }
+  .api-card .ac-param { display: flex; align-items: center; gap: 8px; font-size: 12px; padding: 2px 0; white-space: nowrap; }
+  .api-card .ac-pn { color: #e6edf3; font-weight: 700; font-family: Consolas, monospace; min-width: 60px; }
+  .api-card .ac-pt { color: #8a94a6; font-size: 10px; background: #2b3a4f; padding: 1px 6px; border-radius: 8px; }
+  .api-card .ac-pv { color: #d19a66; font-family: Consolas, monospace; margin-left: auto; }
+  .api-card .ac-none { color: #5a6678; white-space: nowrap; }
   /* 绳子 SVG */
   .api-rope {
     position: fixed; left: 0; top: 0; pointer-events: none; z-index: 10032; overflow: visible;
@@ -3894,10 +3901,10 @@
     var protoRect = prototype.getBoundingClientRect();
     if(protoRect.width < 10) return;
     var defs = [
-      { targetId:'n-count', method:'GET',  path:'/api/statistic', desc:'获取笔记总数统计' },
-      { targetId:'n-search', method:'GET',  path:'/api/list',   desc:'按关键词搜索笔记列表' },
-      { targetId:'n-list',   method:'GET',  path:'/api/get',   desc:'根据ID查看笔记详情' },
-      { targetId:'n-fab',    method:'POST', path:'/api/save',     desc:'创建或更新一条笔记' }
+      { targetId:'n-count',  method:'GET',  path:'/api/statistic', desc:'获取笔记总数统计', params:[] },
+      { targetId:'n-search', method:'GET',  path:'/api/list',      desc:'按关键词搜索笔记列表', params:[{name:'keyword', type:'string', value:'备忘'}] },
+      { targetId:'n-list',   method:'GET',  path:'/api/get',       desc:'根据ID查看笔记详情', params:[{name:'id', type:'int', value:'2'}] },
+      { targetId:'n-fab',    method:'POST', path:'/api/save',      desc:'创建或更新一条笔记', params:[{name:'title', type:'string', value:'会议纪要'},{name:'content', type:'string', value:'周会讨论了进度和问题'}] }
     ];
     apiDotData = defs.map(function(def, idx){
       var target = el(def.targetId);
@@ -4007,7 +4014,17 @@
     card.className = 'api-card';
     card.style.position = 'fixed';
     var methodClass = data.def.method.toLowerCase();
-    card.innerHTML = '<span class="ac-method '+methodClass+'">'+data.def.method+'</span><span class="ac-path">'+data.def.path+'</span><div class="ac-desc">'+data.def.desc+'</div>';
+    var h = '<span class="ac-method '+methodClass+'">'+data.def.method+'</span><span class="ac-path">'+data.def.path+'</span><div class="ac-desc">'+data.def.desc+'</div>';
+    h += '<div class="ac-params"><div class="ac-ph">参数 / 入参</div>';
+    if(data.def.params && data.def.params.length){
+      data.def.params.forEach(function(p){
+        h += '<div class="ac-param"><span class="ac-pn">'+p.name+'</span><span class="ac-pt">'+p.type+'</span><span class="ac-pv">'+p.value+'</span></div>';
+      });
+    } else {
+      h += '<div class="ac-param ac-none">无入参</div>';
+    }
+    h += '</div>';
+    card.innerHTML = h;
     document.body.appendChild(card);
     data.card = card;
   }
