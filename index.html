@@ -507,7 +507,7 @@
 <style id="blob-css">
   /* ===== UI 设计阶段：漂浮颜料拖拽 ===== */
   #intro-stage .i-char { position: relative; }
-  #intro-stage .color-blobs { position: absolute; top: 2%; left: 0; right: 0; height: 26%; pointer-events: none; z-index: 5; display: none; }
+  #intro-stage .color-blobs { position: absolute; top: calc(36% - 173px); left: calc(50% - 395px); width: 260px; height: 120px; pointer-events: none; z-index: 5; display: none; }
   #intro-stage .color-blobs.show { display: block; }
   #intro-stage .color-blob {
     position: absolute; width: 54px; height: 46px;
@@ -530,7 +530,7 @@
   #intro-stage .color-blob.flying { animation: none; z-index: 12; filter: drop-shadow(0 10px 16px rgba(0,0,0,.25)); }
   @keyframes floatBlob { 0%,100%{ transform: translate(0,0) rotate(0);} 33%{ transform: translate(7px,-10px) rotate(3deg);} 66%{ transform: translate(-9px,6px) rotate(-3deg);} }
   #intro-stage .color-hint {
-    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    position: absolute; top: calc(36% - 213px); left: calc(50% - 265px); transform: translateX(-50%);
     background: rgba(47,111,237,.92); color: #fff; font-size: 13px; font-weight: 600;
     padding: 6px 14px; border-radius: 16px; box-shadow: 0 6px 18px rgba(47,111,237,.3);
     z-index: 6; display: none; pointer-events: none; white-space: nowrap;
@@ -542,7 +542,7 @@
   @keyframes hintNudge { 0%,100%{ transform: translateX(-50%) translateY(0);} 25%{ transform: translateX(-58%) translateY(-3px);} 75%{ transform: translateX(-42%) translateY(-3px);} }
   /* 产品原型阶段：组件拖拽块 */
   #intro-stage .pm-chip {
-    position: absolute; left: 50%; top: 9%;
+    position: absolute; left: calc(50% - 265px); top: calc(36% - 113px);
     display: none; pointer-events: auto; cursor: grab; user-select: none; touch-action: none;
     background: #fff; border: 2px dashed #b7c2d6; border-radius: 10px;
     padding: 9px 16px; box-shadow: 0 8px 22px rgba(0,0,0,.12);
@@ -798,6 +798,71 @@
   #intro-stage .term-task::before { content:'☐'; flex-shrink:0; color:#9aa3b0; margin-top:1px; }
   #intro-stage .term-task.done { color:#7cb342; text-decoration:line-through; text-decoration-color:rgba(124,179,66,.8); }
   #intro-stage .term-task.done::before { content:'✓'; color:#52c41a; }
+  /* ===== 产品经理阶段：Word 需求文档 ===== */
+  #intro-stage .doc-window { width:540px; background:#f3f4f8; border-radius:10px; box-shadow:0 14px 40px rgba(0,0,0,.18); overflow:hidden; }
+  #intro-stage .doc-titlebar { display:flex; align-items:center; gap:6px; padding:8px 12px; background:#e4e6ee; }
+  #intro-stage .doc-dot { width:11px; height:11px; border-radius:50%; }
+  #intro-stage .doc-dot.d-r { background:#ff5f57; }
+  #intro-stage .doc-dot.d-y { background:#febc2e; }
+  #intro-stage .doc-dot.d-g { background:#28c840; }
+  #intro-stage .doc-fname { margin-left:8px; font-size:12px; color:#7a8298; }
+  #intro-stage .doc-toolbar { display:flex; align-items:center; gap:8px; padding:6px 12px; background:#e9ebf2; border-top:1px solid #d8dbe5; }
+  #intro-stage .doc-tb { width:22px; height:22px; display:flex; align-items:center; justify-content:center; background:#fff; border:1px solid #d4d7e1; border-radius:4px; font-size:12px; color:#4a5268; }
+  #intro-stage .doc-tb.b { font-weight:700; }
+  #intro-stage .doc-tb.i { font-style:italic; }
+  #intro-stage .doc-tb.u { text-decoration:underline; }
+  #intro-stage .doc-tb-sep { width:1px; height:16px; background:#d4d7e1; }
+  #intro-stage .doc-tb-t { font-size:12px; color:#4a5268; }
+  #intro-stage .doc-tb-lbl { font-size:12px; color:#7a8298; margin-left:auto; }
+  #intro-stage .doc-viewport { height:380px; overflow:hidden; position:relative; background:#fafbfc; }
+  #intro-stage .doc-paper { width:440px; min-height:540px; margin:14px auto; background:#fff; box-shadow:0 2px 12px rgba(0,0,0,.12); padding:34px 40px; font-size:14px; color:#2c3e50; line-height:1.7; }
+  #intro-stage .doc-title { font-size:22px; font-weight:700; text-align:center; letter-spacing:1px; }
+  #intro-stage .doc-meta { font-size:12px; color:#8a94a6; text-align:center; margin:8px 0 18px; }
+  #intro-stage .doc-h { font-size:15px; font-weight:700; margin:16px 0 6px; color:#1a1a1a; }
+  #intro-stage .doc-p { text-indent:2em; }
+  #intro-stage .doc-table { width:100%; border-collapse:collapse; font-size:12.5px; margin:6px 0; }
+  #intro-stage .doc-table th, #intro-stage .doc-table td { border:1px solid #d8dbe5; padding:5px 8px; text-align:left; }
+  #intro-stage .doc-table th { background:#f0f2f7; }
+  #intro-stage .doc-foot { margin-top:18px; text-align:center; font-size:12px; color:#8a94a6; }
+  #intro-stage .doc-hint { font-size:12px; color:#8a94a6; }
+  /* ===== 产品经理阶段：需求排期表 ===== */
+  #intro-stage .sch-card { width:760px; background:#fff; border-radius:12px; box-shadow:0 14px 40px rgba(0,0,0,.14); padding:18px 20px; }
+  #intro-stage .sch-head { font-size:16px; font-weight:700; color:#1a1a1a; display:flex; align-items:center; gap:10px; }
+  #intro-stage .sch-milestone { font-size:11px; font-weight:600; color:#fff; background:#2f6fed; padding:3px 10px; border-radius:12px; }
+  #intro-stage .sch-table { width:100%; border-collapse:collapse; margin-top:12px; font-size:12.5px; }
+  #intro-stage .sch-table th { background:#f0f2f7; color:#4a5268; text-align:left; padding:7px 10px; border-bottom:2px solid #d8dbe5; }
+  #intro-stage .sch-table td { padding:7px 10px; border-bottom:1px solid #eef0f5; color:#3a4358; }
+  #intro-stage .sch-table td:nth-child(5) { width:200px; }
+  #intro-stage .sch-table tr { opacity:0; animation:schRow .4s ease forwards; }
+  @keyframes schRow { from { opacity:0; transform:translateX(-8px);} to { opacity:1; transform:translateX(0);} }
+  #intro-stage .sch-table tr.sch-done { background:#f3f9ff; }
+  #intro-stage .sch-table tr.sch-done td:first-child { color:#2f6fed; font-weight:700; }
+  #intro-stage .sch-gantt { position:relative; height:14px; background:#eef0f5; border-radius:7px; width:200px; }
+  #intro-stage .sch-gantt i { position:absolute; top:0; height:100%; border-radius:7px; }
+  #intro-stage .sch-gantt .g-done { background:#2f6fed; }
+  #intro-stage .sch-gantt .g-plan { background:#b7c6e8; }
+  /* ===== 产品经理阶段：需求宣讲会 ===== */
+  #intro-stage .pitch-wrap { display:flex; flex-direction:column; align-items:center; gap:16px; }
+  #intro-stage .pitch-screen { width:560px; background:linear-gradient(135deg,#2f6fed,#5b8cff); border-radius:14px; padding:22px 28px; box-shadow:0 14px 36px rgba(47,111,237,.35); }
+  #intro-stage .pitch-slide-tag { font-size:11px; letter-spacing:6px; color:rgba(255,255,255,.75); font-weight:700; }
+  #intro-stage .pitch-slide-title { font-size:26px; font-weight:800; color:#fff; margin-top:6px; }
+  #intro-stage .pitch-slide-sub { font-size:12.5px; color:rgba(255,255,255,.85); margin-top:8px; line-height:1.6; }
+  #intro-stage .pitch-slide-tags { display:flex; gap:8px; margin-top:12px; }
+  #intro-stage .pitch-slide-tags span { font-size:11px; color:#fff; border:1px solid rgba(255,255,255,.5); border-radius:12px; padding:2px 10px; }
+  #intro-stage .pitch-members { display:flex; gap:14px; }
+  #intro-stage .pitch-mem { width:122px; display:flex; flex-direction:column; align-items:center; gap:6px; opacity:0; animation:pitchIn .5s ease forwards; }
+  #intro-stage .pitch-mem.pm { animation-delay:.15s; }
+  #intro-stage .pitch-mem.ui { animation-delay:.65s; }
+  #intro-stage .pitch-mem.fe { animation-delay:1.15s; }
+  #intro-stage .pitch-mem.be { animation-delay:1.65s; }
+  @keyframes pitchIn { from { opacity:0; transform:translateY(14px);} to { opacity:1; transform:translateY(0);} }
+  #intro-stage .pitch-avatar { width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:700; color:#fff; box-shadow:0 6px 14px rgba(0,0,0,.16); }
+  #intro-stage .pitch-mem.pm .pitch-avatar { background:#2f6fed; }
+  #intro-stage .pitch-mem.ui .pitch-avatar { background:#eb2f96; }
+  #intro-stage .pitch-mem.fe .pitch-avatar { background:#21c46b; }
+  #intro-stage .pitch-mem.be .pitch-avatar { background:#d46b08; }
+  #intro-stage .pitch-role { font-size:11px; color:#5a6678; font-weight:600; }
+  #intro-stage .pitch-bubble { position:relative; background:#fff; border:1px solid #e1e6ed; border-radius:10px; padding:7px 9px; font-size:11.5px; color:#3a4358; line-height:1.5; box-shadow:0 4px 12px rgba(0,0,0,.08); }
 </style>
 
 <style id="app-theme-css">
@@ -828,7 +893,7 @@
   <canvas class="i-fullscreen-canvas" id="i-fullscreen-canvas"></canvas>
   <div class="i-map">
     <div class="i-map-node" data-stage="0"><div class="i-node-dot">1</div><div class="i-node-label">老板构想</div></div>
-    <div class="i-map-node" data-stage="1"><div class="i-node-dot">2</div><div class="i-node-label">产品原型</div></div>
+    <div class="i-map-node" data-stage="1"><div class="i-node-dot">2</div><div class="i-node-label">产品需求</div></div>
     <div class="i-map-node" data-stage="2"><div class="i-node-dot">3</div><div class="i-node-label">UI 设计</div></div>
     <div class="i-map-node" data-stage="3"><div class="i-node-dot">4</div><div class="i-node-label">前端开发</div></div>
     <div class="i-map-node" data-stage="4"><div class="i-node-dot">5</div><div class="i-node-label">后端开发</div></div>
@@ -845,9 +910,6 @@
         <div class="i-mag-rule"></div>
         <div class="i-mag-sub">HTML 只负责内容</div>
       </div>
-      <div class="color-blobs" id="color-blobs"></div>
-      <div class="color-hint" id="color-hint">选一个颜料，拖到设计稿上 -&gt;</div>
-      <div class="pm-chip" id="pm-chip"><span class="pc-ico"></span><span class="pc-lbl"></span></div>
       <div class="term-tasks">
         <div class="term-tasks-hd">部署任务清单</div>
         <div class="term-tasks-list">
@@ -868,6 +930,9 @@
       </div>
       <img id="i-char-img" alt="" /><div class="i-char-name" id="i-char-name"></div>
     </div>
+    <div class="pm-chip" id="pm-chip"><span class="pc-ico"></span><span class="pc-lbl"></span></div>
+    <div class="color-blobs" id="color-blobs"></div>
+    <div class="color-hint" id="color-hint">选一个颜料，拖到设计稿上 -&gt;</div>
     <div class="i-stage-area">
       <div class="i-region" id="i-ref">
         <img id="i-ref-img" class="i-ref-img" alt="" />
@@ -937,6 +1002,86 @@
             <div class="i-api" id="i-api-get" style="display:none;"><code>GET /api/get</code>查看详情</div>
             <div class="i-api" id="i-api-list" style="display:none;"><code>GET /api/list</code>搜索列表</div>
             <div class="i-api" id="i-api-stat" style="display:none;"><code>GET /api/statistic</code>数量统计</div>
+          </div>
+        </div>
+      </div>
+      <div class="i-region" id="i-doc" style="display:none;">
+        <div class="doc-window">
+          <div class="doc-titlebar">
+            <span class="doc-dot d-r"></span><span class="doc-dot d-y"></span><span class="doc-dot d-g"></span>
+            <span class="doc-fname">备忘录 · 需求文档 v1.0.docx</span>
+          </div>
+          <div class="doc-toolbar">
+            <span class="doc-tb b">B</span><span class="doc-tb i">I</span><span class="doc-tb u">U</span>
+            <span class="doc-tb-sep"></span><span class="doc-tb-t">宋体</span>
+            <span class="doc-tb-sep"></span><span class="doc-tb-lbl">正文</span>
+          </div>
+          <div class="doc-viewport" id="doc-viewport">
+            <div class="doc-paper" id="doc-paper">
+              <div class="doc-title">备忘录 App 需求文档</div>
+              <div class="doc-meta">版本 v1.0 · 产品经理 老潘 · 2026-07-10</div>
+              <div class="doc-h">一、项目背景</div>
+              <div class="doc-p">老板希望做一个像苹果备忘录一样简单、好用的记事应用：能记事、能搜索、能统计。产品经理负责把它梳理成可落地的需求。</div>
+              <div class="doc-h">二、产品目标</div>
+              <div class="doc-p">降低记录门槛，让用户 3 秒内完成一条笔记的创建；支持按标题模糊搜索与数量统计，满足日常记录与回顾场景。</div>
+              <div class="doc-h">三、目标用户</div>
+              <div class="doc-p">个人用户为主：日常记录、会议纪要、学习笔记等轻量场景。</div>
+              <div class="doc-h">四、功能需求</div>
+              <table class="doc-table">
+                <thead><tr><th>模块</th><th>功能描述</th><th>优先级</th></tr></thead>
+                <tbody>
+                  <tr><td>笔记列表</td><td>按时间倒序展示全部笔记（标题、摘要、时间）</td><td>P0</td></tr>
+                  <tr><td>标题搜索</td><td>输入关键词，按标题模糊搜索并高亮命中</td><td>P0</td></tr>
+                  <tr><td>查看详情</td><td>点击列表项查看完整正文</td><td>P0</td></tr>
+                  <tr><td>新建笔记</td><td>填写标题与内容，保存后写入列表并更新总数</td><td>P0</td></tr>
+                  <tr><td>数量统计</td><td>顶部展示笔记总数，实时刷新</td><td>P1</td></tr>
+                </tbody>
+              </table>
+              <div class="doc-h">五、非功能需求</div>
+              <div class="doc-p">响应快、操作简单、无外部依赖；适配 Chrome / Edge；列表支持千条数据不卡顿。</div>
+              <div class="doc-h">六、验收标准</div>
+              <div class="doc-p">四类操作（保存 / 查看 / 搜索 / 统计）全链路跑通，功能与原型一致，测试用例全部通过后交付。</div>
+              <div class="doc-foot">第 1 页 · 共 1 页</div>
+            </div>
+          </div>
+        </div>
+        <div class="doc-hint" id="doc-hint">需求文档自动从下向上滚动…</div>
+      </div>
+      <div class="i-region" id="i-schedule" style="display:none;">
+        <div class="sch-card">
+          <div class="sch-head">项目排期表 · 备忘录 App <span class="sch-milestone">里程碑：需求评审通过 07-12</span></div>
+          <table class="sch-table">
+            <thead><tr><th>阶段</th><th>起止日期</th><th>负责人</th><th>交付物</th><th>进度</th></tr></thead>
+            <tbody>
+              <tr class="sch-done" style="animation-delay:0s"><td>价值思考</td><td>07-01 ~ 07-03</td><td>老潘</td><td>价值分析</td><td><div class="sch-gantt"><i class="g-done" style="left:0%;width:10%"></i></div></td></tr>
+              <tr class="sch-done" style="animation-delay:.12s"><td>原型设计</td><td>07-04 ~ 07-07</td><td>老潘</td><td>可交互原型</td><td><div class="sch-gantt"><i class="g-done" style="left:10%;width:13.4%"></i></div></td></tr>
+              <tr class="sch-done" style="animation-delay:.24s"><td>设计文档</td><td>07-08 ~ 07-10</td><td>老潘</td><td>需求文档 v1.0</td><td><div class="sch-gantt"><i class="g-done" style="left:23.4%;width:10%"></i></div></td></tr>
+              <tr class="sch-done" style="animation-delay:.36s"><td>需求排期</td><td>07-11</td><td>老潘</td><td>排期表</td><td><div class="sch-gantt"><i class="g-done" style="left:33.4%;width:3.4%"></i></div></td></tr>
+              <tr class="sch-done" style="animation-delay:.48s"><td>需求宣讲</td><td>07-12</td><td>老潘</td><td>需求对齐</td><td><div class="sch-gantt"><i class="g-done" style="left:36.8%;width:3.4%"></i></div></td></tr>
+              <tr style="animation-delay:.6s"><td>UI 设计</td><td>07-13 ~ 07-17</td><td>小雅</td><td>设计稿</td><td><div class="sch-gantt"><i class="g-plan" style="left:40.2%;width:16.7%"></i></div></td></tr>
+              <tr style="animation-delay:.72s"><td>前端开发</td><td>07-18 ~ 07-24</td><td>阿强</td><td>前端页面</td><td><div class="sch-gantt"><i class="g-plan" style="left:56.9%;width:23.4%"></i></div></td></tr>
+              <tr style="animation-delay:.84s"><td>后端开发</td><td>07-18 ~ 07-24</td><td>小李</td><td>后端接口</td><td><div class="sch-gantt"><i class="g-plan" style="left:56.9%;width:23.4%"></i></div></td></tr>
+              <tr style="animation-delay:.96s"><td>测试验证</td><td>07-25 ~ 07-29</td><td>小敏</td><td>测试报告</td><td><div class="sch-gantt"><i class="g-plan" style="left:80.3%;width:16.7%"></i></div></td></tr>
+              <tr style="animation-delay:1.08s"><td>部署上线</td><td>07-30</td><td>老陈</td><td>线上版本</td><td><div class="sch-gantt"><i class="g-plan" style="left:97%;width:3.4%"></i></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="i-region" id="i-pitch" style="display:none;">
+        <div class="pitch-wrap">
+          <div class="pitch-screen">
+            <div class="pitch-slide">
+              <div class="pitch-slide-tag">需求宣讲会</div>
+              <div class="pitch-slide-title">备忘录 App</div>
+              <div class="pitch-slide-sub">核心价值：简单好用 · 功能：列表 / 搜索 / 详情 / 新建 / 统计 · 排期：07-01 ~ 07-30</div>
+              <div class="pitch-slide-tags"><span>价值</span><span>功能</span><span>排期</span></div>
+            </div>
+          </div>
+          <div class="pitch-members">
+            <div class="pitch-mem pm"><div class="pitch-bubble">我来宣讲需求，大家对齐一下</div><div class="pitch-avatar">潘</div><div class="pitch-role">产品经理 · 老潘</div></div>
+            <div class="pitch-mem ui"><div class="pitch-bubble">收到，视觉稿我来设计</div><div class="pitch-avatar">雅</div><div class="pitch-role">UI · 小雅</div></div>
+            <div class="pitch-mem fe"><div class="pitch-bubble">页面和交互我来实现</div><div class="pitch-avatar">强</div><div class="pitch-role">前端 · 阿强</div></div>
+            <div class="pitch-mem be"><div class="pitch-bubble">接口和数据库我来对接</div><div class="pitch-avatar">李</div><div class="pitch-role">后端 · 小李</div></div>
           </div>
         </div>
       </div>
@@ -1967,7 +2112,7 @@
     img.src = I_IMG[k]; img.alt = NAMES[k]; img.title = NAMES[k];
     covChars.appendChild(img);
   });
-  function stageOf(i){ if(i<2)return 0; if(i<10)return 1; if(i<17)return 2; if(i<23)return 3; if(i<28)return 4; if(i<30)return 5; if(i<37)return 6; return 7; }
+  function stageOf(i){ if(i<2)return 0; if(i<12)return 1; if(i<19)return 2; if(i<25)return 3; if(i<30)return 4; if(i<32)return 5; if(i<38)return 6; return 7; }
   function updateMap(stage){
     var nodes = document.querySelectorAll('#intro-stage .i-map-node');
     for (var k=0;k<nodes.length;k++){
@@ -1983,7 +2128,7 @@
   }
 
   function showRegion(name){
-    ['i-ref','i-mock','i-overview','i-brainstorm','i-testcase','i-review','i-testrun','i-testreport','i-deploy','i-terminal'].forEach(function(id){ el(id).style.display = (id === name ? '' : 'none'); });
+    ['i-ref','i-mock','i-overview','i-brainstorm','i-testcase','i-review','i-testrun','i-testreport','i-deploy','i-terminal','i-doc','i-schedule','i-pitch'].forEach(function(id){ el(id).style.display = (id === name ? '' : 'none'); });
   }
   function setChar(name){
     var col = charImg.parentElement;
@@ -2274,7 +2419,7 @@
     reveal.classList.remove('reveal-boss','reveal-pm','reveal-ui','reveal-dev','reveal-be','reveal-test','reveal-ops');
     reveal.classList.add('reveal-' + charKey);
     // 隐藏所有 region
-    ['i-ref','i-mock','i-overview'].forEach(function(id){
+    ['i-ref','i-mock','i-overview','i-doc','i-schedule','i-pitch'].forEach(function(id){
       var e = el(id); if (e) e.style.display='none';
     });
     // 清除所有虚线
@@ -2409,6 +2554,61 @@
       autoTimer = setTimeout(step, 850);
     }
     step();
+  }
+
+  // ---------- 产品经理阶段：价值思考 / 设计文档 / 排期 / 宣讲 ----------
+  var VALUE_TERMS = ['目标用户','使用场景','核心痛点','竞品参考','核心价值','成功指标','优先级','边界范围'];
+  function playValueThinking(){
+    hideReveal();
+    showRegion('i-brainstorm');
+    el('i-bs-title').textContent = '老潘 · 价值思考';
+    el('i-bs-terms').style.setProperty('--bs-color', '#2f6fed');
+    el('i-bs-bar').style.background = '#2f6fed';
+    el('i-bs-bar').style.width = '0%';
+    el('i-bs-terms').innerHTML = '';
+    var i = 0;
+    function step(){
+      if (i >= VALUE_TERMS.length){ autoTimer = null; return; }
+      spawnBsTerm(VALUE_TERMS[i], '#2f6fed');
+      el('i-bs-bar').style.width = Math.round((i+1)/VALUE_TERMS.length*100) + '%';
+      i++;
+      autoTimer = setTimeout(step, 850);
+    }
+    step();
+  }
+
+  var _docAnimId = null;
+  function playPrdDoc(){
+    showRegion('i-doc');
+    var vp = el('doc-viewport');
+    var hint = el('doc-hint');
+    if (!vp) return;
+    vp.scrollTop = 0;
+    if (hint) hint.textContent = '需求文档自动从下向上滚动…';
+    var max = Math.max(0, vp.scrollHeight - vp.clientHeight);
+    var start = null;
+    var dur = 9500;
+    if (_docAnimId) cancelAnimationFrame(_docAnimId);
+    function frame(ts){
+      if (!start) start = ts;
+      var p = Math.min(1, (ts - start) / dur);
+      vp.scrollTop = max * p;
+      if (p < 1){
+        _docAnimId = requestAnimationFrame(frame);
+      } else {
+        vp.scrollTop = max;
+        if (hint) hint.textContent = '需求文档已读完 · 点击下一步继续';
+      }
+    }
+    _docAnimId = requestAnimationFrame(frame);
+  }
+
+  function playSchedule(){
+    showRegion('i-schedule');
+  }
+
+  function playPitch(){
+    showRegion('i-pitch');
   }
 
   // ---------- 测试用例思维导图 ----------
@@ -3763,19 +3963,21 @@
     { char:'boss', cap:'我想做个像苹果备忘录那样的软件--简单、好用，能记事、能搜、还能统计', fn:function(){ showRegion('i-ref'); el('i-code').style.display='none'; el('i-backend').style.display='none'; } },
     { char:'boss', cap:'这事儿就交给老潘了，你先把原型理出来', fn:function(){ showRegion('i-ref'); } },
     { char:'pm', nobubble:true, cap:'产品经理登场', fn:function(){ playReveal('pm'); } },
-    { char:'pm', cap:'让我理一理这个产品的思路……', fn:function(){ playBrainstorm('pm'); } },
-    { char:'pm', cap:'好嘞，我先把页面结构搭出来--最上面是标题栏', fn:function(){ showRegion('i-mock'); el('i-code').style.display='none'; el('i-backend').style.display='none'; resetMock(); reveal('n-header'); } },
-    { char:'pm', cap:'标题栏下面放个搜索框，方便找笔记', fn:function(){ showChip(5); } },
-    { char:'pm', cap:'再画出笔记列表，一条条排下来', fn:function(){ showChip(6); } },
-    { char:'pm', cap:'右下角加个「新建」按钮，标题栏旁边显示总数', fn:function(){ showChip(7); } },
-    { char:'pm', cap:'点开任意一条还能看详情--原型齐活了', fn:function(){ showChip(8); } },
-    { char:'pm', cap:'原型交付！结构、搜索、列表、按钮、详情，该有的都有了', fn:function(){ playShowcase('pm'); } },
+    { char:'pm', cap:'先想清楚价值：给谁用、解决什么、为什么值得做', fn:function(){ setMagazine('01','VALUE','价值思考','目标用户 · 核心痛点 · 核心价值','#2f6fed'); playValueThinking(); } },
+    { char:'pm', cap:'价值清楚了，动手画原型——先把页面结构搭出来，最上面是标题栏', fn:function(){ setMagazine('02','PROTOTYPE','原型设计','结构先行，逐块搭建','#2f6fed'); showRegion('i-mock'); el('i-code').style.display='none'; el('i-backend').style.display='none'; resetMock(); reveal('n-header'); } },
+    { char:'pm', cap:'标题栏下面放个搜索框，方便找笔记', fn:function(){ setMagazine('02','PROTOTYPE','原型设计','搜索框','#2f6fed'); showChip(5); } },
+    { char:'pm', cap:'再画出笔记列表，一条条排下来', fn:function(){ setMagazine('02','PROTOTYPE','原型设计','笔记列表','#2f6fed'); showChip(6); } },
+    { char:'pm', cap:'右下角加个「新建」按钮，标题栏旁边显示总数', fn:function(){ setMagazine('02','PROTOTYPE','原型设计','新建按钮','#2f6fed'); showChip(7); } },
+    { char:'pm', cap:'点开任意一条还能看详情——原型齐活了', fn:function(){ setMagazine('02','PROTOTYPE','原型设计','详情区','#2f6fed'); showChip(8); } },
+    { char:'pm', cap:'原型定稿！我把它整理成一份完整的需求文档，研发照着做才不会跑偏', fn:function(){ setMagazine('03','PRD','设计文档','功能需求 · 非功能需求 · 验收标准','#2f6fed'); playPrdDoc(); } },
+    { char:'pm', cap:'文档就位，再做排期：谁、在什么时候、交付什么，一目了然', fn:function(){ setMagazine('04','PLAN','需求排期','里程碑 · 负责人 · 交付物','#2f6fed'); playSchedule(); } },
+    { char:'pm', cap:'最后开需求宣讲会，把价值和细节同步给 UI、前端和后端', fn:function(){ setMagazine('05','PITCH','需求宣讲','全员对齐 · 需求同步','#2f6fed'); playPitch(); } },
     { char:'ui', nobubble:true, cap:'UI 设计师登场', fn:function(){ playReveal('ui'); } },
     { char:'ui', cap:'先在脑子里过一遍视觉风格……', fn:function(){ playBrainstorm('ui'); } },
     { char:'ui', cap:'我来给它整整容，先定个主色调--蓝色，清爽又专业', fn:function(){ showRegion('i-mock'); morph('n-app'); morph('n-header'); } },
-    { char:'ui', cap:'列表做成卡片，加阴影、拉间距，要有呼吸感', fn:function(){ showChip(13); } },
-    { char:'ui', cap:'搜索框和按钮也统一一下样式，看着才舒服', fn:function(){ showChip(14); } },
-    { char:'ui', cap:'详情区顺手美化一下--设计稿搞定', fn:function(){ showChip(15); } },
+    { char:'ui', cap:'列表做成卡片，加阴影、拉间距，要有呼吸感', fn:function(){ showChip(15); } },
+    { char:'ui', cap:'搜索框和按钮也统一一下样式，看着才舒服', fn:function(){ showChip(16); } },
+    { char:'ui', cap:'详情区顺手美化一下--设计稿搞定', fn:function(){ showChip(17); } },
     { char:'ui', cap:'设计稿完成！配色、卡片、样式，看着舒服多了', fn:function(){ playShowcase('ui'); } },
     { char:'dev', nobubble:true, cap:'前端工程师登场', fn:function(){ playReveal('fe'); } },
     { char:'dev', cap:'前端这块我先理一理……', fn:function(){ playBrainstorm('fe'); } },
@@ -3838,7 +4040,7 @@
     if (blobsBuilt) return;
     var wrap = el('color-blobs');
     if (!wrap) return;
-    var homes = [ {x:'12%', y:'46%'}, {x:'42%', y:'10%'}, {x:'72%', y:'48%'} ];
+    var homes = [ {x:'15%', y:'60%'}, {x:'45%', y:'12%'}, {x:'80%', y:'55%'} ];
     for (var i=0;i<3;i++){
       var c = makeColor();
       var b = document.createElement('div');
@@ -3976,9 +4178,9 @@
     6:  { type:'reveal', targets:['n-list'],              ico:'☰',  lbl:'笔记列表' },
     7:  { type:'reveal', targets:['n-fab'],               ico:'＋', lbl:'新建按钮' },
     8:  { type:'reveal', targets:['n-detail'],            ico:'📄', lbl:'详情区' },
-    13: { type:'morph',  targets:['n-list'],              ico:'▤',  lbl:'列表样式' },
-    14: { type:'morph',  targets:['n-search','n-fab'],    ico:'🎛', lbl:'搜索框·按钮' },
-    15: { type:'morph',  targets:['n-detail'],            ico:'📄', lbl:'详情样式' }
+    15: { type:'morph',  targets:['n-list'],              ico:'▤',  lbl:'列表样式' },
+    16: { type:'morph',  targets:['n-search','n-fab'],    ico:'🎛', lbl:'搜索框·按钮' },
+    17: { type:'morph',  targets:['n-detail'],            ico:'📄', lbl:'详情样式' }
   };
   function showChip(stepIdx){
     var chip = el('pm-chip');
@@ -4093,7 +4295,7 @@
     clearDevMarks();
     clearAnnotations();
     destroyApiDots();
-    var isDev = (i >= 19 && i <= 21);
+    var isDev = (i >= 21 && i <= 23);
     el('i-replay').style.display = isDev ? '' : 'none';
     setChar(s.char);
     if (s.nobubble){
@@ -4117,7 +4319,7 @@
     }
     if (!DRAG_STEPS[i]) hideChip();
     updateMap(stageOf(i));
-    toggleColorBlobs(i === 12);
+    toggleColorBlobs(i === 14);
     el('i-progress').textContent = (i+1) + ' / ' + STEPS.length;
     el('i-prev').disabled = (i === 0);
   }
@@ -4129,8 +4331,8 @@
       var done = info.targets.every(function(t){ var e = el(t); return e && (info.type === 'reveal' ? !e.classList.contains('hidden') : !e.classList.contains('wf')); });
       if (!done){ nudgeChip(); return; }
     }
-    if (idx === 12 && !chosenThemeColor){ nudgeColor(); return; }
-    if (idx === 39 && (!_deployDone || Date.now() - _deployDoneAt < 900)){ return; }
+    if (idx === 14 && !chosenThemeColor){ nudgeColor(); return; }
+    if (idx === 41 && (!_deployDone || Date.now() - _deployDoneAt < 900)){ return; }
     if (idx >= STEPS.length-1){ finish(); return; }
     go(idx+1);
   }
@@ -4152,7 +4354,7 @@
   function finish(){ el('intro-stage').classList.add('intro-finished'); window.scrollTo(0,0); window.__themeColor = chosenThemeColor; applyAppTheme(chosenThemeColor); }
 
   // 每个阶段对应的起始步骤
-  var STAGE_START_STEPS = { 0:0, 1:2, 2:10, 3:17, 4:23, 5:29, 6:30, 7:37 };
+  var STAGE_START_STEPS = { 0:0, 1:2, 2:12, 3:19, 4:25, 5:31, 6:32, 7:38 };
 
   // 确保有默认颜色
   function ensureDefaultTheme(){
