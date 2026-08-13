@@ -1403,7 +1403,7 @@
   <div class="bb-row1">
     <select id="scenarioSelect">
       <option value="save">场景 1：新增笔记（save · 写入）</option>
-      <option value="get">场景 2：查看详情（get · 单条查询）</option>
+      <option value="get" selected>场景 2：查看详情（get · 单条查询）</option>
       <option value="list">场景 3：搜索列表（list · 模糊查询）</option>
       <option value="statistic">场景 4：数量统计（statistic · 聚合）</option>
     </select>
@@ -1477,7 +1477,7 @@
 
   // ---------- 状态 ----------
   var state = {
-    scenario: 'save',
+    scenario: 'get',
     steps: [],
     stepIndex: -1,
     playing: false,
@@ -2102,7 +2102,9 @@
     setExplain('已捕捉到「查询」操作（关键词：' + keyword + '），进入单步调试：点击「下一步」逐步追踪查询如何命中数据。');
   }
   function triggerGet(id){
-    selectNote(id);
+    state.selectedId = id;
+    renderNotes();
+    showEditorEmpty();
     loadScenario('get', { id: id });
     setExplain('已捕捉到「查看详情」操作（ID=' + id + '），进入单步调试：点击「下一步」逐步追踪数据如何被读取。');
   }
@@ -2113,8 +2115,10 @@
   // ---------- 初始化 ----------
   function init(){
     state.notes = initialNotes.map(function(n){ return { id:n.id, title:n.title, content:n.content, create_time:n.create_time }; });
-    selectNote(state.notes[0].id);
-    loadScenario('save', defaultParams.save);
+    state.selectedId = null;
+    showEditorEmpty();
+    renderNotes();
+    loadScenario('get', defaultParams.get);
 
     $('scenarioSelect').addEventListener('change', function(e){
       loadScenario(e.target.value, defaultParams[e.target.value]);
